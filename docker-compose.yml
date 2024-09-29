@@ -2,7 +2,7 @@ services:
   gitbook:
     build: .
     ports:
-      - "4000:4000"
+      - "3000:3000"
     volumes:
       - .:/gitbook
-    command: gitbook serve /gitbook
+    command: /root/.bun/bin/bun dev
