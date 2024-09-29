@@ -27,3 +27,14 @@ docker build -t tamir-gitbook-wiki .
 docker run -p 4000:4000 tamir-gitbook-wiki
 ```
 This will expose the GitBook server at http://localhost:4000.
+
+### Use Docker Compose
+
+Alternatively, you can use docker-compose to build and run the project with a single command:
+
+```bash
+
+docker-compose up -d
+
+```
+This will automatically build the image, start the GitBook server, and map it to http://localhost:4000.
