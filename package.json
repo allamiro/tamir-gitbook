@@ -5,6 +5,7 @@
     "start": "gitbook serve"
   },
   "dependencies": {
-    "gitbook-cli": "^2.3.2"
+    "gitbook-cli": "^2.3.2",
+    "graceful-fs": "4.2.6"
   }
 }
