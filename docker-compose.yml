@@ -1,8 +1,8 @@
 services:
   gitbook:
-    build: .
+    image: tamir-gitbook-wiki:latest
     ports:
       - "4000:4000"
     volumes:
       - .:/gitbook
-    command: /root/.bun/bin/bun start
+    command: gitbook serve
