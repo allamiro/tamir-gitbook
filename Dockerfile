@@ -1,9 +1,12 @@
-FROM node:16-alpine
-# Clear npm cache
-RUN npm cache clean --force
-RUN npm install -g gitbook-cli
+FROM node:18-alpine
+# Install Bun
+RUN apk add --no-cache bash curl && \
+    curl -fsSL https://bun.sh/install | bash && \
+    export BUN_INSTALL="$HOME/.bun" && \
+    export PATH="$BUN_INSTALL/bin:$PATH"
+# Set the working directory
 WORKDIR /gitbook
 COPY . /gitbook
-EXPOSE 4000
-# Command to serve the book
-CMD ["gitbook", "serve", "/gitbook"]
+RUN /root/.bun/bin/bun install
+EXPOSE 3000
+CMD ["/root/.bun/bin/bun", "dev"]
