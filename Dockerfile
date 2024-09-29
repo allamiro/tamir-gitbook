@@ -1,4 +1,8 @@
 FROM node:10-alpine
+# Metadata
+LABEL maintainer="Tamir Suliman"
+LABEL version="1.0"
+LABEL description="Docker image for GitBook with Bun support"
 RUN apk add --no-cache bash curl unzip
 # Install Bun 
 RUN curl -fsSL https://bun.sh/install | bash && \
