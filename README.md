@@ -1,4 +1,4 @@
-# tamir-gitbook
+# Tamir-gitbook
 A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Includes GitBook CLI for seamless book creation and serving on Node.js
 ## GitBook Docker Project
 
@@ -18,4 +18,11 @@ Before you begin, make sure you have Docker and Docker Compose installed on your
 Run the following command to build the Docker image:
 
 ```bash
-docker build -t gitbook-wiki .
+docker build -t tamir-gitbook-wiki .
+
+
+#### 2. Server the Gitbook
+
+```bash
+docker run -p 4000:4000 gitbook-wiki
+
