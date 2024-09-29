@@ -1,12 +1,22 @@
-FROM node:18-alpine
+FROM ubuntu:22.04
+# Install curl, bash, and unzip
+RUN apt-get update && apt-get install -y curl bash unzip && \
+    rm -rf /var/lib/apt/lists/*
 # Install Bun
-RUN apk add --no-cache bash curl && \
-    curl -fsSL https://bun.sh/install | bash && \
+RUN curl -fsSL https://bun.sh/install | bash && \
     export BUN_INSTALL="$HOME/.bun" && \
     export PATH="$BUN_INSTALL/bin:$PATH"
-# Set the working directory
 WORKDIR /gitbook
+# Copy the files to the working directory
 COPY . /gitbook
+# Install dependencies using Bun
 RUN /root/.bun/bin/bun install
-EXPOSE 3000
-CMD ["/root/.bun/bin/bun", "dev"]
+# Expose the port for GitBook
+EXPOSE 4000
+# Command to run GitBook's development server
+CMD ["/root/.bun/bin/bun", "start"]
+
+~                                                                                                                                                                                                                  
+~                                                                                                                                                                                                                  
+~                                                                                                                                                                                                                  
+~                                           
