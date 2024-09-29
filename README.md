@@ -19,10 +19,10 @@ Run the following command to build the Docker image:
 
 ```bash
 docker build -t tamir-gitbook-wiki .
-
+```
 
 #### 2. Server the Gitbook
 
 ```bash
 docker run -p 4000:4000 gitbook-wiki
-
+```
