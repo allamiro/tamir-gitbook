@@ -15,8 +15,3 @@ RUN /root/.bun/bin/bun install
 EXPOSE 4000
 # Command to run GitBook's development server
 CMD ["/root/.bun/bin/bun", "start"]
-
-~                                                                                                                                                                                                                  
-~                                                                                                                                                                                                                  
-~                                                                                                                                                                                                                  
-~                                           
