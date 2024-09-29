@@ -26,3 +26,4 @@ docker build -t tamir-gitbook-wiki .
 ```bash
 docker run -p 4000:4000 tamir-gitbook-wiki
 ```
+This will expose the GitBook server at http://localhost:4000.
