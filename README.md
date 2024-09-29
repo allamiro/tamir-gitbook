@@ -15,6 +15,14 @@ Before you begin, make sure you have Docker and Docker Compose installed on your
 
 #### 1. Build the Docker Image
 
+Clone the respository
+
+```Bash
+
+git clone https://github.com/allamiro/tamir-gitbook.git
+
+```
+
 Run the following command to build the Docker image:
 
 ```bash
