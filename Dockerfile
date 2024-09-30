@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:22-alpine
 # Metadata
 LABEL maintainer="Tamir Suliman"
 LABEL version="1.0"
