@@ -6,6 +6,6 @@
   },
   "dependencies": {
     "gitbook-cli": "^2.3.2",
-    "graceful-fs": "4.2.6"
+    "graceful-fs": "^4.2.11"
   }
 }
