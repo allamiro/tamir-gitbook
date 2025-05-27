@@ -1,0 +1,25 @@
+{
+  "title": "Tamir GitBook Wiki",
+  "description": "A lightweight Docker-based GitBook wiki",
+  "author": "Tamir Suliman",
+  "language": "en",
+  "plugins": [
+    "-sharing",
+    "search",
+    "theme-default",
+    "expandable-chapters",
+    "highlight",
+    "back-to-top-button"
+  ],
+  "pluginsConfig": {
+    "theme-default": {
+      "showLevel": true
+    }
+  },
+  "pdf": {
+    "pageNumbers": true,
+    "fontSize": 12,
+    "fontFamily": "Arial",
+    "paperSize": "a4"
+  }
+}
