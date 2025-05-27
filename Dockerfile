@@ -1,7 +1,7 @@
 FROM node:22-alpine
 # Metadata
 LABEL maintainer="Tamir Suliman"
-LABEL version="1.0"
+LABEL version="1.1"
 LABEL description="Docker image for GitBook with Bun support"
 RUN apk add --no-cache bash curl unzip
 # Install Bun 

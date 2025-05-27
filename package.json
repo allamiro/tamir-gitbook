@@ -1,11 +1,27 @@
 {
-  "name": "gitbook-project",
+  "name": "tamir-gitbook",
   "version": "1.0.0",
+  "description": "A lightweight Docker image for hosting GitBook wikis.",
+  "main": "index.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
-    "start": "gitbook serve"
+    "start": "gitbook serve",
+    "build": "gitbook build",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "gitbook-cli": "^2.3.2",
     "graceful-fs": "^4.2.11"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allamiro/tamir-gitbook.git"
   }
 }
