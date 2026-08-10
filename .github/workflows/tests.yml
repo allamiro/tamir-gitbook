@@ -72,7 +72,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ["10.24.1-alpine3.11", "22-alpine", "24-alpine"]
+        # 10 = oldest supported; 22/24 = LTS lines; 26 = Current, so breakage
+        # in the next LTS shows up before it matters
+        node: ["10.24.1-alpine3.11", "22-alpine", "24-alpine", "26-alpine"]
     steps:
       - uses: actions/checkout@v7
       # Not a `container:` job: the Actions runner injects its own modern

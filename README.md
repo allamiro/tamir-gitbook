@@ -161,10 +161,10 @@ Make sure port `35729` is published (`-p 35729:35729`) and the project directory
 
 Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains its own copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. Improvements landed here so far:
 
-- **Runs on modern Node** (tested on Node 10, 22, and 24 in CI): the bundled programmatic `npm` — the source of the infamous `cb.apply` crash — was replaced with spawning the system npm CLI. With that fixed, the classic GitBook 3.2.3 engine `install`s, `build`s, and `serve`s on Node 22 — verified end to end; this image runs on Node 22 LTS
+- **Runs on modern Node** (tested on Node 10, 22, 24, and 26 in CI): the bundled programmatic `npm` — the source of the infamous `cb.apply` crash — was replaced with spawning the system npm CLI. With that fixed, the classic GitBook 3.2.3 engine `install`s, `build`s, and `serve`s on Node 22 — verified end to end; this image runs on Node 22 LTS
 - Versioned independently of the dead upstream (which stopped at 2.3.2): our maintained line starts at **3.0.0**
 - Vulnerable dependencies replaced or bumped (`optimist`→`minimist`, `lodash`, `semver`, `tmp`, `commander`, `q`); `npm audit` on runtime deps: **0 vulnerabilities**
-- Unit tests run in CI on every PR across Node 10/22/24
+- Unit tests run in CI on every PR across Node 10/22/24/26
 
 **Versioning note:** upstream's CLI stopped at 2.3.2 — our maintained line continues from **3.0.0** upward (independent of this repo's release tags, which version the whole project).
 
