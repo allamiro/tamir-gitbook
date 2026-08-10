@@ -7,7 +7,9 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/allamiro1/tamir-gitbook-wiki?logo=docker)](https://hub.docker.com/r/allamiro1/tamir-gitbook-wiki)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Runs on **current Node.js LTS (24)** thanks to this repo's [maintained GitBook CLI](#-maintained-gitbook-cli) — the abandoned upstream CLI's bundled npm was the real source of the infamous modern-Node crashes, and with it replaced, the classic GitBook 3.2.3 engine installs, builds, and serves cleanly on today’s Node.
+A lightweight Docker image for **self-hosting GitBook wikis**, optimized for fast setup and minimal resource usage. Runs on **current Node.js LTS (24)** thanks to this repo's [maintained GitBook CLI](#-maintained-gitbook-cli) — the abandoned upstream CLI's bundled npm was the real source of the infamous modern-Node crashes, and with it replaced, the classic GitBook 3.2.3 engine installs, builds, and serves cleanly on today's Node.
+
+**Looking for a working `gitbook-cli` replacement?** Upstream was deprecated years ago and breaks on every Node newer than 10. This project is a maintained continuation: the same `gitbook build` / `gitbook serve` workflow, running on Node 10 through 26, available as a [Docker image](#-quick-start) or an [npm package](#-maintained-gitbook-cli). If you got here from an error like `cb.apply is not a function` or `primordials is not defined`, see [Legacy GitBook errors this project fixes](#-legacy-gitbook-errors-this-project-fixes).
 
 ## 🔎 Quick reference
 
@@ -166,35 +168,40 @@ Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sh
 - ⚠️ **Know what you are running:** the runtime is current Node LTS (24) and the CLI is maintained here, but the GitBook 3.2.3 *engine* is legacy code, unmaintained upstream. Treat this image as a documentation-serving convenience for trusted networks; for public hosting, export static HTML with `gitbook build` and serve it with any web server.
 - 📄 See [SECURITY.md](SECURITY.md) for the vulnerability reporting process.
 
-## 🩺 Troubleshooting
-
-### `TypeError: cb.apply is not a function` (graceful-fs)
-
-```text
-/usr/local/lib/node_modules/gitbook-cli/.../graceful-fs/polyfills.js:287
-      if (cb) cb.apply(this, arguments)
-                 ^
-TypeError: cb.apply is not a function
-```
-
-This is the signature crash of the **abandoned upstream `gitbook-cli` from the npm registry** on modern Node — its bundled programmatic npm ships a `graceful-fs` that monkey-patches `fs` APIs removed in Node 12+. This repo's [maintained CLI](#-maintained-gitbook-cli) eliminated that bundled npm entirely, which is why this image runs on current Node LTS. If you hit this error, you're running the old registry CLI (`npm install -g gitbook-cli`) — install ours instead (see above) or use this image.
+## 🩺 Troubleshooting (this image)
 
 ### Site not reachable right after start
 
 `gitbook serve` rebuilds the book on startup, which can take a few seconds (longer for large books). The container ships a `HEALTHCHECK`; wait for `docker ps` to report `healthy`.
 
+### `Error: Couldn't locate plugins "…", Run 'gitbook install'`
+
+You bind-mounted a directory over `/gitbook`, which hides the plugins baked into the image. Add the named volume from the [runtime options](#️-runtime-options-reference): `-v gitbook_modules:/gitbook/node_modules`. After upgrading to a new image version, refresh it with `docker compose down -v && docker compose up -d`.
+
 ### Live reload not working
 
-Make sure port `35729` is published (`-p 35729:35729`) and the project directory is bind-mounted (`-v "$(pwd)":/gitbook`).
+Make sure port `35729` is published **1:1** (`-p 35729:35729` — the page's reload client connects to that exact port) and the project directory is bind-mounted (`-v "$(pwd)":/gitbook`).
+
+## 🚑 Legacy GitBook errors this project fixes
+
+If a web search for one of these classic errors brought you here: they all come from the **abandoned upstream toolchain** (`npm install -g gitbook-cli` from the npm registry), and none of them occur with this image or this repo's [maintained CLI](#-maintained-gitbook-cli) — switching is the fix.
+
+| Error | Cause in the abandoned toolchain | Fixed here by |
+|---|---|---|
+| `TypeError: cb.apply is not a function` (graceful-fs polyfills.js) | The old CLI bundles a programmatic npm whose `graceful-fs` monkey-patches `fs` APIs removed in Node 12+ | Maintained CLI 3.x removed the bundled npm entirely (spawns your system npm) |
+| `ReferenceError: primordials is not defined` | Same bundled graceful-fs, hitting Node 12+ internals | Same fix |
+| `Error: The programmatic API was removed in npm v8.0.0` | Old CLI `require()`s npm as a library, which npm ≥ 8 forbids | Same fix |
+| `gitbook serve` dies on page refresh (`Cannot read properties of undefined (reading 'etag')`, connection reset) | The engine's 2016-era `send` reads `res._headers`, removed in modern Node — any browser cache revalidation kills the process | Engine auto-patched: at image build, and by CLI ≥ 3.1.0 on every `gitbook fetch` |
+| "GitBook doesn't work on Node 12 / 14 / 16 / 18 / 20 / 22 / 24" | All of the above compounded | The full stack — CLI + GitBook 3.2.3 engine — is CI-tested on Node 10, 22, 24, and 26 |
 
 ## 🧰 Maintained GitBook CLI
 
-Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains its own copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. Improvements landed here so far:
+Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains its own copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. What the maintained line (currently **3.1.x**) delivers:
 
-- **Runs on modern Node** (tested on Node 10, 22, 24, and 26 in CI): the bundled programmatic `npm` — the source of the infamous `cb.apply` crash — was replaced with spawning the system npm CLI. With that fixed, the classic GitBook 3.2.3 engine `install`s, `build`s, and `serve`s on Node 22 — verified end to end; this image runs on Node 22 LTS
-- Versioned independently of the dead upstream (which stopped at 2.3.2): our maintained line starts at **3.0.0**
+- **Runs on modern Node** — the bundled programmatic `npm` (the source of the infamous `cb.apply` crash) was replaced with spawning the system npm; works with npm 6 through 12+
+- **Auto-patches the engine**: `gitbook fetch` applies Node compatibility fixes to the installed GitBook 3.2.3 engine, so `build` and `serve` work on current Node — the full stack is CI-tested on Node 10, 22, 24, and 26
 - Vulnerable dependencies replaced or bumped (`optimist`→`minimist`, `lodash`, `semver`, `tmp`, `commander`, `q`); `npm audit` on runtime deps: **0 vulnerabilities**
-- Unit tests run in CI on every PR across Node 10/22/24/26
+- Unit tests run in CI on every PR; see the [changelog](gitbook-cli/README.md) for the full version history
 
 **Versioning note:** upstream's CLI stopped at 2.3.2 — our maintained line continues from **3.0.0** upward (independent of this repo's release tags, which version the whole project).
 
