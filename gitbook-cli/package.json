@@ -1,6 +1,6 @@
 {
   "name": "gitbook-cli",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "homepage": "https://www.gitbook.com",
   "description": "Maintained GitBook command line interface \u2014 runs on modern Node.js (successor to the abandoned upstream gitbook-cli 2.3.2)",
   "main": "bin/gitbook.js",

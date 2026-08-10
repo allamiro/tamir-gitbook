@@ -28,6 +28,7 @@ jobs:
           output: trivy-results.sarif
           timeout: 10m
           trivyignores: .trivyignore
+          limit-severities-for-sarif: true
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

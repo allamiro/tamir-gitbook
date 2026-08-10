@@ -2,6 +2,10 @@
 
 ## What changed vs the abandoned upstream 2.3.2
 
+- **3.1.0** — `gitbook fetch` now applies Node compatibility patches to the
+  installed engine (guarded string fixes, currently the `send` header-API
+  fix without which browser cache revalidation crashes `gitbook serve`).
+
 - **3.0.1** — support npm ≥ 12 (its `npm view --json` wraps results in an array).
 
 - **3.0.0** — runs on modern Node.js (tested on 10 through 26). The bundled

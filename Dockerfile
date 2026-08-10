@@ -44,7 +44,9 @@ RUN cd /opt/gitbook-cli && \
 
 # Copy package files first (for better layer caching)
 COPY package*.json ./
-RUN npm install --no-audit --no-fund && npm cache clean --force
+RUN npm install --no-audit --no-fund && npm cache clean --force && \
+    # The baked plugins carry their own vulnerable copies (e.g. highlight.js)
+    sh /usr/local/bin/patch-vulnerable-deps.sh /gitbook/node_modules
 
 # Copy the rest of the files
 COPY . .

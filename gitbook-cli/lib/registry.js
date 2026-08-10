@@ -7,6 +7,7 @@ var childProcess = require('child_process');
 
 var tags = require('./tags');
 var config = require('./config');
+var patches = require('./patches');
 
 var NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
@@ -115,8 +116,11 @@ function installVersion(version, forceInstall) {
 
         if (!tags.isValid(version)) throw 'Invalid GitBook version, should satisfies '+config.GITBOOK_VERSION;
 
-        // Copy to the install folder
+        // Copy to the install folder, then apply Node compatibility patches
         return Q.nfcall(fs.copy.bind(fs), gitbookRoot, outputFolder)
+        .then(function() {
+            patches.apply(outputFolder);
+        })
         .thenResolve(version);
     });
 }

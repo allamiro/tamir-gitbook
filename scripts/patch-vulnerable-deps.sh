@@ -50,30 +50,46 @@ replace npm 3.9.2 6.14.18
 replace request 2.72.0 2.88.2
 
 # Direct drop-in security bumps (same API surface, verified by smoke tests).
-replace body-parser 1.14.2 1.20.3
+replace ajv 6.12.6 6.14.0
+replace bl 1.1.2 1.2.3
+replace body-parser 1.14.2 1.20.6
+replace body-parser 1.20.3 1.20.6
 replace debug 2.2.0 2.6.9
 replace deep-extend 0.4.2 0.5.1
 replace form-data 1.0.1 2.5.6
 replace form-data 2.3.3 2.5.6
 replace form-data 2.5.4 2.5.6
 replace fresh 0.3.0 0.5.2
+replace highlight.js 9.2.0 10.4.1
+replace highlight.js 9.8.0 10.4.1
+replace highlight.js 9.18.2 10.4.1
+replace ip 1.1.5 1.1.9
 replace lodash 3.10.1 4.18.1
 replace lodash 4.17.21 4.18.1
 replace mime 1.3.4 1.6.0
 replace minimist 0.0.8 0.2.4
 replace moment 2.13.0 2.30.1
+replace ms 0.7.1 2.0.0
+replace node.extend 1.0.8 1.1.7
 replace nth-check 1.0.2 2.1.1
 replace object-path 0.9.2 0.11.8
 replace open 0.0.5 7.4.2
-replace qs 5.1.0 6.5.3
-replace qs 5.2.0 6.5.3
-replace qs 6.1.4 6.5.3
+replace qs 5.1.0 6.15.2
+replace qs 5.2.0 6.15.2
+replace qs 6.1.4 6.15.2
+replace qs 6.5.3 6.15.2
+replace qs 6.5.5 6.15.2
+replace qs 6.13.0 6.15.2
+replace qs 6.14.2 6.15.2
 replace semver 4.3.6 5.7.2
 replace semver 5.1.0 5.7.2
 replace semver 5.7.1 5.7.2
+replace send 0.13.2 0.19.0
 replace static-eval 0.1.1 2.0.2
 replace tmp 0.0.28 0.2.7
-replace tough-cookie 2.2.2 2.5.0
+replace tough-cookie 2.2.2 4.1.3
+replace tough-cookie 2.5.0 4.1.3
+replace tunnel-agent 0.4.3 0.6.0
 replace urijs 1.18.0 1.19.11
 
 # Fixes inside the replacement trees themselves (npm 6's vintage deps and
@@ -85,8 +101,10 @@ replace brace-expansion 5.0.7 5.0.9
 replace cross-spawn 5.1.0 6.0.6
 replace http-cache-semantics 3.8.1 4.1.1
 replace minimatch 3.1.2 3.1.4
-replace tar 4.4.19 7.5.19
+replace tar 4.4.19 7.5.21
+replace tar 7.5.19 7.5.21
 replace ip-address 10.2.0 10.3.1
+replace undici 6.27.0 6.28.0
 
 # NOT patched (documented in .trivyignore):
 # - immutable 3.8.3: the engine's core data layer. immutable 4 breaks its

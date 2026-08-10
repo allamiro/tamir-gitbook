@@ -15,7 +15,34 @@ CVE-2026-59880
 # 1.x/2.x exists; braces 3 is incompatible with the chokidar 1.x consumers.
 CVE-2024-4068
 
-# ip 1.1.5 (nested in the engine's npm, used only by its SOCKS-proxy path,
+# ip 1.1.x (nested in the engine's npm, used only by its SOCKS-proxy path,
 # which this image never exercises) — upstream never shipped a fixed
 # release for this CVE in any version.
 CVE-2024-29415
+
+# ---- MEDIUM severity, consciously not patched (below the CRITICAL/HIGH
+# ---- gate; documented here for full-severity audits) ----
+
+# request 2.88.2 SSRF-via-redirect — request is archived and never fixed it;
+# the engine only requests npm-registry URLs.
+CVE-2023-28155
+
+# uuid 3.x insecure randomness — nested in request, which requires the
+# uuid/v4 entrypoint that uuid >= 8 removed; used for multipart boundaries.
+CVE-2026-41907
+
+# nunjucks 2.x ReDoS — the engine's templating core; nunjucks 3 changes the
+# extension API the engine is built on. Templates come from the book author.
+CVE-2023-2142
+
+# micromatch <= 3 ReDoS — same rationale and consumer chain (chokidar 1.x)
+# as braces above; glob patterns come from the book author.
+CVE-2024-4067
+
+# got 6.x UNC-redirect leak — nested dev-path helper; got 11+ is a breaking
+# rewrite. The engine fetches only registry URLs.
+CVE-2022-33987
+
+# clean-css 1.x ReDoS — v4 changed the minify API the engine calls; CSS
+# input is the book author's own stylesheets.
+GHSA-wxhq-pm8v-cw75
