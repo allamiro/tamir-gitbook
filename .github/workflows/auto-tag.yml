@@ -16,12 +16,20 @@ name: Auto-tag
 on:
   push:
     branches: ["main"]
+    # Repo docs and meta files don't ship in the image — no release for them.
+    # Book content (SUMMARY.md, chapter-*/) IS baked into the image, so it
+    # intentionally stays release-triggering.
     paths-ignore:
       - "README.md"
       - "LICENSE"
       - "CONTRIBUTING.md"
+      - "SECURITY.md"
+      - "CODE_OF_CONDUCT.md"
+      - ".markdownlint.yaml"
       - ".github/ISSUE_TEMPLATE/**"
       - ".github/PULL_REQUEST_TEMPLATE.md"
+      - ".github/CODEOWNERS"
+      - ".github/dependabot.yml"
 
 jobs:
   tag:

@@ -8,3 +8,4 @@ MD033: false        # inline HTML is fine in GitBook content
 MD034: false        # bare URLs are acceptable in docs
 MD036: false        # emphasis-as-heading used in book content
 MD041: false        # first line does not have to be a top-level heading
+MD060: false        # compact table pipes (|---|) are fine
