@@ -82,6 +82,36 @@ docker build -t tamir-gitbook-wiki .
 docker run -d -p 4000:4000 -p 35729:35729 -v "$(pwd)":/gitbook tamir-gitbook-wiki
 ```
 
+## ⚙️ Runtime options reference
+
+| | |
+|---|---|
+| **Ports** | `4000` — the book site · `35729` — LiveReload (publish it 1:1, i.e. `-p 35729:35729`, or auto-refresh won't connect) |
+| **Volumes** | `/gitbook` — bind-mount your book directory (needs `book.json` + `SUMMARY.md`) · `/gitbook/node_modules` — mount a named volume here whenever you bind-mount `/gitbook`, it re-exposes the baked-in plugins |
+| **Environment** | `TAMIR_GITBOOK_IMAGE` (compose only) — pin a version or switch registry, e.g. `ghcr.io/allamiro/tamir-gitbook-wiki:2.2.0` |
+| **Commands** | default `gitbook serve` · `gitbook build` (static site → `_book/`) · `gitbook install` (install plugins from `book.json`) · `gitbook ls-remote`, `fetch <ver>`, `ls`, `uninstall <ver>` |
+| **Health** | built-in `HEALTHCHECK` polls the site — wait for `healthy` in `docker ps` |
+| **User / arch** | runs as root (docs-serving convenience) · `linux/amd64` + `linux/arm64` manifests, native on Apple Silicon |
+
+Common one-liners:
+
+```bash
+# Serve the sample book baked into the image (no mounts)
+docker run -d -p 4000:4000 allamiro1/tamir-gitbook-wiki:latest
+
+# Serve your own book with live reload
+docker run -d -p 4000:4000 -p 35729:35729 \
+  -v "$(pwd)":/gitbook -v gitbook_modules:/gitbook/node_modules \
+  allamiro1/tamir-gitbook-wiki:latest
+
+# One-off static build of the current directory (output in ./_book)
+docker run --rm -v "$(pwd)":/gitbook -v gitbook_modules:/gitbook/node_modules \
+  allamiro1/tamir-gitbook-wiki:latest gitbook build
+
+# Pin an immutable release, from GHCR
+docker run -d -p 4000:4000 ghcr.io/allamiro/tamir-gitbook-wiki:2.2.0
+```
+
 ## 🗂️ Project structure
 
 ```text
