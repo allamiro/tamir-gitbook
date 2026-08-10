@@ -29,14 +29,14 @@ Also published to GHCR: `ghcr.io/allamiro/tamir-gitbook-wiki`
 
 Serve the sample book:
 
-```
+```bash
 docker run -d -p 4000:4000 allamiro1/tamir-gitbook-wiki:latest
 ```
 
 Serve your own book (a directory with `book.json` and `SUMMARY.md`), with
 live reload:
 
-```
+```bash
 docker run -d -p 4000:4000 -p 35729:35729 \
   -v "$(pwd)":/gitbook -v gitbook_modules:/gitbook/node_modules \
   allamiro1/tamir-gitbook-wiki:latest
@@ -44,14 +44,14 @@ docker run -d -p 4000:4000 -p 35729:35729 \
 
 One-off static site build (output in `./_book`):
 
-```
+```bash
 docker run --rm -v "$(pwd)":/gitbook -v gitbook_modules:/gitbook/node_modules \
   allamiro1/tamir-gitbook-wiki:latest gitbook build
 ```
 
 Or use the ready-made compose file from the repository:
 
-```
+```bash
 git clone https://github.com/allamiro/tamir-gitbook.git
 cd tamir-gitbook
 docker compose up -d
