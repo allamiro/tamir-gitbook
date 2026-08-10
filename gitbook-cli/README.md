@@ -1,124 +1,90 @@
-# gitbook-cli (maintained) — v3.x
+# gitbook-cli (maintained) — the GitBook CLI that works on modern Node.js
 
-## What changed vs the abandoned upstream 2.3.2
+> **This is the actively maintained continuation** of the GitBook command line
+> interface. The original [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli)
+> was abandoned at 2.3.2 and crashes on every Node.js newer than 10
+> (`TypeError: cb.apply is not a function`, `primordials is not defined`).
+> This copy lives in [allamiro/tamir-gitbook](https://github.com/allamiro/tamir-gitbook),
+> where it is developed, tested, and released — report problems and ideas in
+> [that issue tracker](https://github.com/allamiro/tamir-gitbook/issues).
 
-- **3.1.0** — `gitbook fetch` now applies Node compatibility patches to the
-  installed engine (guarded string fixes, currently the `send` header-API
-  fix without which browser cache revalidation crashes `gitbook serve`).
+## Why this version works where upstream doesn't
 
-- **3.0.1** — support npm ≥ 12 (its `npm view --json` wraps results in an array).
+| | Abandoned upstream 2.3.2 | This maintained 3.x |
+|---|---|---|
+| Node.js support | ≤ 10 only (EOL) | **10 through 26** — CI-tested on every release |
+| npm interaction | Bundles a frozen programmatic npm (removed in npm 8; source of the `cb.apply` crash) | Spawns **your system npm** — works with npm 6 through 12+ |
+| Installed engine | Pristine 2016 tree — `gitbook serve` dies on any browser cache revalidation | `gitbook fetch` **auto-patches** the engine for modern Node |
+| Dependencies | Years of known CVEs (`minimist`, `lodash`, `semver`, …) | Replaced or updated — `npm audit` on runtime deps: **0 vulnerabilities** |
+| Distribution | Dead npm registry package | Release tarball, source install, or the [tamir-gitbook-wiki Docker image](https://github.com/allamiro/tamir-gitbook) |
 
-- **3.0.0** — runs on modern Node.js (tested on 10 through 26). The bundled
-  programmatic npm was replaced with spawning the system `npm` CLI (breaking:
-  `npm` must be on `PATH` — it always is with any Node install). `optimist`
-  replaced with `minimist`; `lodash`, `semver`, `tmp`, `commander`, `q`,
-  `mocha` updated. `npm audit` on runtime dependencies: **0 vulnerabilities**.
-  With the bundled npm gone, the classic GitBook 3.2.3 engine `install`s,
-  `build`s, and `serve`s on Node 22 — verified end to end (the bundled npm
-  was the actual cause of the historic modern-Node crashes).
+**Note:** the `gitbook` command loads and runs the version of GitBook you have
+specified in your book (or the latest one). It supports GitBook engine
+versions `>=2.0.0`, and stores them in `~/.gitbook` (override the location
+with the `GITBOOK_DIR` environment variable).
 
-> **This is an actively maintained copy** of the GitBook command line interface,
-> imported from the original [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli)
-> (which its authors stopped developing) into
-> [allamiro/tamir-gitbook](https://github.com/allamiro/tamir-gitbook).
-> Bug fixes, dependency updates, and modernization work happen here — report
-> problems and ideas in the
-> [tamir-gitbook issue tracker](https://github.com/allamiro/tamir-gitbook/issues).
-> The `tamir-gitbook-wiki` Docker image installs the CLI from this directory.
+## Install
 
-> The GitBook command line interface.
-
-**Note:** The purpose of the gitbook command is to load and run the version of GitBook you have specified in your book (or the latest one), irrespective of its version. The GitBook CLI only support versions `>=2.0.0` of GitBook.
-
-`gitbook-cli` store GitBook's versions into `~/.gitbook`, you can set the `GITBOOK_DIR` environment variable to use another directory.
-
-## How to install it?
-
-Install **from this maintained source** — do *not* use `npm install -g gitbook-cli`,
-which pulls the abandoned upstream package from the npm registry without our fixes:
+Do **not** use `npm install -g gitbook-cli` — that pulls the abandoned
+upstream package from the npm registry, without any of these fixes. Instead:
 
 ```bash
+# Option A — release tarball (attached to every release of the parent repo)
+npm install -g https://github.com/allamiro/tamir-gitbook/releases/download/<tag>/gitbook-cli-<tag>.tgz
+
+# Option B — from source
 git clone https://github.com/allamiro/tamir-gitbook.git
 npm install -g ./tamir-gitbook/gitbook-cli
+
+# Option C — skip the install entirely: the Docker image ships everything
+docker run -d -p 4000:4000 allamiro1/tamir-gitbook-wiki:latest
 ```
 
-Works on Node.js 10 through current LTS (22/24 tested in CI); the
-[tamir-gitbook-wiki Docker image](https://github.com/allamiro/tamir-gitbook)
-packages everything preconfigured on current Node LTS.
+Requires Node.js ≥ 10 and npm on `PATH` (any Node install provides both).
+
+## Use
+
+```bash
+gitbook fetch 3.2.3      # install the GitBook engine (auto-patched for modern Node)
+gitbook build ./mybook   # build a static site into _book/
+gitbook serve ./mybook   # serve with live reload on :4000
+gitbook help             # list all commands
+```
+
+### Manage engine versions
+
+```bash
+gitbook ls           # installed versions
+gitbook ls-remote    # versions available on the npm registry
+gitbook fetch 2.1.0  # install a specific version (or a tag: gitbook fetch beta)
+gitbook update       # update to the latest version
+gitbook uninstall 2.0.1
+gitbook alias ./mygitbook latest   # use a local folder as an engine (development)
+gitbook build ./mybook --gitbook=2.0.1   # force a version for one command
+```
+
+## Changelog (vs upstream 2.3.2)
+
+- **3.1.0** — `gitbook fetch` applies Node compatibility patches to the
+  installed engine (guarded string fixes; currently the `send` header-API fix,
+  without which browser cache revalidation crashes `gitbook serve` on modern
+  Node).
+- **3.0.1** — support npm ≥ 12 (its `npm view --json` wraps results in an
+  array).
+- **3.0.0** — runs on modern Node.js. The bundled programmatic npm was
+  replaced with spawning the system `npm` CLI (breaking: `npm` must be on
+  `PATH`). `optimist` replaced with `minimist`; `lodash`, `semver`, `tmp`,
+  `commander`, `q`, `mocha` updated; `npm audit` on runtime dependencies:
+  **0 vulnerabilities**. With the bundled npm gone, the classic GitBook 3.2.3
+  engine installs, builds, and serves on current Node — verified end to end.
 
 ## Development & tests
 
 ```bash
 cd gitbook-cli
 npm install
-npm run test:unit   # fast offline unit tests (run in CI)
+npm run test:unit   # fast offline unit tests (run in CI on Node 10/22/24/26)
 npm test            # full suite — installs GitBook versions from the npm registry
 ```
 
-## How to use it?
-
-### Run GitBook
-
-Run command `gitbook build`, `gitbook serve` (read [GitBook documentation](https://github.com/GitbookIO/gitbook/blob/master/docs/setup.md) for details).
-
-List all available commands using:
-
-```
-$ gitbook help
-```
-
-#### Specify a specific version
-
-By default, GitBook CLI will read the gitbook version to use from the book configuration, but you can force a specific version using `--gitbook` option:
-
-```
-$ gitbook build ./mybook --gitbook=2.0.1
-```
-
-and list available commands in this version using:
-
-```
-$ gitbook help --gitbook=2.0.1
-```
-
-#### Manage versions
-
-List installed versions:
-
-```
-$ gitbook ls
-```
-
-List available versions on NPM:
-
-```
-$ gitbook ls-remote
-```
-
-Install a specific version:
-
-```
-$ gitbook fetch 2.1.0
-
-# or a pre-release
-
-$ gitbook fetch beta
-```
-
-Update to the latest version
-
-```
-$ gitbook update
-```
-
-Uninstall a specific version
-
-```
-$ gitbook uninstall 2.0.1
-```
-
-Use a local folder as a GitBook version (for developement)
-
-```
-$ gitbook alias ./mygitbook latest
-```
+Licensed Apache-2.0, like the parent repository.
