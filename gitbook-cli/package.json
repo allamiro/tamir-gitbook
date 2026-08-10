@@ -16,7 +16,7 @@
     "minimist": "1.2.8"
   },
   "devDependencies": {
-    "mocha": "3.4.2",
+    "mocha": "3.5.3",
     "should": "11.2.1",
     "gitbook": "3.2.3"
   },
