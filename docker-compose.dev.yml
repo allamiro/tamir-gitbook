@@ -1,0 +1,8 @@
+# Development override: build the image from local sources instead of
+# pulling the published one. Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+services:
+  gitbook:
+    build: .
+    image: tamir-gitbook-wiki:dev

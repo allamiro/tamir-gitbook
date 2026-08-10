@@ -1,17 +1,26 @@
+# Serves the GitBook in this directory using the published multi-arch image.
+# Override the image (e.g. pin a version or use GHCR) via TAMIR_GITBOOK_IMAGE:
+#   TAMIR_GITBOOK_IMAGE=ghcr.io/allamiro/tamir-gitbook-wiki:1.0.2 docker compose up -d
+#
+# To build the image from local sources instead (image development):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
 services:
   gitbook:
-    build: .
-    image: allamiro1/tamir-gitbook-wiki:latest
+    image: ${TAMIR_GITBOOK_IMAGE:-allamiro1/tamir-gitbook-wiki:latest}
     ports:
       - "4000:4000"
       - "35729:35729"  # LiveReload port for better development experience
     volumes:
       - .:/gitbook
-      - node_modules:/gitbook/node_modules  # Persist node_modules to avoid reinstalling packages
+      - node_modules:/gitbook/node_modules  # Seeded from the image; masks the bind mount
     environment:
       - NODE_ENV=development
     restart: unless-stopped
     command: gitbook serve
 
 volumes:
-  node_modules:  # Named volume for node_modules
+  # Persists the image's node_modules (GitBook plugins) across restarts.
+  # After upgrading to a new image version, refresh it with:
+  #   docker compose down -v && docker compose up -d
+  node_modules:

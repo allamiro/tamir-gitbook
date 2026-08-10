@@ -45,19 +45,35 @@ cd tamir-gitbook
 docker compose up -d
 ```
 
-This builds the image, starts the GitBook server, and serves your book at http://localhost:4000 with live reload. Because the project directory is bind-mounted into the container, edits to your Markdown files show up immediately.
+This pulls the published multi-arch image, starts the GitBook server, and serves your book at http://localhost:4000 with live reload. Because the project directory is bind-mounted into the container, edits to your Markdown files show up immediately.
+
+Pin a version or switch registries with `TAMIR_GITBOOK_IMAGE`:
+
+```bash
+TAMIR_GITBOOK_IMAGE=ghcr.io/allamiro/tamir-gitbook-wiki:1.0.2 docker compose up -d
+```
+
+To build the image from local sources instead (image development), use the dev override:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+```
 
 ### Option 2 — pull the published image
 
 ```bash
 # From Docker Hub
-docker run -d -p 4000:4000 -p 35729:35729 -v "$(pwd)":/gitbook allamiro1/tamir-gitbook-wiki:latest
+docker run -d -p 4000:4000 -p 35729:35729 \
+  -v "$(pwd)":/gitbook -v gitbook_modules:/gitbook/node_modules \
+  allamiro1/tamir-gitbook-wiki:latest
 
 # Or from GitHub Container Registry
-docker run -d -p 4000:4000 -p 35729:35729 -v "$(pwd)":/gitbook ghcr.io/allamiro/tamir-gitbook-wiki:latest
+docker run -d -p 4000:4000 -p 35729:35729 \
+  -v "$(pwd)":/gitbook -v gitbook_modules:/gitbook/node_modules \
+  ghcr.io/allamiro/tamir-gitbook-wiki:latest
 ```
 
-Run this from any directory containing a GitBook project (`book.json` + `SUMMARY.md`); omit the volume mount to serve the sample content baked into the image. Both registries carry identical multi-arch images — Apple Silicon and other arm64 hosts pull the native `linux/arm64` build automatically.
+Run this from any directory containing a GitBook project (`book.json` + `SUMMARY.md`); omit both volume mounts to serve the sample content baked into the image. The `gitbook_modules` named volume matters when bind-mounting: it re-exposes the plugins baked into the image, which the bind mount would otherwise mask (without it, GitBook exits with `Couldn't locate plugins …`). Both registries carry identical multi-arch images — Apple Silicon and other arm64 hosts pull the native `linux/arm64` build automatically.
 
 ### Option 3 — build locally
 

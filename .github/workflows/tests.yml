@@ -70,4 +70,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: docker compose config
-        run: docker compose config -q
+        run: |
+          docker compose config -q
+          docker compose -f docker-compose.yml -f docker-compose.dev.yml config -q
