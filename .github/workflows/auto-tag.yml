@@ -52,6 +52,10 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.tag.outputs.new_tag }}
+          # We commit to main directly, so PR-based generated notes come up
+          # empty — put the conventional-commit changelog in the body instead
+          # (generated notes still append PR/contributor info when present)
+          body: ${{ steps.tag.outputs.changelog }}
           generate_release_notes: true
           make_latest: true
           files: gitbook-cli-*.tgz
