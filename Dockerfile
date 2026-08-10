@@ -7,7 +7,7 @@ LABEL org.opencontainers.image.title="tamir-gitbook-wiki" \
       org.opencontainers.image.description="GitBook CLI 3.2.3 documentation server on Node.js 10" \
       org.opencontainers.image.authors="Tamir Suliman" \
       org.opencontainers.image.source="https://github.com/allamiro/tamir-gitbook" \
-      org.opencontainers.image.licenses="MIT"
+      org.opencontainers.image.licenses="Apache-2.0"
 
 # Install dependencies
 RUN apk add --no-cache \

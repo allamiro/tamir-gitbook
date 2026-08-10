@@ -1,0 +1,45 @@
+name: 🐛 Bug report
+description: Something is broken in the image, the workflows, or the docs
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill in as much as you can.
+  - type: input
+    id: version
+    attributes:
+      label: Image tag / version
+      description: Which tag were you running? (`latest`, `1.0.0`, `sha-…`)
+      placeholder: "e.g. allamiro1/tamir-gitbook-wiki:1.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: arch
+    attributes:
+      label: Architecture
+      options:
+        - linux/amd64
+        - linux/arm64
+        - other / unknown
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: "`docker logs <container>` output or error messages. Automatically formatted as code."
+      render: shell
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Exact commands (docker run / docker compose) that trigger the problem.
+      render: shell

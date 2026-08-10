@@ -1,5 +1,10 @@
 name: Build & Publish (Docker Hub + GHCR)
 
+# Publishes multi-arch images to GHCR always (needs only the built-in
+# GITHUB_TOKEN) and additionally to Docker Hub when DOCKERHUB_USERNAME and
+# DOCKERHUB_TOKEN secrets are configured. Missing Docker Hub secrets produce
+# a warning, not a failure.
+
 on:
   push:
     branches: ["main"]
@@ -7,9 +12,6 @@ on:
   pull_request:
     branches: ["main"]
   workflow_dispatch: {}
-
-env:
-  IMAGE_NAME: tamir-gitbook-wiki
 
 jobs:
   # Each platform builds natively (no QEMU emulation). Non-PR builds push by
@@ -31,18 +33,25 @@ jobs:
       packages: write   # required to push to ghcr.io
 
     steps:
-      - name: Validate required secrets
-        if: github.event_name != 'pull_request'
+      - uses: actions/checkout@v7
+
+      - name: Determine destination registries
+        id: dst
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
-            echo "::error::DOCKERHUB_USERNAME or DOCKERHUB_TOKEN secret is not configured"
-            exit 1
+          ghcr="ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"
+          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+            echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
+            echo "dockerhub_image=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" >> "$GITHUB_OUTPUT"
+            echo "push_names=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki,${ghcr}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN not configured — publishing to GHCR only"
+            echo "has_dockerhub=false" >> "$GITHUB_OUTPUT"
+            echo "dockerhub_image=" >> "$GITHUB_OUTPUT"
+            echo "push_names=${ghcr}" >> "$GITHUB_OUTPUT"
           fi
-
-      - uses: actions/checkout@v7
 
       - uses: docker/setup-buildx-action@v3
 
@@ -50,15 +59,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          # Docker Hub image only on non-PR events (push, tag, manual dispatch):
-          # PR runs (Dependabot, forks) have no secrets, and an empty username
-          # yields an invalid "docker.io//..." tag
+          # dockerhub_image is empty when Docker Hub secrets are absent
+          # (empty lines are ignored by metadata-action)
           images: |
-            ${{ github.event_name != 'pull_request' && format('docker.io/{0}/tamir-gitbook-wiki', secrets.DOCKERHUB_USERNAME) || '' }}
+            ${{ steps.dst.outputs.dockerhub_image }}
             ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki
 
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && steps.dst.outputs.has_dockerhub == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -95,7 +103,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=build-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=build-${{ matrix.platform }}
-          outputs: type=image,"name=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/tamir-gitbook-wiki,ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki",push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,"name=${{ steps.dst.outputs.push_names }}",push-by-digest=true,name-canonical=true,push=true
 
       - name: Export digest
         if: github.event_name != 'pull_request'
@@ -121,7 +129,8 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write   # keyless cosign signing via GitHub OIDC
+      id-token: write         # keyless cosign signing via GitHub OIDC
+      security-events: write  # Trivy SARIF upload to the Security tab
 
     steps:
       - name: Download digests
@@ -133,12 +142,30 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
+      - name: Determine destination registries
+        id: dst
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          ghcr="ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"
+          echo "short_sha=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_OUTPUT"
+          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+            echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
+            echo "dockerhub_image=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" >> "$GITHUB_OUTPUT"
+            echo "images=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki ${ghcr}" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dockerhub=false" >> "$GITHUB_OUTPUT"
+            echo "dockerhub_image=" >> "$GITHUB_OUTPUT"
+            echo "images=${ghcr}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Docker metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v6
         with:
           images: |
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/tamir-gitbook-wiki
+            ${{ steps.dst.outputs.dockerhub_image }}
             ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki
           tags: |
             type=ref,event=branch
@@ -149,6 +176,7 @@ jobs:
             type=semver,pattern={{major}}
 
       - name: Login to Docker Hub
+        if: steps.dst.outputs.has_dockerhub == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -163,12 +191,8 @@ jobs:
 
       - name: Create and push multi-arch manifest lists
         working-directory: ${{ runner.temp }}/digests
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          for image in \
-            "docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" \
-            "ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"; do
+          for image in ${{ steps.dst.outputs.images }}; do
             tags=$(jq -cr --arg img "$image" \
               '.tags | map(select(startswith($img + ":")) | "-t " + .) | join(" ")' \
               <<< "$DOCKER_METADATA_OUTPUT_JSON")
@@ -181,24 +205,29 @@ jobs:
         uses: sigstore/cosign-installer@v3
 
       - name: Sign published manifests (keyless OIDC)
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          tag="sha-$(echo "$GITHUB_SHA" | cut -c1-7)"
-          for image in \
-            "docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" \
-            "ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"; do
+          tag="sha-${{ steps.dst.outputs.short_sha }}"
+          for image in ${{ steps.dst.outputs.images }}; do
             digest=$(docker buildx imagetools inspect "${image}:${tag}" \
               --format '{{.Manifest.Digest}}')
             cosign sign --yes "${image}@${digest}"
           done
 
       - name: Scan published image for CVEs (Trivy)
-        run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-            | sh -s -- -b /usr/local/bin
-          trivy image \
-            --severity CRITICAL,HIGH \
-            --exit-code 0 \
-            --timeout 10m \
-            "ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki:sha-$(echo '${{ github.sha }}' | cut -c1-7)"
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki:sha-${{ steps.dst.outputs.short_sha }}
+          severity: CRITICAL,HIGH
+          format: sarif
+          output: trivy-results.sarif
+          timeout: 10m
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Trivy results to the GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-image

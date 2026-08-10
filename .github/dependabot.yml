@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Keep GitHub Actions up to date. npm and the Docker base image are
+  # intentionally NOT tracked: the legacy GitBook CLI stack requires the
+  # pinned Node 10 base and frozen plugin versions.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - ci
+      - dependencies
+    groups:
+      actions:
+        patterns:
+          - "*"

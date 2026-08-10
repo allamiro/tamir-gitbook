@@ -1,0 +1,37 @@
+name: Weekly security scan
+
+# Rescans the latest published image every week so newly disclosed CVEs in
+# already-shipped layers surface in the Security tab without a new release.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Every Monday at 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  scan:
+    name: Scan published image for CVEs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Scan image and write SARIF
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki:latest
+          severity: CRITICAL,HIGH
+          format: sarif
+          output: trivy-results.sarif
+          timeout: 10m
+        env:
+          TRIVY_USERNAME: ${{ github.actor }}
+          TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-scheduled

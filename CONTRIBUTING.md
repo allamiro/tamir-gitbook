@@ -30,10 +30,13 @@ Releases are cut automatically from commit messages on `main`, so please follow
 
 | Prefix | Effect on version |
 |--------|-------------------|
-| `feat!:` or `BREAKING CHANGE` in body | major (`1.0.0` → `2.0.0`) |
+| `BREAKING CHANGE:` in the commit body | major (`1.0.0` → `2.0.0`) |
 | `feat:` | minor (`1.0.0` → `1.1.0`) |
 | `fix:`, `perf:`, `refactor:` | patch (`1.0.0` → `1.0.1`) |
 | `docs:`, `chore:`, anything else | patch (default) |
+
+> Note: use the full `BREAKING CHANGE:` footer for major bumps — the bare
+> `feat!:` shorthand is not detected by the tagging action.
 
 Examples:
 

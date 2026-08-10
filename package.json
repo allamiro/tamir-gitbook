@@ -22,7 +22,7 @@
     "graceful-fs": "^4.2.0"
   },
   "author": "Tamir Suliman",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/allamiro/tamir-gitbook.git"

@@ -1,0 +1,73 @@
+name: Tests
+
+# Fast checks that run on every PR and push to main: workflow lint,
+# Markdown lint, link check, and compose file validation. The Docker image
+# itself is linted, built, and smoke-tested by the CI workflow.
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+jobs:
+  actionlint:
+    name: Lint GitHub Actions workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2
+        with:
+          flags: "-ignore SC2046 -ignore SC2086"
+
+  markdown-lint:
+    name: Lint Markdown content
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DavidAnson/markdownlint-cli2-action@v17
+        with:
+          globs: |
+            **/*.md
+            !node_modules
+            !_book
+
+  link-check:
+    name: Check Markdown links
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --accept 200,204,206,429
+            --exclude localhost
+            --exclude 127.0.0.1
+            --exclude token.actions.githubusercontent.com
+            --exclude-path _book
+            --exclude-path node_modules
+            './**/*.md'
+          fail: true
+
+  compose-validate:
+    name: Validate docker-compose.yml
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: docker compose config
+        run: docker compose config -q
