@@ -3,6 +3,9 @@
   "description": "A lightweight Docker-based GitBook wiki",
   "author": "Tamir Suliman",
   "language": "en",
+  "structure": {
+    "readme": "intro.md"
+  },
   "plugins": [
     "-sharing",
     "search",
