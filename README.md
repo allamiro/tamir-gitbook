@@ -7,7 +7,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/allamiro1/tamir-gitbook-wiki?logo=docker)](https://hub.docker.com/r/allamiro1/tamir-gitbook-wiki)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Ships the legacy GitBook CLI (3.2.3) on Node.js 10 — the last Node version compatible with it — with all known compatibility issues (`graceful-fs` polyfills) fixed inside the image, so `gitbook serve` just works.
+A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Runs on **current Node.js LTS (22)** thanks to this repo's [maintained GitBook CLI](#-maintained-gitbook-cli) — the abandoned upstream CLI's bundled npm was the real source of the infamous modern-Node crashes, and with it replaced, the classic GitBook 3.2.3 engine installs, builds, and serves cleanly on today's Node.
 
 ## 🔎 Quick reference
 
@@ -133,7 +133,7 @@ Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sh
     --certificate-oidc-issuer https://token.actions.githubusercontent.com
   ```
 
-- ⚠️ **Know what you are running:** the legacy GitBook toolchain (and its Node 10 runtime) is unmaintained upstream. Treat this image as a documentation-serving convenience for trusted networks; for public hosting, export static HTML with `gitbook build` and serve it with any web server.
+- ⚠️ **Know what you are running:** the runtime is current Node 22 LTS and the CLI is maintained here, but the GitBook 3.2.3 *engine* is legacy code, unmaintained upstream. Treat this image as a documentation-serving convenience for trusted networks; for public hosting, export static HTML with `gitbook build` and serve it with any web server.
 - 📄 See [SECURITY.md](SECURITY.md) for the vulnerability reporting process.
 
 ## 🩺 Troubleshooting
@@ -147,7 +147,7 @@ Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sh
 TypeError: cb.apply is not a function
 ```
 
-This happens when the GitBook CLI runs on a **modern Node.js** (12+, including Node 22) — for example when the compose file points at a plain `node` image instead of this one. The legacy CLI is only compatible with Node ≤ 10, and this image both pins Node 10 **and** patches the `graceful-fs` polyfills. Fix: use `allamiro1/tamir-gitbook-wiki` / `ghcr.io/allamiro/tamir-gitbook-wiki` as the image (or build from this repo's Dockerfile) rather than a stock Node image.
+This is the signature crash of the **abandoned upstream `gitbook-cli` from the npm registry** on modern Node — its bundled programmatic npm ships a `graceful-fs` that monkey-patches `fs` APIs removed in Node 12+. This repo's [maintained CLI](#-maintained-gitbook-cli) eliminated that bundled npm entirely, which is why this image runs on Node 22. If you hit this error, you're running the old registry CLI (`npm install -g gitbook-cli`) — install ours instead (see above) or use this image.
 
 ### Site not reachable right after start
 
@@ -161,11 +161,10 @@ Make sure port `35729` is published (`-p 35729:35729`) and the project directory
 
 Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains its own copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. Improvements landed here so far:
 
-- **Runs on modern Node** (tested on Node 10, 22, and 24 in CI): the bundled programmatic `npm` — the source of the infamous `cb.apply` crash — was replaced with spawning the system npm CLI
-- Vulnerable dependencies replaced or bumped (`optimist`→`minimist`, `lodash`, `semver`, `tmp`)
-- Unit tests run in CI on every PR
-
-> Note: the CLI's *management* commands (`ls`, `ls-remote`, `fetch`, `alias`, `uninstall`) work on modern Node, but the legacy GitBook 3.2.3 **engine** it drives still requires Node ≤ 10 for `build`/`serve` — that's what the Docker image provides. Full engine modernization is tracked in [#10](https://github.com/allamiro/tamir-gitbook/issues/10).
+- **Runs on modern Node** (tested on Node 10, 22, and 24 in CI): the bundled programmatic `npm` — the source of the infamous `cb.apply` crash — was replaced with spawning the system npm CLI. With that fixed, the classic GitBook 3.2.3 engine `install`s, `build`s, and `serve`s on Node 22 — verified end to end; this image runs on Node 22 LTS
+- Versioned independently of the dead upstream (which stopped at 2.3.2): our maintained line starts at **3.0.0**
+- Vulnerable dependencies replaced or bumped (`optimist`→`minimist`, `lodash`, `semver`, `tmp`, `commander`, `q`); `npm audit` on runtime deps: **0 vulnerabilities**
+- Unit tests run in CI on every PR across Node 10/22/24
 
 **Versioning note:** upstream's CLI stopped at 2.3.2 — our maintained line continues from **3.0.0** upward (independent of this repo's release tags, which version the whole project).
 
@@ -179,8 +178,8 @@ npm install -g ./tamir-gitbook/gitbook-cli
 
 ## 🛠️ Technical notes
 
-- Built on Node.js 10.x — intentionally, as it is the last major Node version compatible with GitBook 3.2.3 (lifting this ceiling is tracked as a modernization effort on the vendored CLI)
-- Includes fixes for the `graceful-fs` polyfill incompatibilities that break GitBook on modern npm
+- Built on Node.js 22 LTS (`node:22-alpine`) — possible because the maintained CLI removed the bundled npm that broke GitBook on Node 12+
+- The GitBook CLI is installed from this repo's maintained source, never the abandoned npm registry package
 - Pre-configured plugins: search, expandable chapters, syntax highlighting, back-to-top button
 - Container `HEALTHCHECK` polls the site so orchestrators can detect a failed build
 

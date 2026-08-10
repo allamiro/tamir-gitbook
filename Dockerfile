@@ -1,10 +1,11 @@
-FROM node:10.24.1-alpine3.11
+FROM node:22-alpine
 
-# Node 10 is intentional: it is the last major version compatible with the
-# legacy GitBook CLI (3.2.3). Version/revision labels are applied by CI
-# (docker/metadata-action); only static metadata lives here.
+# Runs on current Node LTS: the maintained gitbook-cli (3.x, in gitbook-cli/)
+# replaced the abandoned upstream CLI whose bundled programmatic npm was the
+# actual source of every modern-Node crash. Version/revision labels are
+# applied by CI (docker/metadata-action); only static metadata lives here.
 LABEL org.opencontainers.image.title="tamir-gitbook-wiki" \
-      org.opencontainers.image.description="GitBook CLI 3.2.3 documentation server on Node.js 10" \
+      org.opencontainers.image.description="GitBook documentation server on Node.js 22 with a maintained GitBook CLI" \
       org.opencontainers.image.authors="Tamir Suliman" \
       org.opencontainers.image.source="https://github.com/allamiro/tamir-gitbook" \
       org.opencontainers.image.licenses="Apache-2.0"
@@ -21,22 +22,23 @@ RUN apk add --no-cache \
 # Set working directory
 WORKDIR /gitbook
 
-# Install GitBook CLI from the vendored source (gitbook-cli/) — we own and
-# maintain this copy since upstream is deprecated. The CLI spawns the system
-# npm (it no longer bundles a programmatic npm), so the old graceful-fs
-# post-install patches are gone with it.
+# Install the maintained GitBook CLI from the vendored source. Pack + install
+# the tarball (a plain folder install would be symlinked by modern npm), then
+# drop the source copy — the real install lives under /usr/local/lib.
 COPY gitbook-cli /opt/gitbook-cli
-RUN npm install -g /opt/gitbook-cli && \
+RUN cd /opt/gitbook-cli && \
+    npm pack --loglevel=error && \
+    npm install -g ./gitbook-cli-*.tgz --loglevel=error && \
+    cd / && rm -rf /opt/gitbook-cli && \
     mkdir -p /root/.gitbook && \
-    # Pre-install GitBook to cache common dependencies
+    # Pre-install the GitBook engine
     gitbook fetch 3.2.3 && \
-    # Drop npm/tmp leftovers from the fetch so they don't ship (or get
-    # flagged by scanners) in the final image
+    # Drop npm/tmp leftovers so they don't ship (or get flagged by scanners)
     rm -rf /tmp/* /root/.npm
 
 # Copy package files first (for better layer caching)
 COPY package*.json ./
-RUN npm install
+RUN npm install --no-audit --no-fund && npm cache clean --force
 
 # Copy the rest of the files
 COPY . .

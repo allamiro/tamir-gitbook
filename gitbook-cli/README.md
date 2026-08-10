@@ -7,9 +7,9 @@
   `npm` must be on `PATH` — it always is with any Node install). `optimist`
   replaced with `minimist`; `lodash`, `semver`, `tmp`, `commander`, `q`,
   `mocha` updated. `npm audit` on runtime dependencies: **0 vulnerabilities**.
-  Note: the legacy GitBook 3.2.3 *engine* that `build`/`serve` load still
-  requires Node ≤ 10 — use the Docker image for those, or track
-  [#10](https://github.com/allamiro/tamir-gitbook/issues/10).
+  With the bundled npm gone, the classic GitBook 3.2.3 engine `install`s,
+  `build`s, and `serve`s on Node 22 — verified end to end (the bundled npm
+  was the actual cause of the historic modern-Node crashes).
 
 > **This is an actively maintained copy** of the GitBook command line interface,
 > imported from the original [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli)
@@ -36,9 +36,9 @@ git clone https://github.com/allamiro/tamir-gitbook.git
 npm install -g ./tamir-gitbook/gitbook-cli
 ```
 
-Requires Node.js ≤ 10 for now (the GitBook engine does not run on newer Node);
-the [tamir-gitbook-wiki Docker image](https://github.com/allamiro/tamir-gitbook)
-packages everything preconfigured.
+Works on Node.js 10 through current LTS (22/24 tested in CI); the
+[tamir-gitbook-wiki Docker image](https://github.com/allamiro/tamir-gitbook)
+packages everything preconfigured on Node 22.
 
 ## Development & tests
 

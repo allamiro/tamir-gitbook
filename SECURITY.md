@@ -17,11 +17,12 @@ Only the most recent release receives security updates. Pin the full
   the repository's [Security tab](https://github.com/allamiro/tamir-gitbook/security).
 - Published manifests are **signed with cosign** (keyless, GitHub OIDC) — see
   the README for verification instructions.
-- The image intentionally runs the legacy GitBook CLI (3.2.3) on Node.js 10,
-  which is end-of-life upstream. It is meant for serving documentation in
-  trusted environments — **do not expose it directly to the public internet**;
-  put a reverse proxy or static export (`gitbook build`) in front for
-  production hosting.
+- The image runs on current **Node.js 22 LTS** with this repo's maintained
+  GitBook CLI. The GitBook 3.2.3 *engine* it serves, however, is legacy code
+  that is unmaintained upstream. The image is meant for serving documentation
+  in trusted environments — **do not expose it directly to the public
+  internet**; put a reverse proxy or static export (`gitbook build`) in front
+  for production hosting.
 
 ## Reporting a Vulnerability
 
