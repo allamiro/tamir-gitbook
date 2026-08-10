@@ -1,18 +1,68 @@
-name: Docker Image CI
+name: CI
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+  push:
+    branches: ["main"]
+    paths:
+      - "Dockerfile"
+      - ".dockerignore"
+      - "docker-compose.yml"
+      - "package*.json"
+      - "book.json"
+      - ".github/workflows/docker-image.yml"
 
 jobs:
-
-  build:
-
+  lint:
+    name: Lint Dockerfile
     runs-on: ubuntu-latest
-
+    timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - uses: actions/checkout@v7
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
+  build-and-test:
+    name: Build and smoke-test (amd64)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: lint
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: tamir-gitbook-wiki:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test — serve the book and fetch the index page
+        run: |
+          docker run -d --name ci-smoke -p 4000:4000 tamir-gitbook-wiki:ci
+          # gitbook serve rebuilds the book on startup; poll until it answers
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:4000/ >/dev/null 2>&1; then
+              echo "GitBook is serving after ~$((i * 5))s"
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "::error::GitBook never came up"
+              docker logs ci-smoke
+              exit 1
+            fi
+            sleep 5
+          done
+          curl -fsS http://localhost:4000/ | grep -qi "Tamir GitBook Wiki"
+          docker rm -f ci-smoke

@@ -6,6 +6,9 @@ yarn-error.log
 
 # GitBook build output
 _book/
+*.pdf
+*.epub
+*.mobi
 
 # Environment variables
 .env

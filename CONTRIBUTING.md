@@ -23,10 +23,35 @@
    npm start
    ```
 
+## Commit Messages — Conventional Commits
+
+Releases are cut automatically from commit messages on `main`, so please follow
+[Conventional Commits](https://www.conventionalcommits.org/):
+
+| Prefix | Effect on version |
+|--------|-------------------|
+| `feat!:` or `BREAKING CHANGE` in body | major (`1.0.0` → `2.0.0`) |
+| `feat:` | minor (`1.0.0` → `1.1.0`) |
+| `fix:`, `perf:`, `refactor:` | patch (`1.0.0` → `1.0.1`) |
+| `docs:`, `chore:`, anything else | patch (default) |
+
+Examples:
+
+```
+feat: add gitbook-plugin-anchors to the default plugin set
+fix: correct LiveReload port mapping in docker-compose
+docs: clarify volume-mount usage in README
+```
+
+Documentation-only pushes (README, LICENSE, CONTRIBUTING) do not trigger a new
+image version.
+
 ## Submitting Changes
 
 1. Push to your fork
-2. Submit a Pull Request
+2. Submit a Pull Request — CI lints the Dockerfile and smoke-tests the image
+3. Once merged to `main`, a version tag, GitHub Release, and multi-arch image
+   push to Docker Hub + GHCR happen automatically
 
 ## Code Style
 

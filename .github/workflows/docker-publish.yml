@@ -1,0 +1,204 @@
+name: Build & Publish (Docker Hub + GHCR)
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*.*.*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+env:
+  IMAGE_NAME: tamir-gitbook-wiki
+
+jobs:
+  # Each platform builds natively (no QEMU emulation). Non-PR builds push by
+  # digest; the merge job stitches the digests into one multi-arch manifest
+  # list per registry and applies the tags.
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write   # required to push to ghcr.io
+
+    steps:
+      - name: Validate required secrets
+        if: github.event_name != 'pull_request'
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+            echo "::error::DOCKERHUB_USERNAME or DOCKERHUB_TOKEN secret is not configured"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata (labels)
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          # Docker Hub image only on non-PR events (push, tag, manual dispatch):
+          # PR runs (Dependabot, forks) have no secrets, and an empty username
+          # yields an invalid "docker.io//..." tag
+          images: |
+            ${{ github.event_name != 'pull_request' && format('docker.io/{0}/tamir-gitbook-wiki', secrets.DOCKERHUB_USERNAME) || '' }}
+            ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (PR validation, no push)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: false
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=build-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=build-${{ matrix.platform }}
+
+      - name: Build and push by digest
+        if: github.event_name != 'pull_request'
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=build-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=build-${{ matrix.platform }}
+          outputs: type=image,"name=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/tamir-gitbook-wiki,ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki",push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p "${{ runner.temp }}/digests"
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+      id-token: write   # keyless cosign signing via GitHub OIDC
+
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: |
+            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/tamir-gitbook-wiki
+            ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki
+          tags: |
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push multi-arch manifest lists
+        working-directory: ${{ runner.temp }}/digests
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          for image in \
+            "docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" \
+            "ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"; do
+            tags=$(jq -cr --arg img "$image" \
+              '.tags | map(select(startswith($img + ":")) | "-t " + .) | join(" ")' \
+              <<< "$DOCKER_METADATA_OUTPUT_JSON")
+            # $tags and the digest list are intentionally word-split
+            # shellcheck disable=SC2046,SC2086
+            docker buildx imagetools create $tags $(printf "${image}@sha256:%s " *)
+          done
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign published manifests (keyless OIDC)
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          tag="sha-$(echo "$GITHUB_SHA" | cut -c1-7)"
+          for image in \
+            "docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" \
+            "ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"; do
+            digest=$(docker buildx imagetools inspect "${image}:${tag}" \
+              --format '{{.Manifest.Digest}}')
+            cosign sign --yes "${image}@${digest}"
+          done
+
+      - name: Scan published image for CVEs (Trivy)
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sh -s -- -b /usr/local/bin
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --exit-code 0 \
+            --timeout 10m \
+            "ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki:sha-$(echo '${{ github.sha }}' | cut -c1-7)"

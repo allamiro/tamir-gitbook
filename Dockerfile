@@ -1,9 +1,13 @@
 FROM node:10.24.1-alpine3.11
 
-# Metadata
-LABEL maintainer="Tamir Suliman"
-LABEL version="1.1"
-LABEL description="Docker image for GitBook with Node.js 10.x"
+# Node 10 is intentional: it is the last major version compatible with the
+# legacy GitBook CLI (3.2.3). Version/revision labels are applied by CI
+# (docker/metadata-action); only static metadata lives here.
+LABEL org.opencontainers.image.title="tamir-gitbook-wiki" \
+      org.opencontainers.image.description="GitBook CLI 3.2.3 documentation server on Node.js 10" \
+      org.opencontainers.image.authors="Tamir Suliman" \
+      org.opencontainers.image.source="https://github.com/allamiro/tamir-gitbook" \
+      org.opencontainers.image.licenses="MIT"
 
 # Install dependencies
 RUN apk add --no-cache \
@@ -36,8 +40,12 @@ RUN npm install
 # Copy the rest of the files
 COPY . .
 
-# Expose the port for GitBook
-EXPOSE 4000
+# GitBook site (4000) and LiveReload (35729)
+EXPOSE 4000 35729
+
+# gitbook serve rebuilds the book on startup, so allow a generous start period
+HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
+    CMD curl -fsS http://localhost:4000/ >/dev/null || exit 1
 
 # Command to run GitBook
 CMD ["gitbook", "serve"]
