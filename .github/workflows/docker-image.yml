@@ -65,6 +65,14 @@ jobs:
             sleep 5
           done
           curl -fsS http://localhost:4000/ | grep -qi "Tamir GitBook Wiki"
+          # Browser-style conditional requests crashed the server before the
+          # send/_headers patch — verify real HTTP caching semantics and that
+          # the process survives them
+          etag=$(curl -fsSI http://localhost:4000/ | awk -F': ' 'tolower($1)=="etag"{print $2}' | tr -d '\r')
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "If-None-Match: $etag" http://localhost:4000/)
+          [ "$code" = "304" ] || { echo "::error::expected 304 on matching etag, got $code"; exit 1; }
+          curl -fsS -H 'If-Modified-Since: Mon, 01 Jan 2024 00:00:00 GMT' http://localhost:4000/ >/dev/null
+          curl -fsS http://localhost:4000/ >/dev/null   # server still alive
           # Exercise the patched engine paths: static build and the plugin
           # installer (npmi + the swapped-in npm 6 tree)
           docker exec ci-smoke sh -c "cd /gitbook && gitbook build >/dev/null"
