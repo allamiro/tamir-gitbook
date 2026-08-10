@@ -63,6 +63,23 @@ jobs:
             './**/*.md'
           fail: true
 
+  cli-unit-tests:
+    name: Vendored gitbook-cli unit tests (Node 10)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    container:
+      image: node:10.24.1-alpine3.11
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install dependencies and run unit tests
+        working-directory: gitbook-cli
+        run: |
+          apk add --no-cache git >/dev/null
+          npm install --loglevel=error
+          npm run test:unit
+
   compose-validate:
     name: Validate docker-compose.yml
     runs-on: ubuntu-latest

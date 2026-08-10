@@ -4,7 +4,7 @@ var Q = require('q');
 var _ = require('lodash');
 var path = require('path');
 var program = require('commander');
-var parsedArgv = require('optimist').argv;
+var parsedArgv = require('minimist')(process.argv.slice(2));
 var color = require('bash-color');
 
 var pkg = require('../package.json');

@@ -58,9 +58,11 @@ image version.
 ## Submitting Changes
 
 1. Push to your fork
-2. Submit a Pull Request — CI lints the Dockerfile and smoke-tests the image
-3. Once merged to `main`, a version tag, GitHub Release, and multi-arch image
-   push to Docker Hub + GHCR happen automatically
+2. Submit a Pull Request — CI lints the Dockerfile, smoke-tests the image,
+   and runs the vendored CLI unit tests
+3. Once merged to `main`, rolling images (`latest`/`main`/`sha-*`) publish to
+   Docker Hub + GHCR automatically; versioned releases are cut weekly (or on
+   demand) and group all merges since the previous release into one tag
 
 ## Vendored GitBook CLI (`gitbook-cli/`)
 

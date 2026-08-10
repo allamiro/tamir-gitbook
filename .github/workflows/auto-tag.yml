@@ -1,37 +1,23 @@
 name: Auto-tag
 
-# Runs after every push to main that changes actual code or config.
-# Pure documentation changes (README, LICENSE, book content) are excluded
-# so they don't generate a new image version.
+# Cuts a release that GROUPS all changes merged since the previous tag —
+# weekly on a schedule, or on demand via workflow_dispatch (Actions →
+# Auto-tag → Run workflow). Individual merges to main do NOT each create a
+# release; they still publish rolling latest/main/sha-* images via
+# docker-publish.yml.
 #
-# Bump rules (conventional commits):
-#   feat!: / BREAKING CHANGE  →  major  (v1.0.0 → v2.0.0)
+# Bump rules (conventional commits, highest wins across the batch):
+#   BREAKING CHANGE: footer    →  major  (v1.0.0 → v2.0.0)
 #   feat:                      →  minor  (v1.0.0 → v1.1.0)
 #   fix: / perf: / refactor:   →  patch  (v1.0.0 → v1.0.1)
 #   anything else              →  patch  (default)
 #
-# The new tag triggers docker-publish.yml (versioned image push to Docker Hub
-# + GHCR), and a GitHub Release with generated notes is created here.
+# If nothing was merged since the last tag, the run is a no-op.
 
 on:
-  push:
-    branches: ["main"]
-    # Repo docs and meta files don't ship in the image — no release for them.
-    # Book content (SUMMARY.md, chapter-*/) IS baked into the image, so it
-    # intentionally stays release-triggering.
-    paths-ignore:
-      - "README.md"
-      - "LICENSE"
-      - "CONTRIBUTING.md"
-      - "SECURITY.md"
-      - "CODE_OF_CONDUCT.md"
-      - ".markdownlint.yaml"
-      - "docker-compose.yml"
-      - "docker-compose.dev.yml"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/PULL_REQUEST_TEMPLATE.md"
-      - ".github/CODEOWNERS"
-      - ".github/dependabot.yml"
+  schedule:
+    - cron: "0 7 * * 1"  # Every Monday at 07:00 UTC
+  workflow_dispatch: {}
 
 jobs:
   tag:

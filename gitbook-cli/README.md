@@ -11,20 +11,31 @@
 
 > The GitBook command line interface.
 
-Install this globally and you'll have access to the gitbook command anywhere on your system.
-
-```
-$ npm install -g gitbook-cli
-```
-
 **Note:** The purpose of the gitbook command is to load and run the version of GitBook you have specified in your book (or the latest one), irrespective of its version. The GitBook CLI only support versions `>=2.0.0` of GitBook.
 
 `gitbook-cli` store GitBook's versions into `~/.gitbook`, you can set the `GITBOOK_DIR` environment variable to use another directory.
 
 ## How to install it?
 
+Install **from this maintained source** — do *not* use `npm install -g gitbook-cli`,
+which pulls the abandoned upstream package from the npm registry without our fixes:
+
+```bash
+git clone https://github.com/allamiro/tamir-gitbook.git
+npm install -g ./tamir-gitbook/gitbook-cli
 ```
-$ npm install -g gitbook-cli
+
+Requires Node.js ≤ 10 for now (the GitBook engine does not run on newer Node);
+the [tamir-gitbook-wiki Docker image](https://github.com/allamiro/tamir-gitbook)
+packages everything preconfigured.
+
+## Development & tests
+
+```bash
+cd gitbook-cli
+npm install
+npm run test:unit   # fast offline unit tests (run in CI)
+npm test            # full suite — installs GitBook versions from the npm registry
 ```
 
 ## How to use it?

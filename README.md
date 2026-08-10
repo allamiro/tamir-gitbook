@@ -116,10 +116,10 @@ docker compose exec gitbook gitbook install
 
 ## 🔄 Versioning & releases
 
-Every merge to `main` that touches code or config triggers the release pipeline:
+Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sha-*`) to **GHCR** and **Docker Hub**. Versioned releases are **batched**: the Auto-tag workflow runs weekly (and on demand from the Actions tab) and groups everything merged since the previous tag into one release —
 
-1. **Auto-tag** — a semantic version tag (`vX.Y.Z`) is computed from Conventional Commit messages and pushed, and a GitHub Release with generated notes is created.
-2. **Build & Publish** — multi-arch images (`linux/amd64` + `linux/arm64`, each built on native runners) are pushed to **GHCR** and — when Docker Hub credentials are configured — **Docker Hub**, with the full tag set above.
+1. **Auto-tag** — a semantic version tag (`vX.Y.Z`) is computed from the Conventional Commit messages in the batch (highest bump wins), and a GitHub Release with generated notes covering all changes is created.
+2. **Build & Publish** — multi-arch images (`linux/amd64` + `linux/arm64`, each built on native runners) are pushed to both registries with the versioned tag set (`x.y.z`, `x.y`, `x`).
 3. Published manifests are **signed with cosign** and **scanned with Trivy**, with results uploaded to the [Security tab](https://github.com/allamiro/tamir-gitbook/security).
 
 ## 🔐 Security

@@ -30,3 +30,7 @@ updates:
       # npm requires Node 20+. Tracked in the modernization epic (#10).
       - dependency-name: npm
       - dependency-name: npmi
+      # Major versions of anything in this tree generally require Node > 10
+      # (e.g. commander 15 fails to even parse). Only propose minor/patch.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

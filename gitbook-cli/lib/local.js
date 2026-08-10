@@ -6,7 +6,7 @@ var npmi = require('npmi');
 var npm = require('npm');
 var tmp = require('tmp');
 var color = require('bash-color');
-var parsedArgv = require('optimist').argv;
+var parsedArgv = require('minimist')(process.argv.slice(2));
 
 var config = require('./config');
 var tags = require('./tags');
