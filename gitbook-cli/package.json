@@ -15,7 +15,7 @@
     "fs-extra": "3.0.1",
     "bash-color": "0.0.4",
     "npm": "5.1.0",
-    "user-home": "2.0.0"
+    "user-home": "3.0.0"
   },
   "devDependencies": {
     "mocha": "3.4.2",
