@@ -22,7 +22,7 @@ Only the most recent release receives security updates. Pin the full
   with no viable fix is risk-assessed and documented in `.trivyignore`.
 - Published manifests are **signed with cosign** (keyless, GitHub OIDC) — see
   the README for verification instructions.
-- The image runs on current **Node.js 22 LTS** with this repo's maintained
+- The image runs on current **Node.js LTS (24)** with this repo's maintained
   GitBook CLI. The GitBook 3.2.3 *engine* it serves, however, is legacy code
   that is unmaintained upstream. The image is meant for serving documentation
   in trusted environments — **do not expose it directly to the public

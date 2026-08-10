@@ -40,7 +40,7 @@ npm install -g ./tamir-gitbook/gitbook-cli
 
 Works on Node.js 10 through current LTS (22/24 tested in CI); the
 [tamir-gitbook-wiki Docker image](https://github.com/allamiro/tamir-gitbook)
-packages everything preconfigured on Node 22.
+packages everything preconfigured on current Node LTS.
 
 ## Development & tests
 

@@ -7,7 +7,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/allamiro1/tamir-gitbook-wiki?logo=docker)](https://hub.docker.com/r/allamiro1/tamir-gitbook-wiki)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Runs on **current Node.js LTS (22)** thanks to this repo's [maintained GitBook CLI](#-maintained-gitbook-cli) — the abandoned upstream CLI's bundled npm was the real source of the infamous modern-Node crashes, and with it replaced, the classic GitBook 3.2.3 engine installs, builds, and serves cleanly on today's Node.
+A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Runs on **current Node.js LTS (24)** thanks to this repo's [maintained GitBook CLI](#-maintained-gitbook-cli) — the abandoned upstream CLI's bundled npm was the real source of the infamous modern-Node crashes, and with it replaced, the classic GitBook 3.2.3 engine installs, builds, and serves cleanly on today’s Node.
 
 ## 🔎 Quick reference
 
@@ -133,7 +133,7 @@ Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sh
     --certificate-oidc-issuer https://token.actions.githubusercontent.com
   ```
 
-- ⚠️ **Know what you are running:** the runtime is current Node 22 LTS and the CLI is maintained here, but the GitBook 3.2.3 *engine* is legacy code, unmaintained upstream. Treat this image as a documentation-serving convenience for trusted networks; for public hosting, export static HTML with `gitbook build` and serve it with any web server.
+- ⚠️ **Know what you are running:** the runtime is current Node LTS (24) and the CLI is maintained here, but the GitBook 3.2.3 *engine* is legacy code, unmaintained upstream. Treat this image as a documentation-serving convenience for trusted networks; for public hosting, export static HTML with `gitbook build` and serve it with any web server.
 - 📄 See [SECURITY.md](SECURITY.md) for the vulnerability reporting process.
 
 ## 🩺 Troubleshooting
@@ -147,7 +147,7 @@ Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sh
 TypeError: cb.apply is not a function
 ```
 
-This is the signature crash of the **abandoned upstream `gitbook-cli` from the npm registry** on modern Node — its bundled programmatic npm ships a `graceful-fs` that monkey-patches `fs` APIs removed in Node 12+. This repo's [maintained CLI](#-maintained-gitbook-cli) eliminated that bundled npm entirely, which is why this image runs on Node 22. If you hit this error, you're running the old registry CLI (`npm install -g gitbook-cli`) — install ours instead (see above) or use this image.
+This is the signature crash of the **abandoned upstream `gitbook-cli` from the npm registry** on modern Node — its bundled programmatic npm ships a `graceful-fs` that monkey-patches `fs` APIs removed in Node 12+. This repo's [maintained CLI](#-maintained-gitbook-cli) eliminated that bundled npm entirely, which is why this image runs on current Node LTS. If you hit this error, you're running the old registry CLI (`npm install -g gitbook-cli`) — install ours instead (see above) or use this image.
 
 ### Site not reachable right after start
 
@@ -178,7 +178,7 @@ npm install -g ./tamir-gitbook/gitbook-cli
 
 ## 🛠️ Technical notes
 
-- Built on Node.js 22 LTS (`node:22-alpine`) — possible because the maintained CLI removed the bundled npm that broke GitBook on Node 12+
+- Built on current Node.js LTS (`node:24-alpine`) — possible because the maintained CLI removed the bundled npm that broke GitBook on Node 12+
 - The GitBook CLI is installed from this repo's maintained source, never the abandoned npm registry package
 - Pre-configured plugins: search, expandable chapters, syntax highlighting, back-to-top button
 - Container `HEALTHCHECK` polls the site so orchestrators can detect a failed build

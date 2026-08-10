@@ -1,11 +1,11 @@
-FROM node:22-alpine
+FROM node:24-alpine
 
 # Runs on current Node LTS: the maintained gitbook-cli (3.x, in gitbook-cli/)
 # replaced the abandoned upstream CLI whose bundled programmatic npm was the
 # actual source of every modern-Node crash. Version/revision labels are
 # applied by CI (docker/metadata-action); only static metadata lives here.
 LABEL org.opencontainers.image.title="tamir-gitbook-wiki" \
-      org.opencontainers.image.description="GitBook documentation server on Node.js 22 with a maintained GitBook CLI" \
+      org.opencontainers.image.description="GitBook documentation server on current Node.js LTS with a maintained GitBook CLI" \
       org.opencontainers.image.authors="Tamir Suliman" \
       org.opencontainers.image.source="https://github.com/allamiro/tamir-gitbook" \
       org.opencontainers.image.licenses="Apache-2.0"
