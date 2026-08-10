@@ -1,8 +1,8 @@
 {
   "name": "gitbook-cli",
-  "version": "2.3.2",
+  "version": "3.0.0",
   "homepage": "https://www.gitbook.com",
-  "description": "CLI to generate books and documentation using gitbook",
+  "description": "Maintained GitBook command line interface \u2014 runs on modern Node.js (successor to the abandoned upstream gitbook-cli 2.3.2)",
   "main": "bin/gitbook.js",
   "dependencies": {
     "q": "1.5.1",
@@ -26,7 +26,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GitbookIO/gitbook-cli.git"
+    "url": "https://github.com/allamiro/tamir-gitbook.git",
+    "directory": "gitbook-cli"
   },
   "author": "FriendCode Inc. <contact@gitbook.com>",
   "license": "Apache-2.0",

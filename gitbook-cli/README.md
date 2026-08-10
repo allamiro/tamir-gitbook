@@ -1,4 +1,15 @@
-# gitbook-cli (maintained)
+# gitbook-cli (maintained) — v3.x
+
+## What changed vs the abandoned upstream 2.3.2
+
+- **3.0.0** — runs on modern Node.js (tested on 10, 22, 24). The bundled
+  programmatic npm was replaced with spawning the system `npm` CLI (breaking:
+  `npm` must be on `PATH` — it always is with any Node install). `optimist`
+  replaced with `minimist`; `lodash`, `semver`, `tmp`, `commander`, `q`,
+  `mocha` updated. `npm audit` on runtime dependencies: **0 vulnerabilities**.
+  Note: the legacy GitBook 3.2.3 *engine* that `build`/`serve` load still
+  requires Node ≤ 10 — use the Docker image for those, or track
+  [#10](https://github.com/allamiro/tamir-gitbook/issues/10).
 
 > **This is an actively maintained copy** of the GitBook command line interface,
 > imported from the original [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli)

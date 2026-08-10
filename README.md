@@ -167,10 +167,12 @@ Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is de
 
 > Note: the CLI's *management* commands (`ls`, `ls-remote`, `fetch`, `alias`, `uninstall`) work on modern Node, but the legacy GitBook 3.2.3 **engine** it drives still requires Node ≤ 10 for `build`/`serve` — that's what the Docker image provides. Full engine modernization is tracked in [#10](https://github.com/allamiro/tamir-gitbook/issues/10).
 
-**Install the CLI as a package** (outside Docker): each [release](https://github.com/allamiro/tamir-gitbook/releases) attaches a `gitbook-cli-vX.Y.Z.tgz` tarball —
+**Versioning note:** upstream's CLI stopped at 2.3.2 — our maintained line continues from **3.0.0** upward (independent of this repo's release tags, which version the whole project).
+
+**Install the CLI as a package** (outside Docker): each [release](https://github.com/allamiro/tamir-gitbook/releases) attaches a `gitbook-cli-vX.Y.Z.tgz` tarball — grab the URL of the latest one from the releases page:
 
 ```bash
-npm install -g https://github.com/allamiro/tamir-gitbook/releases/latest/download/gitbook-cli-v1.2.0.tgz
+npm install -g https://github.com/allamiro/tamir-gitbook/releases/download/<release-tag>/gitbook-cli-<release-tag>.tgz
 # or from a clone:
 npm install -g ./tamir-gitbook/gitbook-cli
 ```
