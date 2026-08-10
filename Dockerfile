@@ -22,17 +22,12 @@ RUN apk add --no-cache \
 WORKDIR /gitbook
 
 # Install GitBook CLI from the vendored source (gitbook-cli/) — we own and
-# maintain this copy since upstream is deprecated. Compatibility fixes are
-# applied post-install below until they are fully absorbed into the source.
+# maintain this copy since upstream is deprecated. The CLI spawns the system
+# npm (it no longer bundles a programmatic npm), so the old graceful-fs
+# post-install patches are gone with it.
 COPY gitbook-cli /opt/gitbook-cli
 RUN npm install -g /opt/gitbook-cli && \
-    # Create necessary directories for gitbook installation
     mkdir -p /root/.gitbook && \
-    # Fix graceful-fs issues by replacing the polyfills.js file
-    sed -i "s/\.\.\/\.\.\/\.\.\/fs\"/fs/" /usr/local/lib/node_modules/gitbook-cli/node_modules/npm/node_modules/graceful-fs/polyfills.js && \
-    sed -i 's/fs\.stat = statFix(fs\.stat)/\/\/ fs\.stat = statFix(fs\.stat)/g' /usr/local/lib/node_modules/gitbook-cli/node_modules/npm/node_modules/graceful-fs/polyfills.js && \
-    sed -i 's/fs\.fstat = statFix(fs\.fstat)/\/\/ fs\.fstat = statFix(fs\.fstat)/g' /usr/local/lib/node_modules/gitbook-cli/node_modules/npm/node_modules/graceful-fs/polyfills.js && \
-    sed -i 's/fs\.lstat = statFix(fs\.lstat)/\/\/ fs\.lstat = statFix(fs\.lstat)/g' /usr/local/lib/node_modules/gitbook-cli/node_modules/npm/node_modules/graceful-fs/polyfills.js && \
     # Pre-install GitBook to cache common dependencies
     gitbook fetch 3.2.3 && \
     # Drop npm/tmp leftovers from the fetch so they don't ship (or get

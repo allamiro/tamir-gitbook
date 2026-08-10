@@ -64,23 +64,30 @@ jobs:
           fail: true
 
   cli-unit-tests:
-    name: Vendored gitbook-cli unit tests (Node 10)
+    name: Vendored gitbook-cli tests (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["10.24.1-alpine3.11", "22-alpine", "24-alpine"]
     steps:
       - uses: actions/checkout@v7
       # Not a `container:` job: the Actions runner injects its own modern
       # node binary into job containers, which cannot start on Alpine 3.11's
-      # old musl. Running the Node 10 image via docker run avoids that.
-      - name: Install dependencies and run unit tests (in node:10 container)
+      # old musl. Running the Node image via docker run avoids that.
+      # Modern-Node entries prove the CLI itself (not the legacy GitBook
+      # engine) works on current Node — see the modernization epic (#10).
+      - name: Unit tests + ls-remote smoke (Node ${{ matrix.node }})
         run: |
-          docker run --rm -v "$PWD/gitbook-cli":/cli-src node:10.24.1-alpine3.11 sh -c \
+          docker run --rm -v "$PWD/gitbook-cli":/cli-src "node:${{ matrix.node }}" sh -c \
             "apk add --no-cache git >/dev/null 2>&1 && \
              cp -r /cli-src /cli && cd /cli && \
-             npm install --loglevel=error && \
-             npm run test:unit"
+             npm install --no-audit --no-fund --loglevel=error 2>/dev/null || npm install --loglevel=error && \
+             npm run test:unit && \
+             node bin/gitbook.js ls-remote | head -5"
 
   compose-validate:
     name: Validate docker-compose.yml

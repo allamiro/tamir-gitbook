@@ -1,30 +1,44 @@
 var Q = require('q');
 var fs = require('fs-extra');
-var npmi = require('npmi');
-var npm = require('npm');
 var tmp = require('tmp');
 var _ = require('lodash');
 var path = require('path');
+var childProcess = require('child_process');
 
 var tags = require('./tags');
 var config = require('./config');
 
-// Initialize NPM before usage
-var initNPM = _.memoize(function() {
-    return Q.nfcall(npm.load, {
-        silent: true,
-        loglevel: 'silent'
+var NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
+// Run the system npm CLI and resolve with its stdout.
+// The CLI historically embedded a full programmatic npm, but npm removed its
+// programmatic API in v8 — spawning the system npm works with every npm
+// version and keeps this package free of the huge bundled-npm dependency tree.
+function execNpm(args) {
+    var deferred = Q.defer();
+
+    childProcess.execFile(NPM_BIN, args, {
+        maxBuffer: 10 * 1024 * 1024,
+        env: process.env
+    }, function(err, stdout, stderr) {
+        if (err) {
+            err.message = 'npm ' + args.join(' ') + ' failed: ' +
+                (stderr || err.message);
+            deferred.reject(err);
+        } else {
+            deferred.resolve(stdout);
+        }
     });
-});
+
+    return deferred.promise;
+}
 
 // Return a list of versions available in the registry (npm)
 function availableVersions() {
-    return initNPM()
-    .then(function() {
-        return Q.nfcall(npm.commands.view, ['gitbook', 'versions', 'dist-tags'], true);
-    })
-    .then(function(result) {
-        result = _.chain(result).values().first().value();
+    return execNpm(['view', 'gitbook', 'versions', 'dist-tags', '--json'])
+    .then(function(stdout) {
+        var result = JSON.parse(stdout);
+
         result = {
             versions: _.chain(result.versions)
                 .filter(function(v) {
@@ -32,11 +46,9 @@ function availableVersions() {
                 })
                 .sort(tags.sort)
                 .value(),
-            tags: _.chain(result['dist-tags'])
-                .omit(function(tagVersion, tagName) {
-                    return !tags.isValid(tagVersion);
-                })
-                .value()
+            tags: _.omitBy(result['dist-tags'], function(tagVersion) {
+                return !tags.isValid(tagVersion);
+            })
         };
 
         if (result.versions.length == 0) throw new Error('No valid version on the NPM registry');
@@ -74,19 +86,21 @@ function installVersion(version, forceInstall) {
         return Q.nfcall(tmp.dir.bind(tmp));
     })
     .spread(function(tmpDir) {
-        var options = {
-            name: 'gitbook',
-            version: version,
-            path: tmpDir,
-            forceInstall: !!forceInstall,
-            npmLoad: {
-                loglevel: 'silent',
-                loaded: false,
-                prefix: tmpDir
-            }
-        };
         console.log('Installing GitBook', version);
-        return Q.nfcall(npmi.bind(npmi), options).thenResolve(tmpDir);
+        var args = [
+            'install', 'gitbook@' + version,
+            '--prefix', tmpDir,
+            // Keep dependencies nested under node_modules/gitbook (instead of
+            // hoisted to the prefix root) — installVersion copies only the
+            // gitbook folder, so it must be self-contained
+            '--global-style',
+            '--loglevel', 'silent',
+            '--no-save',
+            '--no-audit',
+            '--no-package-lock'
+        ];
+        if (forceInstall) args.push('--force');
+        return execNpm(args).thenResolve(tmpDir);
     })
     .then(function(tmpDir) {
         var gitbookRoot = path.resolve(tmpDir, 'node_modules/gitbook');

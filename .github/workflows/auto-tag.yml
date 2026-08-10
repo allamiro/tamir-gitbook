@@ -41,6 +41,12 @@ jobs:
           release_branches: main
           tag_prefix: v
 
+      - name: Pack gitbook-cli release tarball
+        if: steps.tag.outputs.new_tag != ''
+        run: |
+          npm pack ./gitbook-cli
+          mv gitbook-cli-*.tgz "gitbook-cli-${{ steps.tag.outputs.new_tag }}.tgz"
+
       - name: Create GitHub Release
         if: steps.tag.outputs.new_tag != ''
         uses: softprops/action-gh-release@v3
@@ -48,6 +54,7 @@ jobs:
           tag_name: ${{ steps.tag.outputs.new_tag }}
           generate_release_notes: true
           make_latest: true
+          files: gitbook-cli-*.tgz
 
       - name: Trigger versioned image publish
         # Tags pushed with GITHUB_TOKEN do not fire the publish workflow's

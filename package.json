@@ -13,7 +13,6 @@
     "plugins": "gitbook install"
   },
   "dependencies": {
-    "gitbook-cli": "^2.3.2",
     "gitbook-plugin-expandable-chapters": "^0.2.0",
     "gitbook-plugin-highlight": "^2.0.3",
     "gitbook-plugin-search": "^2.2.1",

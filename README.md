@@ -157,9 +157,23 @@ This happens when the GitBook CLI runs on a **modern Node.js** (12+, including N
 
 Make sure port `35729` is published (`-p 35729:35729`) and the project directory is bind-mounted (`-v "$(pwd)":/gitbook`).
 
-## 🧰 Vendored GitBook CLI
+## 🧰 Maintained GitBook CLI
 
-Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains a vendored copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. This lets us fix bugs (like the `graceful-fs` crash), absorb useful upstream patches, and work toward modern-Node compatibility in our own tree. CLI bugs and improvement ideas are tracked in this repo's [issues](https://github.com/allamiro/tamir-gitbook/issues).
+Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains its own copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. Improvements landed here so far:
+
+- **Runs on modern Node** (tested on Node 10, 22, and 24 in CI): the bundled programmatic `npm` — the source of the infamous `cb.apply` crash — was replaced with spawning the system npm CLI
+- Vulnerable dependencies replaced or bumped (`optimist`→`minimist`, `lodash`, `semver`, `tmp`)
+- Unit tests run in CI on every PR
+
+> Note: the CLI's *management* commands (`ls`, `ls-remote`, `fetch`, `alias`, `uninstall`) work on modern Node, but the legacy GitBook 3.2.3 **engine** it drives still requires Node ≤ 10 for `build`/`serve` — that's what the Docker image provides. Full engine modernization is tracked in [#10](https://github.com/allamiro/tamir-gitbook/issues/10).
+
+**Install the CLI as a package** (outside Docker): each [release](https://github.com/allamiro/tamir-gitbook/releases) attaches a `gitbook-cli-vX.Y.Z.tgz` tarball —
+
+```bash
+npm install -g https://github.com/allamiro/tamir-gitbook/releases/latest/download/gitbook-cli-v1.2.0.tgz
+# or from a clone:
+npm install -g ./tamir-gitbook/gitbook-cli
+```
 
 ## 🛠️ Technical notes
 
