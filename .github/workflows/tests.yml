@@ -69,16 +69,18 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
-    container:
-      image: node:10.24.1-alpine3.11
     steps:
       - uses: actions/checkout@v7
-      - name: Install dependencies and run unit tests
-        working-directory: gitbook-cli
+      # Not a `container:` job: the Actions runner injects its own modern
+      # node binary into job containers, which cannot start on Alpine 3.11's
+      # old musl. Running the Node 10 image via docker run avoids that.
+      - name: Install dependencies and run unit tests (in node:10 container)
         run: |
-          apk add --no-cache git >/dev/null
-          npm install --loglevel=error
-          npm run test:unit
+          docker run --rm -v "$PWD/gitbook-cli":/cli-src node:10.24.1-alpine3.11 sh -c \
+            "apk add --no-cache git >/dev/null 2>&1 && \
+             cp -r /cli-src /cli && cd /cli && \
+             npm install --loglevel=error && \
+             npm run test:unit"
 
   compose-validate:
     name: Validate docker-compose.yml
