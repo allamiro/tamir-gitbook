@@ -96,6 +96,20 @@ replace ip-address 10.2.0 10.3.1
 #   from the book author, not untrusted input. No fixed 1.x/2.x exists and
 #   braces 3 breaks the chokidar 1.x/micromatch 2.x consumers.
 
+# send 0.13 reads res._headers, which modern Node removed — any conditional
+# request (browser cache revalidation) crashes the serve process. Route the
+# reads through res.getHeaders() with a _headers fallback.
+SEND_JS="$ROOT/node_modules/send/index.js"
+if [ -f "$SEND_JS" ] && grep -q 'this\.res\._headers' "$SEND_JS"; then
+    sed -i \
+        -e 's#this\.res\._headers#(this.res.getHeaders ? this.res.getHeaders() : this.res._headers or_else {})#g' \
+        -e 's#Object\.keys(res\._headers #Object.keys((res.getHeaders ? res.getHeaders() : res._headers) #' \
+        -e 's#res\._headers = null#if (res.getHeaderNames) { res.getHeaderNames().forEach(function (h) { res.removeHeader(h) }) } else { res._headers = null }#' \
+        -e 's#or_else#||#g' \
+        "$SEND_JS"
+    echo "  patched send res._headers for modern Node"
+fi
+
 # npmi JSON.parses installed package.json files raw; plugin packages with a
 # UTF-8 BOM crash it (surfaced once npm 6 resolves newer plugin releases).
 NPMI_JS="$ROOT/node_modules/npmi/npmi.js"
