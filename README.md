@@ -92,9 +92,10 @@ docker run -d -p 4000:4000 -p 35729:35729 -v "$(pwd)":/gitbook tamir-gitbook-wik
 ├── chapter-1/         # Chapter 1 content
 │   ├── README.md
 │   └── getting-started.md
-└── chapter-2/         # Chapter 2 content
-    ├── README.md
-    └── configuration.md
+├── chapter-2/         # Chapter 2 content
+│   ├── README.md
+│   └── configuration.md
+└── gitbook-cli/       # Vendored, maintained GitBook CLI source (built into the image)
 ```
 
 ## ✏️ Customizing content
@@ -156,9 +157,13 @@ This happens when the GitBook CLI runs on a **modern Node.js** (12+, including N
 
 Make sure port `35729` is published (`-p 35729:35729`) and the project directory is bind-mounted (`-v "$(pwd)":/gitbook`).
 
+## 🧰 Vendored GitBook CLI
+
+Upstream [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) is deprecated, so this repository **owns and maintains a vendored copy** in [`gitbook-cli/`](gitbook-cli/) — the image installs the CLI from that directory, not from npm. This lets us fix bugs (like the `graceful-fs` crash), absorb useful upstream patches, and work toward modern-Node compatibility in our own tree. CLI bugs and improvement ideas are tracked in this repo's [issues](https://github.com/allamiro/tamir-gitbook/issues).
+
 ## 🛠️ Technical notes
 
-- Built on Node.js 10.x — intentionally, as it is the last major Node version compatible with GitBook CLI 3.2.3
+- Built on Node.js 10.x — intentionally, as it is the last major Node version compatible with GitBook 3.2.3 (lifting this ceiling is tracked as a modernization effort on the vendored CLI)
 - Includes fixes for the `graceful-fs` polyfill incompatibilities that break GitBook on modern npm
 - Pre-configured plugins: search, expandable chapters, syntax highlighting, back-to-top button
 - Container `HEALTHCHECK` polls the site so orchestrators can detect a failed build

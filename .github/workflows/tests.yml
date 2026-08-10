@@ -38,6 +38,7 @@ jobs:
             **/*.md
             !node_modules
             !_book
+            !gitbook-cli
 
   link-check:
     name: Check Markdown links
@@ -58,6 +59,7 @@ jobs:
             --exclude token.actions.githubusercontent.com
             --exclude-path _book
             --exclude-path node_modules
+            --exclude-path gitbook-cli
             './**/*.md'
           fail: true
 

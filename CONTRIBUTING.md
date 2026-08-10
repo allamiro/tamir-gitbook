@@ -62,6 +62,14 @@ image version.
 3. Once merged to `main`, a version tag, GitHub Release, and multi-arch image
    push to Docker Hub + GHCR happen automatically
 
+## Vendored GitBook CLI (`gitbook-cli/`)
+
+The `gitbook-cli/` directory is a vendored, maintained copy of the deprecated
+upstream CLI — the Docker image installs it from this source. Changes there
+ship in the image, so they trigger releases like any other code change.
+Fixes should go into this source (rather than post-install patches in the
+Dockerfile) whenever possible.
+
 ## Code Style
 
 - Follow existing code formatting

@@ -21,8 +21,11 @@ RUN apk add --no-cache \
 # Set working directory
 WORKDIR /gitbook
 
-# Install GitBook CLI with compatibility fixes
-RUN npm install -g gitbook-cli@2.3.2 && \
+# Install GitBook CLI from the vendored source (gitbook-cli/) — we own and
+# maintain this copy since upstream is deprecated. Compatibility fixes are
+# applied post-install below until they are fully absorbed into the source.
+COPY gitbook-cli /opt/gitbook-cli
+RUN npm install -g /opt/gitbook-cli && \
     # Create necessary directories for gitbook installation
     mkdir -p /root/.gitbook && \
     # Fix graceful-fs issues by replacing the polyfills.js file

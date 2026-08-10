@@ -1,3 +1,9 @@
+> **Maintained vendored copy.** Imported from the deprecated upstream
+> [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) into
+> [allamiro/tamir-gitbook](https://github.com/allamiro/tamir-gitbook), where it is
+> maintained going forward (issues welcome there). The Docker image installs the
+> CLI from this directory.
+
 > ## ⚠️ Deprecation warning:
 >
 > As the efforts of the GitBook team are focused on the [GitBook.com](https://www.gitbook.com) platform, the CLI is no longer under active development.  
