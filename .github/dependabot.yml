@@ -1,7 +1,7 @@
 version: 2
 updates:
-  # Keep GitHub Actions up to date. npm and the Docker base image are
-  # intentionally NOT tracked: the legacy GitBook CLI stack requires the
+  # Keep GitHub Actions up to date. The root npm project and the Docker base
+  # image are intentionally NOT tracked: the legacy GitBook stack requires the
   # pinned Node 10 base and frozen plugin versions.
   - package-ecosystem: github-actions
     directory: /
@@ -15,3 +15,18 @@ updates:
       actions:
         patterns:
           - "*"
+
+  # Vendored, maintained gitbook-cli: accept dependency updates that stay
+  # compatible with Node 10 and the CLI's programmatic npm usage.
+  - package-ecosystem: npm
+    directory: /gitbook-cli
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    ignore:
+      # npm >= 8 removed the programmatic API the CLI depends on, and modern
+      # npm requires Node 20+. Tracked in the modernization epic (#10).
+      - dependency-name: npm
+      - dependency-name: npmi

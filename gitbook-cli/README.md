@@ -1,23 +1,13 @@
-> **Maintained vendored copy.** Imported from the deprecated upstream
-> [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli) into
-> [allamiro/tamir-gitbook](https://github.com/allamiro/tamir-gitbook), where it is
-> maintained going forward (issues welcome there). The Docker image installs the
-> CLI from this directory.
+# gitbook-cli (maintained)
 
-> ## ⚠️ Deprecation warning:
->
-> As the efforts of the GitBook team are focused on the [GitBook.com](https://www.gitbook.com) platform, the CLI is no longer under active development.  
-> All content supported by the CLI are mostly supported by our [GitBook.com / GitHub integration](https://docs.gitbook.com/getting-started/git-sync).
->
-> Content hosted on the [legacy.gitbook.com](https://legacy.gitbook.com) will continue working until further notice. For differences with the new version, > check out our [documentation](https://docs.gitbook.com/v2-changes/important-differences).
->
-> Join our [GitHub community](https://github.com/GitbookIO/community) to stay up to date with the latest news at GitBook.
-
-# gitbook-cli
-
-[![NPM version](https://badge.fury.io/js/gitbook-cli.svg)](http://badge.fury.io/js/gitbook-cli)
-[![Linux Build Status](https://travis-ci.org/GitbookIO/gitbook-cli.png?branch=master)](https://travis-ci.org/GitbookIO/gitbook-cli)
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/gddbj0602joc4wah?svg=true)](https://ci.appveyor.com/project/GitBook/gitbook-cli)
+> **This is an actively maintained copy** of the GitBook command line interface,
+> imported from the original [GitbookIO/gitbook-cli](https://github.com/GitbookIO/gitbook-cli)
+> (which its authors stopped developing) into
+> [allamiro/tamir-gitbook](https://github.com/allamiro/tamir-gitbook).
+> Bug fixes, dependency updates, and modernization work happen here — report
+> problems and ideas in the
+> [tamir-gitbook issue tracker](https://github.com/allamiro/tamir-gitbook/issues).
+> The `tamir-gitbook-wiki` Docker image installs the CLI from this directory.
 
 > The GitBook command line interface.
 
