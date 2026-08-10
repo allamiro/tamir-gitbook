@@ -137,6 +137,8 @@ jobs:
       security-events: write  # Trivy SARIF upload to the Security tab
 
     steps:
+      - uses: actions/checkout@v7   # for .trivyignore
+
       - name: Download digests
         uses: actions/download-artifact@v8
         with:
@@ -229,6 +231,7 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           timeout: 10m
+          trivyignores: .trivyignore
         env:
           TRIVY_USERNAME: ${{ github.actor }}
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

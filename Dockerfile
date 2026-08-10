@@ -10,14 +10,16 @@ LABEL org.opencontainers.image.title="tamir-gitbook-wiki" \
       org.opencontainers.image.source="https://github.com/allamiro/tamir-gitbook" \
       org.opencontainers.image.licenses="Apache-2.0"
 
-# Install dependencies
+# Install dependencies; keep the global npm current (the base image's bundled
+# npm lags on its own dependency patches)
 RUN apk add --no-cache \
     bash \
     curl \
     git \
     ca-certificates \
     unzip \
-    openssh
+    openssh \
+    && npm install -g npm@latest --loglevel=error
 
 # Set working directory
 WORKDIR /gitbook
@@ -26,13 +28,17 @@ WORKDIR /gitbook
 # the tarball (a plain folder install would be symlinked by modern npm), then
 # drop the source copy — the real install lives under /usr/local/lib.
 COPY gitbook-cli /opt/gitbook-cli
+COPY scripts/patch-vulnerable-deps.sh /usr/local/bin/patch-vulnerable-deps.sh
 RUN cd /opt/gitbook-cli && \
     npm pack --loglevel=error && \
     npm install -g ./gitbook-cli-*.tgz --loglevel=error && \
     cd / && rm -rf /opt/gitbook-cli && \
     mkdir -p /root/.gitbook && \
-    # Pre-install the GitBook engine
+    # Pre-install the GitBook engine, then patch its known-vulnerable
+    # nested dependencies with fixed releases
     gitbook fetch 3.2.3 && \
+    sh /usr/local/bin/patch-vulnerable-deps.sh /root/.gitbook/versions/3.2.3 && \
+    sh /usr/local/bin/patch-vulnerable-deps.sh /usr/local/lib/node_modules/npm && \
     # Drop npm/tmp leftovers so they don't ship (or get flagged by scanners)
     rm -rf /tmp/* /root/.npm
 

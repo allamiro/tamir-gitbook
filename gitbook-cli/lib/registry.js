@@ -39,6 +39,10 @@ function availableVersions() {
     .then(function(stdout) {
         var result = JSON.parse(stdout);
 
+        // npm >= 12 wraps `npm view` --json results in an array;
+        // npm 6-11 return a bare object
+        if (Array.isArray(result)) result = result[0] || {};
+
         result = {
             versions: _.chain(result.versions)
                 .filter(function(v) {

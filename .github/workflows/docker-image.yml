@@ -65,4 +65,8 @@ jobs:
             sleep 5
           done
           curl -fsS http://localhost:4000/ | grep -qi "Tamir GitBook Wiki"
+          # Exercise the patched engine paths: static build and the plugin
+          # installer (npmi + the swapped-in npm 6 tree)
+          docker exec ci-smoke sh -c "cd /gitbook && gitbook build >/dev/null"
+          docker exec ci-smoke sh -c "cd /gitbook && gitbook install >/dev/null"
           docker rm -f ci-smoke

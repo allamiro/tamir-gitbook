@@ -2,6 +2,8 @@
 
 ## What changed vs the abandoned upstream 2.3.2
 
+- **3.0.1** — support npm ≥ 12 (its `npm view --json` wraps results in an array).
+
 - **3.0.0** — runs on modern Node.js (tested on 10, 22, 24). The bundled
   programmatic npm was replaced with spawning the system `npm` CLI (breaking:
   `npm` must be on `PATH` — it always is with any Node install). `optimist`

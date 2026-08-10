@@ -1,0 +1,21 @@
+# Risk-accepted findings in the legacy GitBook 3.2.3 engine tree.
+# Everything patchable is patched at image build by
+# scripts/patch-vulnerable-deps.sh — the entries below have no fix that the
+# engine survives (see the script's comments and issue #20).
+
+# immutable 3.8.3 — engine's core data layer. immutable 4.x breaks the
+# engine's Record definitions (verified: pages fail to render). Exposure is
+# prototype-pollution via untrusted collection input; the engine only feeds
+# it book content from the local filesystem.
+CVE-2026-59879
+CVE-2026-59880
+
+# braces 1.8.5 / 2.3.2 — ReDoS through crafted glob patterns. Glob input
+# comes from the book author's own config, not untrusted users. No fixed
+# 1.x/2.x exists; braces 3 is incompatible with the chokidar 1.x consumers.
+CVE-2024-4068
+
+# ip 1.1.5 (nested in the engine's npm, used only by its SOCKS-proxy path,
+# which this image never exercises) — upstream never shipped a fixed
+# release for this CVE in any version.
+CVE-2024-29415

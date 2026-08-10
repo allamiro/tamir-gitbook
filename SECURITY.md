@@ -15,6 +15,11 @@ Only the most recent release receives security updates. Pin the full
 - Every published image is scanned with **Trivy** (CRITICAL/HIGH) at release
   time, and the latest image is **re-scanned weekly**; results are uploaded to
   the repository's [Security tab](https://github.com/allamiro/tamir-gitbook/security).
+- The image ships with **zero known CRITICAL/HIGH vulnerabilities**: the
+  legacy engine's vulnerable nested dependencies are replaced with patched
+  releases at build time (`scripts/patch-vulnerable-deps.sh`, exercised by
+  CI's serve/build/plugin-install smoke tests). The small set of findings
+  with no viable fix is risk-assessed and documented in `.trivyignore`.
 - Published manifests are **signed with cosign** (keyless, GitHub OIDC) — see
   the README for verification instructions.
 - The image runs on current **Node.js 22 LTS** with this repo's maintained
