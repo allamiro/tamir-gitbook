@@ -14,7 +14,7 @@ Only the most recent release receives security updates. Pin the full
 
 - Every published image is scanned with **Trivy** (CRITICAL/HIGH) at release
   time, and the latest image is **re-scanned weekly**; results are uploaded to
-  the repository's [Security tab](https://github.com/allamiro/tamir-gitbook/security/code-scanning).
+  the repository's [Security tab](https://github.com/allamiro/tamir-gitbook/security).
 - Published manifests are **signed with cosign** (keyless, GitHub OIDC) — see
   the README for verification instructions.
 - The image intentionally runs the legacy GitBook CLI (3.2.3) on Node.js 10,

@@ -9,19 +9,6 @@
 
 A lightweight Docker image for hosting GitBook wikis, optimized for fast setup and minimal resource usage. Ships the legacy GitBook CLI (3.2.3) on Node.js 10 — the last Node version compatible with it — with all known compatibility issues (`graceful-fs` polyfills) fixed inside the image, so `gitbook serve` just works.
 
-## 📖 Table of Contents
-
-- [Quick reference](#-quick-reference)
-- [Supported tags](#-supported-tags)
-- [Quick Start](#-quick-start)
-- [Project structure](#-project-structure)
-- [Customizing content](#-customizing-content)
-- [Versioning & releases](#-versioning--releases)
-- [Security](#-security)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-- [License](#-license)
-
 ## 🔎 Quick reference
 
 | | |
@@ -116,7 +103,7 @@ Every merge to `main` that touches code or config triggers the release pipeline:
 
 1. **Auto-tag** — a semantic version tag (`vX.Y.Z`) is computed from Conventional Commit messages and pushed, and a GitHub Release with generated notes is created.
 2. **Build & Publish** — multi-arch images (`linux/amd64` + `linux/arm64`, each built on native runners) are pushed to **GHCR** and — when Docker Hub credentials are configured — **Docker Hub**, with the full tag set above.
-3. Published manifests are **signed with cosign** and **scanned with Trivy**, with results uploaded to the [Security tab](https://github.com/allamiro/tamir-gitbook/security/code-scanning).
+3. Published manifests are **signed with cosign** and **scanned with Trivy**, with results uploaded to the [Security tab](https://github.com/allamiro/tamir-gitbook/security).
 
 ## 🔐 Security
 

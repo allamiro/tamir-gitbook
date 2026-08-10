@@ -43,17 +43,21 @@ jobs:
         run: |
           ghcr="ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"
           if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
-            echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
-            echo "dockerhub_image=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" >> "$GITHUB_OUTPUT"
-            echo "push_names=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki,${ghcr}" >> "$GITHUB_OUTPUT"
+            {
+              echo "has_dockerhub=true"
+              echo "dockerhub_image=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki"
+              echo "push_names=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki,${ghcr}"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "::warning::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN not configured — publishing to GHCR only"
-            echo "has_dockerhub=false" >> "$GITHUB_OUTPUT"
-            echo "dockerhub_image=" >> "$GITHUB_OUTPUT"
-            echo "push_names=${ghcr}" >> "$GITHUB_OUTPUT"
+            {
+              echo "has_dockerhub=false"
+              echo "dockerhub_image="
+              echo "push_names=${ghcr}"
+            } >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Docker metadata (labels)
         id: meta
@@ -67,14 +71,14 @@ jobs:
 
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request' && steps.dst.outputs.has_dockerhub == 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -114,7 +118,7 @@ jobs:
 
       - name: Upload digest
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: digests-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           path: ${{ runner.temp }}/digests/*
@@ -134,13 +138,13 @@ jobs:
 
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Determine destination registries
         id: dst
@@ -151,13 +155,17 @@ jobs:
           ghcr="ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki"
           echo "short_sha=$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_OUTPUT"
           if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
-            echo "has_dockerhub=true" >> "$GITHUB_OUTPUT"
-            echo "dockerhub_image=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki" >> "$GITHUB_OUTPUT"
-            echo "images=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki ${ghcr}" >> "$GITHUB_OUTPUT"
+            {
+              echo "has_dockerhub=true"
+              echo "dockerhub_image=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki"
+              echo "images=docker.io/${DOCKERHUB_USERNAME}/tamir-gitbook-wiki ${ghcr}"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "has_dockerhub=false" >> "$GITHUB_OUTPUT"
-            echo "dockerhub_image=" >> "$GITHUB_OUTPUT"
-            echo "images=${ghcr}" >> "$GITHUB_OUTPUT"
+            {
+              echo "has_dockerhub=false"
+              echo "dockerhub_image="
+              echo "images=${ghcr}"
+            } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Docker metadata (tags, labels)
@@ -177,13 +185,13 @@ jobs:
 
       - name: Login to Docker Hub
         if: steps.dst.outputs.has_dockerhub == 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -214,7 +222,7 @@ jobs:
           done
 
       - name: Scan published image for CVEs (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ github.repository_owner }}/tamir-gitbook-wiki:sha-${{ steps.dst.outputs.short_sha }}
           severity: CRITICAL,HIGH
@@ -226,7 +234,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Trivy results to the GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: trivy-results.sarif
