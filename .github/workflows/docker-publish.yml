@@ -243,3 +243,13 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
           category: trivy-image
+
+      - name: Sync Docker Hub overview
+        if: github.ref == 'refs/heads/main' && steps.dst.outputs.has_dockerhub == 'true'
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/tamir-gitbook-wiki
+          readme-filepath: docs/dockerhub-overview.md
+          short-description: "GitBook wiki server on Node 24 LTS, maintained CLI, zero known CVEs. Multi-arch, signed."

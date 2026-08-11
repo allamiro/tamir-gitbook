@@ -135,6 +135,7 @@ docker run -d -p 4000:4000 ghcr.io/allamiro/tamir-gitbook-wiki:2.2.0
 1. Edit Markdown files in the project directory — live reload picks up changes automatically
 2. Modify `book.json` to configure plugins and settings
 3. Update `SUMMARY.md` to change the table of contents
+4. Pick a look from [`themes/`](themes/) — ready-made themes inspired by today's GitBook.com (Modern, Modern Dark, Gradient, or the classic default), selected with one line in `book.json` and customizable via CSS variables; see [themes/README.md](themes/README.md)
 
 Build other outputs from inside the running container:
 

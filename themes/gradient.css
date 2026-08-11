@@ -1,0 +1,151 @@
+/* Theme: Gradient — Modern with a gradient header band, inspired by
+ * GitBook.com's Gradient site theme.
+ * Selected via book.json:  "styles": { "website": "themes/gradient.css" }
+ */
+
+:root {
+    --tg-accent: #7c3aed;
+    --tg-accent-2: #2962ff;
+    --tg-accent-soft: rgba(124, 58, 237, 0.08);
+    --tg-sidebar-bg: #faf9fc;
+    --tg-border: #e8e5ef;
+    --tg-text: #1a1f36;
+    --tg-muted: #6b7280;
+    --tg-radius: 8px;
+    --tg-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    --tg-mono: ui-monospace, SFMono-Regular, Menlo, Consolas,
+        "Liberation Mono", monospace;
+}
+
+.book,
+.book-summary,
+.book-header,
+.markdown-section {
+    font-family: var(--tg-font);
+}
+
+/* Gradient header band */
+.book-header {
+    background: linear-gradient(90deg, var(--tg-accent) 0%, var(--tg-accent-2) 100%);
+    border-bottom: none;
+}
+
+.book-header .btn,
+.book-header h1 a,
+.book-header h1 a:hover {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.book-header .btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Content */
+.markdown-section {
+    color: var(--tg-text);
+    line-height: 1.7;
+    font-size: 16px;
+}
+
+.markdown-section h1,
+.markdown-section h2,
+.markdown-section h3 {
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.markdown-section h2 {
+    border-bottom: 1px solid var(--tg-border);
+    padding-bottom: 0.35em;
+}
+
+.markdown-section h1 {
+    background: linear-gradient(90deg, var(--tg-accent), var(--tg-accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Sidebar */
+.book-summary {
+    background: var(--tg-sidebar-bg);
+    border-right: 1px solid var(--tg-border);
+}
+
+.book-summary ul.summary li a {
+    color: var(--tg-muted);
+    padding: 8px 15px;
+    border-radius: var(--tg-radius);
+    margin: 1px 8px;
+}
+
+.book-summary ul.summary li a:hover,
+.book-summary ul.summary li.active > a {
+    background: var(--tg-accent-soft);
+    color: var(--tg-accent);
+    text-decoration: none;
+    border-left: none;
+}
+
+.book-summary ul.summary li.active > a {
+    font-weight: 600;
+}
+
+/* Links */
+.markdown-section a {
+    color: var(--tg-accent);
+    text-decoration: none;
+}
+
+.markdown-section a:hover {
+    text-decoration: underline;
+}
+
+/* Code */
+.markdown-section code {
+    font-family: var(--tg-mono);
+    background: var(--tg-accent-soft);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 0.875em;
+}
+
+.markdown-section pre {
+    background: #f7f5fb;
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    padding: 14px 16px;
+}
+
+.markdown-section pre > code {
+    background: transparent;
+    padding: 0;
+}
+
+/* Blockquotes */
+.markdown-section blockquote {
+    border-left: 4px solid var(--tg-accent);
+    background: var(--tg-accent-soft);
+    border-radius: 0 var(--tg-radius) var(--tg-radius) 0;
+    padding: 12px 16px;
+    margin: 1em 0;
+}
+
+/* Tables */
+.markdown-section table {
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    overflow: hidden;
+}
+
+.markdown-section table th {
+    background: var(--tg-sidebar-bg);
+    font-weight: 600;
+    border-color: var(--tg-border);
+}
+
+.markdown-section table td {
+    border-color: var(--tg-border);
+}

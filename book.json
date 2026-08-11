@@ -6,6 +6,9 @@
   "structure": {
     "readme": "intro.md"
   },
+  "styles": {
+    "website": "themes/modern.css"
+  },
   "plugins": [
     "-sharing",
     "search",
