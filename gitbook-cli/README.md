@@ -65,6 +65,14 @@ gitbook build ./mybook --gitbook=2.0.1   # force a version for one command
 
 ## Changelog (vs upstream 2.3.2)
 
+- **3.2.0** — `gitbook fetch` now also replaces the engine's bundled npm
+  (~40 MB) with a small shim over the system npm. Without it `gitbook
+  install` crashes on any modern Node, because the engine drives npm through
+  the programmatic API removed in npm 8. The shim also fixes plugin installs
+  evicting each other: each plugin is installed into a scratch prefix and
+  copied in, so npm cannot prune the previously installed ones as
+  "extraneous".
+
 - **3.1.0** — `gitbook fetch` applies Node compatibility patches to the
   installed engine (guarded string fixes; currently the `send` header-API fix,
   without which browser cache revalidation crashes `gitbook serve` on modern

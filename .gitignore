@@ -22,3 +22,6 @@ _book/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# npm pack output
+*.tgz

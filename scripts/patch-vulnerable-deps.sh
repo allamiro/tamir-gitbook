@@ -40,10 +40,11 @@ replace() { # name from-version to-version
 
 echo "Patching known-vulnerable packages under $ROOT"
 
-# The engine's bundled npm 3 carries the worst of it (old tar, minimatch,
-# request, sshpk, json-schema, ...). npm 6.14.18 is the last npm with the
-# programmatic API the engine's plugin installer (npmi) needs.
-replace npm 3.9.2 6.14.18
+# The engine's bundled npm is replaced with a system-npm shim by the CLI
+# itself (gitbook-cli/lib/patches.js, applied during `gitbook fetch`), so it
+# is already gone by the time this script runs — along with the vulnerable
+# dependency tree it used to drag in. Nothing to do here.
+
 
 # request 2.72.0 depends on hawk/hoek (no fixed releases exist). 2.88.2 is
 # the final request and dropped hawk entirely.

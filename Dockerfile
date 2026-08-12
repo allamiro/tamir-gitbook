@@ -17,8 +17,6 @@ RUN apk add --no-cache \
     curl \
     git \
     ca-certificates \
-    unzip \
-    openssh \
     && npm install -g npm@latest --loglevel=error
 
 # Set working directory

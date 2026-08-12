@@ -116,8 +116,13 @@ function installVersion(version, forceInstall) {
 
         if (!tags.isValid(version)) throw 'Invalid GitBook version, should satisfies '+config.GITBOOK_VERSION;
 
-        // Copy to the install folder, then apply Node compatibility patches
-        return Q.nfcall(fs.copy.bind(fs), gitbookRoot, outputFolder)
+        // Replace any existing install rather than copying over it: a merge
+        // would mix the new tree with leftovers from the old one (including
+        // files the compatibility patches replaced)
+        return Q.nfcall(fs.remove.bind(fs), outputFolder)
+        .then(function() {
+            return Q.nfcall(fs.copy.bind(fs), gitbookRoot, outputFolder);
+        })
         .then(function() {
             patches.apply(outputFolder);
         })

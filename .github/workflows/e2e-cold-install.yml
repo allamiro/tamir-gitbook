@@ -1,0 +1,64 @@
+name: E2E (cold install)
+
+# Installs the *published* CLI release on a clean machine and drives a real
+# book through it: fetch the engine from the npm registry, install plugins,
+# build, serve, and revalidate a cached response. Nothing from the working
+# tree is used, so this catches drift the image build hides — a broken
+# release asset, npm or registry behaviour changes, plugin metadata changes,
+# or a new Node release breaking the legacy engine.
+
+on:
+  schedule:
+    - cron: "30 6 * * 2"  # Every Tuesday at 06:30 UTC
+  workflow_dispatch: {}
+  push:
+    branches: ["main"]
+    paths:
+      - "gitbook-cli/**"
+      - "scripts/e2e-cold-install.sh"
+      - ".github/workflows/e2e-cold-install.yml"
+
+jobs:
+  cold-install:
+    name: Released CLI on clean Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22-alpine", "24-alpine", "26-alpine"]
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve the latest release's CLI tarball
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          url=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets \
+                --jq '.assets[] | select(.name | endswith(".tgz")) | .url' | head -1)
+          if [ -z "$url" ]; then
+            echo "::error::release $tag has no gitbook-cli tarball attached"
+            exit 1
+          fi
+          echo "Testing $tag: $url"
+          { echo "tag=$tag"; echo "url=$url"; } >> "$GITHUB_OUTPUT"
+
+      # Run inside the Node image rather than a `container:` job — the runner
+      # injects its own node binary into job containers, which fails on the
+      # older musl in some of these images.
+      - name: Cold install, build, serve and revalidate
+        run: |
+          docker run --rm -v "$PWD/scripts:/scripts:ro" "node:${{ matrix.node }}" \
+            sh /scripts/e2e-cold-install.sh "${{ steps.release.outputs.url }}"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "Release : ${{ steps.release.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Node    : ${{ matrix.node }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Result  : ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
