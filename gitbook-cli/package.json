@@ -1,6 +1,6 @@
 {
   "name": "gitbook-cli",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "homepage": "https://github.com/allamiro/tamir-gitbook/tree/main/gitbook-cli",
   "description": "Maintained GitBook command line interface \u2014 runs on modern Node.js (successor to the abandoned upstream gitbook-cli 2.3.2)",
   "main": "lib/index.js",

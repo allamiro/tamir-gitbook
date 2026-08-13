@@ -9,7 +9,8 @@ var tags = require('./tags');
 var config = require('./config');
 var patches = require('./patches');
 
-var NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+var npmRunner = require('./npm-runner');
+
 var cachedNpmVersion = null;
 
 // npm 9 renamed --global-style to --install-strategy=shallow and npm 10
@@ -18,7 +19,8 @@ function shallowInstallFlag() {
     if (cachedNpmVersion === null) {
         try {
             cachedNpmVersion = String(childProcess.execFileSync(
-                NPM_BIN, ['--version'], {encoding: 'utf8'}
+                npmRunner.file(), npmRunner.args(['--version']),
+                {encoding: 'utf8'}
             )).trim();
         } catch (e) {
             cachedNpmVersion = '';
@@ -37,8 +39,8 @@ function shallowInstallFlag() {
 function execNpm(args) {
     var deferred = Q.defer();
 
-    childProcess.execFile(NPM_BIN, args, {
-        maxBuffer: 10 * 1024 * 1024,
+    childProcess.execFile(npmRunner.file(), npmRunner.args(args), {
+        maxBuffer: 64 * 1024 * 1024,
         env: process.env
     }, function(err, stdout, stderr) {
         if (err) {
