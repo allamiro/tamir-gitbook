@@ -14,34 +14,67 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 
-var NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 var cachedVersion = null;
+var cachedNpm = null;
+var runner = null;
+var scratchDirs = [];
+var exitHookInstalled = false;
 
-function systemNpmVersion() {
-    if (cachedVersion === null) {
-        try {
-            cachedVersion = String(childProcess.execFileSync(
-                NPM_BIN, ['--version'], {encoding: 'utf8'}
-            )).trim();
-        } catch (e) {
-            cachedVersion = 'system';
-        }
+// ---------------------------------------------------------------------------
+// Running npm
+// ---------------------------------------------------------------------------
+
+// On Windows the npm launcher is npm.cmd, and modern Node refuses to
+// execFile a .cmd file (EINVAL). Run npm's own JS entry point with the
+// current node binary instead: no shell is involved, so user-controlled
+// package specs can never be interpreted as shell syntax.
+function resolveNpm() {
+    if (cachedNpm) return cachedNpm;
+
+    if (process.platform !== 'win32') {
+        cachedNpm = {file: 'npm', prefixArgs: []};
+        return cachedNpm;
     }
-    return cachedVersion;
+
+    var candidates = [];
+    if (process.env.npm_execpath) candidates.push(process.env.npm_execpath);
+    candidates.push(path.join(path.dirname(process.execPath),
+        'node_modules', 'npm', 'bin', 'npm-cli.js'));
+
+    for (var i = 0; i < candidates.length; i++) {
+        try {
+            if (candidates[i] && /\.js$/i.test(candidates[i]) &&
+                fs.existsSync(candidates[i])) {
+                cachedNpm = {file: process.execPath, prefixArgs: [candidates[i]]};
+                return cachedNpm;
+            }
+        } catch (e) { /* try the next candidate */ }
+    }
+
+    // Last resort. execFile may reject this on current Node, but failing with
+    // npm's own error is better than failing silently.
+    cachedNpm = {file: 'npm.cmd', prefixArgs: []};
+    return cachedNpm;
 }
 
-// npm 9 renamed --global-style to --install-strategy=shallow and npm 10
-// dropped the old flag, so pick whichever this npm understands.
-function shallowInstallFlag() {
-    var major = parseInt(systemNpmVersion(), 10);
-    return (isNaN(major) || major >= 9) ? '--install-strategy=shallow'
-                                        : '--global-style';
-}
+// options.cwd matters: npm discovers the project .npmrc (private registry,
+// auth token, proxy) relative to the working directory, so commands run where
+// the user's configuration lives rather than in a scratch prefix.
+function run(args, options, callback) {
+    if (typeof options === 'function') {
+        callback = options;
+        options = {};
+    }
+    options = options || {};
 
-function run(args, callback) {
-    childProcess.execFile(NPM_BIN, args, {
-        maxBuffer: 32 * 1024 * 1024,
-        env: process.env
+    if (runner) return runner(args, options, callback);
+
+    var npm = resolveNpm();
+
+    childProcess.execFile(npm.file, npm.prefixArgs.concat(args), {
+        maxBuffer: 64 * 1024 * 1024,
+        env: process.env,
+        cwd: options.cwd || process.cwd()
     }, function(err, stdout, stderr) {
         if (err) {
             err.message = 'npm ' + args.join(' ') + ' failed: ' +
@@ -52,9 +85,37 @@ function run(args, callback) {
     });
 }
 
+// ---------------------------------------------------------------------------
+// Filesystem helpers (Node 10 compatible)
+// ---------------------------------------------------------------------------
+
+// Copy into a sibling directory and swap it in, so a failure part-way through
+// cannot leave the destination without its previous, working contents.
 function copyPackage(source, target) {
-    removeTree(target);
-    copyTree(source, target);
+    var staging = target + '.tmp-' + process.pid;
+    var previous = target + '.old-' + process.pid;
+
+    removeTree(staging);
+    copyTree(source, staging);
+
+    var hadPrevious = false;
+    try {
+        fs.renameSync(target, previous);
+        hadPrevious = true;
+    } catch (e) { /* nothing installed there yet */ }
+
+    try {
+        fs.renameSync(staging, target);
+    } catch (e) {
+        // Put the previous copy back rather than leaving nothing behind
+        if (hadPrevious) {
+            try { fs.renameSync(previous, target); } catch (e2) { /* ignore */ }
+        }
+        removeTree(staging);
+        throw e;
+    }
+
+    if (hadPrevious) removeTree(previous);
 }
 
 function copyTree(source, target) {
@@ -104,6 +165,33 @@ function removeTree(target) {
     }
 }
 
+// Scratch prefixes hold a full package install. Track them so an unexpected
+// exit cannot strand them under the OS temp directory.
+function makeScratch() {
+    var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gitbook-plugin-'));
+    scratchDirs.push(dir);
+
+    if (!exitHookInstalled) {
+        exitHookInstalled = true;
+        process.on('exit', function() {
+            scratchDirs.forEach(removeTree);
+            scratchDirs = [];
+        });
+    }
+
+    return dir;
+}
+
+function releaseScratch(dir) {
+    removeTree(dir);
+    var at = scratchDirs.indexOf(dir);
+    if (at >= 0) scratchDirs.splice(at, 1);
+}
+
+// ---------------------------------------------------------------------------
+// npm output handling
+// ---------------------------------------------------------------------------
+
 // The engine asks for a plugin's whole version history so it can pick the
 // newest release compatible with itself, and expresses "any version" as the
 // range '*' (PluginDependency's default). The npm CLI special-cases a bare
@@ -124,10 +212,10 @@ function widenRange(spec) {
     return spec;
 }
 
-// `npm view <spec> --json` answers in three shapes:
-// one object when a single version matches, an array of objects when several
-// do, and a bare version string when the extra fields hold no data. Fold all
-// three into the version-keyed map the engine expects.
+// `npm view <spec> --json` answers in three shapes: one object when a single
+// version matches, an array of objects when several do, and a bare version
+// string in some field-limited cases. Fold all three into the version-keyed
+// map the engine expects.
 function normalizeView(parsed) {
     var entries = Array.isArray(parsed) ? parsed : [parsed];
     var result = {};
@@ -145,6 +233,10 @@ function normalizeView(parsed) {
     return result;
 }
 
+// ---------------------------------------------------------------------------
+// The npm API surface the engine uses
+// ---------------------------------------------------------------------------
+
 var npm = {
     prefix: process.cwd(),
 
@@ -154,7 +246,16 @@ var npm = {
             options = {};
         }
         if (options && options.prefix) npm.prefix = options.prefix;
-        process.nextTick(function() {
+
+        // Resolve the version here rather than in the getter: load() is async
+        // and always runs before the engine logs "using npm@X", so nothing
+        // has to block the event loop on a synchronous spawn.
+        if (cachedVersion !== null) {
+            return process.nextTick(function() { callback(null, npm); });
+        }
+
+        run(['--version'], function(err, stdout) {
+            cachedVersion = err ? 'system' : String(stdout).trim();
             callback(null, npm);
         });
     },
@@ -177,7 +278,7 @@ var npm = {
                 return run([
                     'install', '--prefix', where,
                     '--no-audit', '--no-fund', '--loglevel', 'error'
-                ], function(err) {
+                ], {cwd: where}, function(err) {
                     callback(err);
                 });
             }
@@ -195,9 +296,7 @@ var npm = {
                 if (remaining.length === 0) return callback(null);
 
                 var spec = remaining.shift();
-                var scratch = fs.mkdtempSync(
-                    path.join(os.tmpdir(), 'gitbook-plugin-')
-                );
+                var scratch = makeScratch();
 
                 run([
                     'install', spec,
@@ -205,9 +304,9 @@ var npm = {
                     shallowInstallFlag(),
                     '--no-save', '--no-audit', '--no-fund',
                     '--no-package-lock', '--loglevel', 'error'
-                ], function(installErr) {
+                ], {cwd: where}, function(installErr) {
                     if (installErr) {
-                        removeTree(scratch);
+                        releaseScratch(scratch);
                         return callback(installErr);
                     }
 
@@ -237,11 +336,11 @@ var npm = {
                             }
                         });
                     } catch (copyErr) {
-                        removeTree(scratch);
+                        releaseScratch(scratch);
                         return callback(copyErr);
                     }
 
-                    removeTree(scratch);
+                    releaseScratch(scratch);
                     next(null);
                 });
             }
@@ -261,8 +360,7 @@ var npm = {
             // requested fields entirely when any matching version lacks one
             // (returning bare version strings instead), which would silently
             // lose the engines data the engine resolves plugins with.
-            run(['view', spec, '--json'],
-            function(err, stdout) {
+            run(['view', spec, '--json'], function(err, stdout) {
                 if (err) return callback(err);
 
                 var parsed;
@@ -278,14 +376,34 @@ var npm = {
     }
 };
 
-// Reported in the engine's "installing N plugins using npm@X" log line
+// npm 9 renamed --global-style to --install-strategy=shallow and npm 10
+// dropped the old flag, so pick whichever this npm understands. Unknown
+// versions get the modern spelling: npm 6-8 would silently ignore it, while
+// npm 10+ rejects the old one outright.
+function shallowInstallFlag() {
+    var major = parseInt(cachedVersion, 10);
+    return (isNaN(major) || major >= 9) ? '--install-strategy=shallow'
+                                        : '--global-style';
+}
+
+// Reported in the engine's "installing N plugins using npm@X" log line.
+// load() fills this in; it never spawns anything itself.
 Object.defineProperty(npm, 'version', {
     enumerable: true,
-    get: systemNpmVersion
+    get: function() {
+        return cachedVersion === null ? 'system' : cachedVersion;
+    }
 });
 
 // Exposed for the unit tests; the engine only ever uses the npm API above.
 npm._normalizeView = normalizeView;
 npm._widenRange = widenRange;
+npm._shallowInstallFlag = shallowInstallFlag;
+npm._resolveNpm = resolveNpm;
+npm._setRunner = function(fn) {
+    runner = fn;
+    cachedVersion = null;
+};
+npm._setNpmVersion = function(v) { cachedVersion = v; };
 
 module.exports = npm;

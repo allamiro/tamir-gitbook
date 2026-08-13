@@ -156,15 +156,29 @@ function installVersion(version, forceInstall) {
 
         if (!tags.isValid(version)) throw 'Invalid GitBook version, should satisfies '+config.GITBOOK_VERSION;
 
-        // Replace any existing install rather than copying over it: a merge
-        // would mix the new tree with leftovers from the old one (including
-        // files the compatibility patches replaced)
-        return Q.nfcall(fs.remove.bind(fs), outputFolder)
+        // Stage the engine beside its final location, patch it there, and
+        // only then move it into place. An interrupted fetch therefore leaves
+        // either the previous engine or nothing at all — never a half-copied
+        // tree that later runs would accept as a working install.
+        var staging = outputFolder + '.installing';
+
+        return Q.nfcall(fs.remove.bind(fs), staging)
         .then(function() {
-            return Q.nfcall(fs.copy.bind(fs), gitbookRoot, outputFolder);
+            return Q.nfcall(fs.copy.bind(fs), gitbookRoot, staging);
         })
         .then(function() {
-            patches.apply(outputFolder);
+            patches.apply(staging);
+        })
+        .then(function() {
+            return Q.nfcall(fs.remove.bind(fs), outputFolder);
+        })
+        .then(function() {
+            return Q.nfcall(fs.rename.bind(fs), staging, outputFolder);
+        })
+        .fail(function(err) {
+            // Never leave the staging tree behind for the next run to find
+            try { fs.removeSync(staging); } catch (e) { /* best effort */ }
+            throw err;
         })
         .thenResolve(version);
     })

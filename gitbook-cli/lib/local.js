@@ -98,8 +98,13 @@ function loadVersion(version) {
         try {
             gitbook = require(resolved.path);
         } catch (err) {
+            // Propagate rather than returning null: swallowing this turned a
+            // clear "the engine is broken, here is why" into a TypeError
+            // several calls later
             console.log(color.red('Error loading version '+resolved.tag+': '+(err.stack || err.message || err)));
-            return null;
+            throw new Error('GitBook version ' + resolved.name + ' failed to load: ' +
+                (err.message || err) +
+                '. Reinstall it with "gitbook fetch ' + resolved.name + '".');
         }
 
         if (!gitbook) throw new Error('GitBook Version '+resolved.tag+' is corrupted');
@@ -111,6 +116,17 @@ function loadVersion(version) {
 function linkVersion(name, folder) {
     if (!name) return Q.reject(new Error('Require a name to represent this GitBook version'));
     if (!folder) return Q.reject(new Error('Require a folder'));
+
+    // An alias that is neither a tag nor valid semver is invisible to
+    // listVersions, so it would report success and then be unusable
+    if (!tags.isValid(name)) {
+        return Q.reject(new Error(
+            'Invalid alias "' + name + '": use a tag (' +
+            'latest, pre, beta, alpha) or a version satisfying ' +
+            config.GITBOOK_VERSION
+        ));
+    }
+
     var outputFolder = versionRoot(name);
 
     return Q.nfcall(fs.symlink.bind(fs), folder, outputFolder);

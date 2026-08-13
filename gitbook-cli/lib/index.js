@@ -77,11 +77,13 @@ function ensureAndLoad(bookRoot, version, opts) {
 function updateVersion(tag) {
     tag = tag || 'latest';
 
-    return getVersion(null, {
-        install: false
-    })
-    .fail(function(err) {
-        return Q(null);
+    // The newest version installed locally, if any. This used to call
+    // getVersion(null, {install: false}), which passed the options object
+    // where a version string belongs: it always failed, so the update never
+    // saw an installed version, always re-downloaded, and never cleaned up.
+    return local.resolve('*')
+    .fail(function() {
+        return null;
     })
     .then(function(currentV) {
         return registry.versions()
@@ -93,8 +95,11 @@ function updateVersion(tag) {
 
             return registry.install(remoteVersion)
             .then(function() {
-                if (!currentV) return;
-                return local.remove(currentV.tag);
+                // Remove by folder name: currentV.tag is 'latest' or a
+                // prerelease tag, not the directory the version lives in
+                if (!currentV || currentV.name === remoteVersion) return;
+                if (currentV.link) return; // never delete a user's aliased folder
+                return local.remove(currentV.name);
             })
             .thenResolve(remoteVersion);
         });

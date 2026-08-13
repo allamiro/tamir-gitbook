@@ -26,7 +26,12 @@ function isValid(version) {
 function getTag(version) {
     if (isTag(version)) return version;
 
+    // semver.parse returns null for anything unparseable. One stray folder in
+    // ~/.gitbook/versions with a non-semver package version used to take down
+    // every command that enumerates local versions.
     var v = semver.parse(version);
+    if (!v) return 'latest';
+
     return v.prerelease[0] || 'latest';
 }
 

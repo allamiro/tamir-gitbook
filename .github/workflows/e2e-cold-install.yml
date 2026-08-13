@@ -33,8 +33,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Resolve the latest release's CLI tarball
-        id: release
+      # On a push we must test the code that was just pushed: resolving the
+      # latest *release* would exercise the tarball that predates the change
+      # and hand back a green tick for code nothing ran.
+      - name: Pack the working tree (push events)
+        id: worktree
+        if: github.event_name == 'push'
+        run: |
+          tgz=$(cd gitbook-cli && npm pack --loglevel=error | tail -1)
+          mv "gitbook-cli/$tgz" "$PWD/$tgz"
+          { echo "tag=working tree ($GITHUB_SHA)"; echo "url=$PWD/$tgz"; } >> "$GITHUB_OUTPUT"
+
+      - name: Resolve the latest release's CLI tarball (schedule / manual)
+        id: published
+        if: github.event_name != 'push'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -48,13 +60,29 @@ jobs:
           echo "Testing $tag: $url"
           { echo "tag=$tag"; echo "url=$url"; } >> "$GITHUB_OUTPUT"
 
+      - name: Select which tarball to drive
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            { echo "tag=${{ steps.worktree.outputs.tag }}"
+              echo "url=${{ steps.worktree.outputs.url }}"; } >> "$GITHUB_OUTPUT"
+          else
+            { echo "tag=${{ steps.published.outputs.tag }}"
+              echo "url=${{ steps.published.outputs.url }}"; } >> "$GITHUB_OUTPUT"
+          fi
+
       # Run inside the Node image rather than a `container:` job — the runner
       # injects its own node binary into job containers, which fails on the
       # older musl in some of these images.
       - name: Cold install, build, serve and revalidate
         run: |
-          docker run --rm -v "$PWD/scripts:/scripts:ro" "node:${{ matrix.node }}" \
-            sh /scripts/e2e-cold-install.sh "${{ steps.release.outputs.url }}"
+          # A working-tree tarball lives on disk, so mount the repo too
+          docker run --rm \
+            -v "$PWD/scripts:/scripts:ro" \
+            -v "$PWD:/repo:ro" \
+            "node:${{ matrix.node }}" \
+            sh /scripts/e2e-cold-install.sh \
+              "$(echo '${{ steps.release.outputs.url }}' | sed "s|^$PWD|/repo|")"
 
       - name: Summary
         if: always()

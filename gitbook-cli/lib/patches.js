@@ -5,11 +5,17 @@ var path = require('path');
 // runs on modern Node.js. Every patch is guarded: it only fires when the
 // target still contains the legacy code, so re-runs and already-patched
 // engines are no-ops.
+// Bumped whenever a patch is added or changed, so engines patched by an
+// older CLI are brought up to date instead of being left half-fixed.
+var PATCH_SET_VERSION = 2;
+var MARKER_FILE = '.gitbook-cli-patches.json';
+
+// send < 0.16 reads res._headers, which modern Node removed. Any conditional
+// request (a browser revalidating its cache) crashes `gitbook serve` with
+// "Cannot read properties of undefined". These three edits mirror the image
+// build's scripts/patch-vulnerable-deps.sh exactly — keep them in sync.
 var STRING_PATCHES = [
     {
-        // send < 0.16 reads res._headers, which modern Node removed — any
-        // conditional request (browser cache revalidation) crashes
-        // `gitbook serve` with "Cannot read properties of undefined".
         file: 'node_modules/send/index.js',
         find: 'this.res._headers',
         replace: '(this.res.getHeaders ? this.res.getHeaders() : this.res._headers || {})',
@@ -17,6 +23,21 @@ var STRING_PATCHES = [
         // would wrap the expression again (and again). Detect the applied
         // form instead of relying on the search text being gone.
         applied: 'this.res.getHeaders ? this.res.getHeaders()'
+    },
+    {
+        // Header enumeration for the 304/range paths
+        file: 'node_modules/send/index.js',
+        find: 'Object.keys(res._headers ',
+        replace: 'Object.keys((res.getHeaders ? res.getHeaders() : res._headers) ',
+        applied: 'Object.keys((res.getHeaders ? res.getHeaders()'
+    },
+    {
+        // Clearing headers by assigning res._headers = null is a no-op on
+        // modern Node, so 304 responses kept their content headers
+        file: 'node_modules/send/index.js',
+        find: 'res._headers = null',
+        replace: 'if (res.getHeaderNames) { res.getHeaderNames().forEach(function (h) { res.removeHeader(h) }) } else { res._headers = null }',
+        applied: 'res.getHeaderNames().forEach'
     }
 ];
 
@@ -117,12 +138,43 @@ function applyNpmShim(root) {
     console.log('Replaced the engine\'s bundled npm with a system-npm shim');
 }
 
-// Apply all patches to an installed engine folder.
+// Has this engine already been patched by this version of the CLI?
+function patchState(root) {
+    try {
+        return JSON.parse(fs.readFileSync(path.join(root, MARKER_FILE), 'utf8'));
+    } catch (e) {
+        return null;
+    }
+}
+
+function isUpToDate(root) {
+    var state = patchState(root);
+    return !!(state && state.patchSetVersion === PATCH_SET_VERSION);
+}
+
+function writeMarker(root) {
+    try {
+        fs.writeFileSync(path.join(root, MARKER_FILE), JSON.stringify({
+            patchSetVersion: PATCH_SET_VERSION,
+            appliedBy: 'gitbook-cli',
+            patches: STRING_PATCHES.map(function(p) { return p.file; })
+                .concat(['node_modules/npm (system-npm shim)'])
+        }, null, 2) + '\n');
+    } catch (e) { /* engine dir is read-only; patches still applied */ }
+}
+
+// Apply all patches to an installed engine folder. Writing the marker last
+// means an interrupted or failed patch run is retried next time rather than
+// leaving an engine that merely looks patched.
 function apply(root) {
     applyStringPatches(root);
     applyNpmShim(root);
+    writeMarker(root);
 }
 
 module.exports = {
-    apply: apply
+    apply: apply,
+    isUpToDate: isUpToDate,
+    PATCH_SET_VERSION: PATCH_SET_VERSION,
+    MARKER_FILE: MARKER_FILE
 };

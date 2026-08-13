@@ -84,12 +84,52 @@ jobs:
       # engine) works on current Node — see the modernization epic (#10).
       - name: Unit tests + ls-remote smoke (Node ${{ matrix.node }})
         run: |
+          # `ls-remote | head -5` used to hide the exit status behind head's,
+          # so this check could not fail. Capture the output and assert on it.
           docker run --rm -v "$PWD/gitbook-cli":/cli-src "node:${{ matrix.node }}" sh -c \
-            "apk add --no-cache git >/dev/null 2>&1 && \
-             cp -r /cli-src /cli && cd /cli && \
-             npm install --no-audit --no-fund --loglevel=error 2>/dev/null || npm install --loglevel=error && \
-             npm run test:unit && \
-             node bin/gitbook.js ls-remote | head -5"
+            "set -e
+             apk add --no-cache git >/dev/null 2>&1
+             cp -r /cli-src /cli && cd /cli
+             npm install --no-audit --no-fund --loglevel=error 2>/dev/null || npm install --loglevel=error
+             npm run test:unit
+             out=\$(node bin/gitbook.js ls-remote)
+             echo \"\$out\" | head -5
+             echo \"\$out\" | grep -q '3.2.3' || { echo 'ls-remote did not list the engine version'; exit 1; }"
+
+  cli-windows:
+    name: Vendored gitbook-cli on Windows
+    runs-on: windows-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Windows is where npm is launched as npm.cmd, which modern Node refuses
+      # to execFile — the CLI resolves npm's JS entry point instead. Without a
+      # Windows leg that fix is untestable, and the breakage was invisible.
+      - name: Unit tests
+        working-directory: gitbook-cli
+        run: |
+          npm install --no-audit --no-fund --loglevel=error
+          npm test
+      - name: Install the CLI and drive a real book
+        shell: pwsh
+        run: |
+          $tgz = (npm pack ./gitbook-cli --silent | Select-Object -Last 1).Trim()
+          npm install -g $tgz --loglevel=error
+          gitbook fetch 3.2.3
+          New-Item -ItemType Directory -Force -Path book | Out-Null
+          Set-Content book/README.md "# Windows check"
+          Set-Content book/SUMMARY.md "# Summary`n`n* [Intro](README.md)"
+          Set-Content book/book.json '{ "plugins": ["anchors"] }'
+          cd book
+          gitbook install
+          gitbook build
+          if (-not (Test-Path _book/index.html)) { throw "build produced no output" }
+          Write-Host "Windows: fetch, plugin install and build all succeeded"
 
   license-boundary:
     name: Open-core license boundary

@@ -1,8 +1,9 @@
 version: 2
 updates:
   # Keep GitHub Actions up to date. The root npm project and the Docker base
-  # image are intentionally NOT tracked: the legacy GitBook stack requires the
-  # pinned Node 10 base and frozen plugin versions.
+  # image are intentionally NOT tracked: the root project pins the GitBook
+  # plugin versions the sample book is built against, and the base image is
+  # moved deliberately with the Node LTS cycle.
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -17,7 +18,7 @@ updates:
           - "*"
 
   # Vendored, maintained gitbook-cli: accept dependency updates that stay
-  # compatible with Node 10 and the CLI's programmatic npm usage.
+  # compatible with the oldest supported runtime (Node 10.12).
   - package-ecosystem: npm
     directory: /gitbook-cli
     schedule:
@@ -26,11 +27,8 @@ updates:
     labels:
       - dependencies
     ignore:
-      # npm >= 8 removed the programmatic API the CLI depends on, and modern
-      # npm requires Node 20+. Tracked in the modernization epic (#10).
-      - dependency-name: npm
-      - dependency-name: npmi
-      # Major versions of anything in this tree generally require Node > 10
-      # (e.g. commander 15 fails to even parse). Only propose minor/patch.
+      # Major versions in this tree generally require Node > 10 (commander 15,
+      # for example, fails to even parse there), and the CLI still supports
+      # Node 10.12. Only propose minor/patch.
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]

@@ -13,10 +13,17 @@ function fakeEngine() {
 
     var sendDir = path.join(root, 'node_modules', 'send');
     fs.mkdirSync(sendDir, {recursive: true});
+    // Two occurrences of the header read plus the other two edits, so the
+    // fixture can catch a regression from replace-all to replace-first
     fs.writeFileSync(path.join(sendDir, 'index.js'),
         'SendStream.prototype.isFresh = function(){\n' +
         '  return fresh(this.req.headers, this.res._headers);\n' +
-        '};\n');
+        '};\n' +
+        'SendStream.prototype.isRangeFresh = function(){\n' +
+        '  return ~ifRange.indexOf(this.res._headers[\'etag\']);\n' +
+        '};\n' +
+        'function clear(res) { res._headers = null }\n' +
+        'var names = Object.keys(res._headers || {});\n');
 
     var npmDir = path.join(root, 'node_modules', 'npm');
     fs.mkdirSync(path.join(npmDir, 'lib'), {recursive: true});
@@ -64,6 +71,53 @@ describe('Engine patches', function() {
             );
             patched.should.containEql('getHeaders');
             patched.should.not.containEql('this.res._headers)');
+        });
+
+        it('should patch every occurrence, not just the first', function() {
+            patches.apply(root);
+
+            var patched = fs.readFileSync(
+                path.join(root, 'node_modules/send/index.js'), 'utf8'
+            );
+            // Both reads must go through getHeaders()
+            patched.match(/getHeaders \? this\.res\.getHeaders\(\)/g)
+                .should.have.length(2);
+        });
+
+        it('should also fix header clearing and enumeration (parity with the image build)', function() {
+            patches.apply(root);
+
+            var patched = fs.readFileSync(
+                path.join(root, 'node_modules/send/index.js'), 'utf8'
+            );
+            // Assigning res._headers = null is a no-op on modern Node, so 304
+            // responses kept their content headers
+            patched.should.containEql('getHeaderNames().forEach');
+            patched.should.containEql('Object.keys((res.getHeaders ? res.getHeaders()');
+        });
+
+        it('should record which patch set was applied', function() {
+            patches.apply(root);
+
+            var marker = JSON.parse(fs.readFileSync(
+                path.join(root, patches.MARKER_FILE), 'utf8'
+            ));
+            marker.patchSetVersion.should.equal(patches.PATCH_SET_VERSION);
+            patches.isUpToDate(root).should.be.true();
+        });
+
+        it('should report an unpatched engine as out of date', function() {
+            patches.isUpToDate(root).should.be.false();
+        });
+
+        it('should re-patch an engine patched by an older CLI', function() {
+            patches.apply(root);
+            fs.writeFileSync(
+                path.join(root, patches.MARKER_FILE),
+                JSON.stringify({patchSetVersion: 0})
+            );
+
+            patches.isUpToDate(root).should.be.false();
         });
 
         it('should leave an already patched file untouched', function() {
