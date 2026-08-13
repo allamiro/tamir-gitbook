@@ -246,7 +246,7 @@ jobs:
 
       - name: Sync Docker Hub overview
         if: github.ref == 'refs/heads/main' && steps.dst.outputs.has_dockerhub == 'true'
-        uses: peter-evans/dockerhub-description@v4
+        uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
