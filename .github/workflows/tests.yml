@@ -91,6 +91,17 @@ jobs:
              npm run test:unit && \
              node bin/gitbook.js ls-remote | head -5"
 
+  license-boundary:
+    name: Open-core license boundary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the Apache-2.0 / Enterprise Edition boundary
+        run: sh scripts/check-license-boundary.sh
+
   compose-validate:
     name: Validate docker-compose.yml
     runs-on: ubuntu-latest

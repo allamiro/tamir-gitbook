@@ -227,4 +227,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) — commit messages follow Conventional C
 
 ## 📄 License
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+**Apache License 2.0** — see [LICENSE](LICENSE) and [NOTICE](NOTICE). Everything this project ships today (the image, the CLI, the patches, the themes, the pipeline) is open source and free for any use, including commercial.
+
+The project is *open core*: a separate [`ee/`](ee/) directory is reserved for future enterprise features under a [commercial license](LICENSE-EE) — free for personal, lab and educational use, paid for production and business use. Enterprise features are additive only; the open-source edition is complete on its own and never has functionality removed to sell back. See [COMMERCIAL.md](COMMERCIAL.md). Nothing has been built there yet.

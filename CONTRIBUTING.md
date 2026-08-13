@@ -72,6 +72,18 @@ ship in the image, so they trigger releases like any other code change.
 Fixes should go into this source (rather than post-install patches in the
 Dockerfile) whenever possible.
 
+## Licensing of contributions
+
+Contributions to this repository are accepted under the
+[Apache License 2.0](LICENSE), the same terms as the rest of the project.
+
+The [`ee/`](ee/) directory is the one exception: it is commercially licensed
+(see [COMMERCIAL.md](COMMERCIAL.md)) and does not take outside contributions,
+so its ownership stays unambiguous. Everything else — the image, the CLI, the
+patches, the themes, the docs — is open source, and that is where changes are
+welcome. CI enforces the boundary with
+`scripts/check-license-boundary.sh`.
+
 ## Code Style
 
 - Follow existing code formatting

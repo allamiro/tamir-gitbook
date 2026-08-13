@@ -7,6 +7,10 @@ yarn-error.log
 # GitBook build output
 _book/
 
+# Enterprise Edition sources are commercially licensed and must never
+# ship inside the Apache-2.0 image
+ee/
+
 # Git metadata and repository scaffolding — never part of the book
 .git/
 .github/

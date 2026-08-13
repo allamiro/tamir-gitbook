@@ -1,0 +1,156 @@
+tamir-gitbook Enterprise Edition License
+Version 1.0
+
+Copyright (c) 2026 Tamir Suliman. All rights reserved.
+
+THIS IS A SOURCE-AVAILABLE COMMERCIAL LICENSE. IT IS NOT AN OPEN SOURCE
+LICENSE. Read section 1 carefully: it governs only part of this repository.
+
+
+1. SCOPE
+
+   These terms govern only the software contained in the "ee/" directory of
+   this repository, together with any file that explicitly states it is
+   licensed under the tamir-gitbook Enterprise Edition License (the
+   "Enterprise Software").
+
+   Everything else in this repository — including the tamir-gitbook Docker
+   image, the maintained gitbook-cli, the build and patching scripts, the
+   themes and the documentation — is licensed under the Apache License,
+   Version 2.0 (see the LICENSE file) and is NOT affected by these terms.
+   Nothing in this license removes, limits, or supersedes any right granted
+   to you by the Apache License for that software.
+
+
+2. DEFINITIONS
+
+   "Licensor" means Tamir Suliman, the copyright holder.
+
+   "You" means the individual or legal entity exercising rights under this
+   license.
+
+   "Commercial Agreement" means a current, written subscription or license
+   agreement between You and the Licensor covering the Enterprise Software.
+
+   "Production Use" means any use that supports the operations of a business,
+   government body, or other organization, including internal operations,
+   and any use that serves users other than You. Personal projects, home
+   labs, evaluation environments, and coursework are not Production Use.
+
+
+3. PERMITTED USE WITHOUT A COMMERCIAL AGREEMENT
+
+   Without paying anything and without a Commercial Agreement, You may use,
+   copy, modify and run the Enterprise Software for:
+
+   (a) personal use by an individual, including personal projects and home
+       or personal laboratory environments;
+
+   (b) evaluation, development and testing that is not Production Use;
+
+   (c) teaching, academic coursework, and non-commercial research.
+
+   This permission is granted for an unlimited period, provided You comply
+   with section 5.
+
+
+4. USE REQUIRING A COMMERCIAL AGREEMENT
+
+   A Commercial Agreement is required for any use not listed in section 3,
+   including in particular:
+
+   (a) Production Use of any kind;
+
+   (b) use by, for, or on behalf of a commercial organization, government
+       body, or other institution in the course of its activities;
+
+   (c) providing the Enterprise Software, or any service whose value depends
+       substantially on it, to third parties, whether hosted, managed, or
+       embedded in another product;
+
+   (d) distributing or sublicensing the Enterprise Software to third
+       parties.
+
+   Contact the Licensor to obtain a Commercial Agreement. See COMMERCIAL.md.
+
+
+5. CONDITIONS AND RESTRICTIONS
+
+   In all cases You must:
+
+   (a) retain this license text, all copyright notices, and all attribution
+       notices in any copy of the Enterprise Software;
+
+   (b) not remove, disable, or circumvent any licensing, attribution, or
+       usage-reporting mechanism;
+
+   (c) not represent modified versions as being the original Enterprise
+       Software, and clearly mark any file You modify as changed;
+
+   (d) not use the Licensor's name, or the names of any contributors, to
+       endorse or promote products derived from the Enterprise Software
+       without prior written permission.
+
+   Publishing patches or modifications for use by other licensees is
+   permitted, provided those recipients hold their own rights under section
+   3 or a Commercial Agreement.
+
+
+6. OWNERSHIP
+
+   The Enterprise Software is licensed, not sold. The Licensor retains all
+   right, title, and interest in and to the Enterprise Software, including
+   all intellectual property rights. No rights are granted except those
+   expressly stated here.
+
+
+7. TERM AND TERMINATION
+
+   This license applies for as long as You comply with it. It terminates
+   automatically if You breach any of its terms and fail to cure that breach
+   within 30 days of becoming aware of it. On termination You must stop all
+   use of the Enterprise Software and destroy all copies in Your control.
+
+   Rights granted under a Commercial Agreement are governed by that
+   agreement and survive according to its own terms.
+
+
+8. NO WARRANTY
+
+   THE ENTERPRISE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+   KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND
+   NON-INFRINGEMENT. YOU BEAR THE ENTIRE RISK AS TO THE QUALITY AND
+   PERFORMANCE OF THE ENTERPRISE SOFTWARE.
+
+
+9. LIMITATION OF LIABILITY
+
+   TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+   LICENSOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+   EXEMPLARY, OR CONSEQUENTIAL DAMAGES, OR FOR ANY LOSS OF PROFITS, DATA, OR
+   BUSINESS, ARISING OUT OF OR RELATED TO THIS LICENSE OR THE USE OF OR
+   INABILITY TO USE THE ENTERPRISE SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGES.
+
+   Where liability cannot lawfully be excluded, it is limited to the greater
+   of the amount You paid the Licensor for the Enterprise Software in the
+   twelve months preceding the claim, or USD 50.
+
+
+10. THIRD-PARTY SOFTWARE
+
+   The Enterprise Software may run alongside, depend on, or be distributed
+   with third-party software under its own licenses, including the
+   Apache-2.0 licensed components of this repository and the GitBook engine.
+   Those components remain governed by their own licenses; see NOTICE.
+
+
+11. GOVERNING LAW
+
+   This license is governed by the laws of [JURISDICTION — to be completed
+   by the Licensor], excluding its conflict-of-law rules. [Venue clause to
+   be completed by the Licensor.]
+
+
+For commercial licensing enquiries, see COMMERCIAL.md.

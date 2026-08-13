@@ -1,0 +1,33 @@
+tamir-gitbook
+Copyright 2024-2026 Tamir Suliman
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes software originally developed by GitBook
+(FriendCode, Inc.).
+
+1. gitbook-cli/
+   A modified fork of GitbookIO/gitbook-cli
+   (https://github.com/GitbookIO/gitbook-cli), originally
+   Copyright (c) FriendCode, Inc., declared by its package.json to be
+   licensed under the Apache License, Version 2.0.
+
+   The fork is maintained here and has been modified substantially: the
+   bundled programmatic npm was removed in favour of spawning the system
+   npm, argument parsing moved from optimist to minimist, vulnerable
+   dependencies were replaced, compatibility patches are now applied to
+   installed engines, and tests were added. The changes are recorded in
+   gitbook-cli/README.md and in this project's release notes.
+
+2. GitBook engine
+   The published Docker image bundles the GitBook engine (gitbook 3.2.3,
+   https://github.com/GitbookIO/gitbook), Copyright (c) FriendCode, Inc.,
+   licensed under the Apache License, Version 2.0. Its license text ships
+   with the engine inside the image. Individual packages in its dependency
+   tree are replaced with patched upstream releases at build time; see
+   scripts/patch-vulnerable-deps.sh. Those packages remain under their own
+   respective licenses.
+
+Trademarks: "GitBook" is a trademark of GitBook. This project is an
+independent, unaffiliated continuation of the discontinued open-source
+command line interface and is not endorsed by or associated with GitBook.
