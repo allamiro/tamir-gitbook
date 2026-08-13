@@ -78,10 +78,51 @@ function copyTree(source, target) {
 }
 
 function removeTree(target) {
+    if (fs.rmSync) {
+        try {
+            fs.rmSync(target, {recursive: true, force: true});
+        } catch (e) { /* already gone */ }
+        return;
+    }
+
+    // Node < 14 has no fs.rmSync, and fs.rmdirSync's recursive option only
+    // arrived in 12.10 — recurse by hand so this works back to Node 10.
+    var stat;
     try {
-        if (fs.rmSync) fs.rmSync(target, {recursive: true, force: true});
-        else fs.rmdirSync(target, {recursive: true});
-    } catch (e) { /* already gone, or a leftover scratch dir under /tmp */ }
+        stat = fs.lstatSync(target);
+    } catch (e) {
+        return; // nothing there
+    }
+
+    if (stat.isDirectory()) {
+        fs.readdirSync(target).forEach(function(entry) {
+            removeTree(path.join(target, entry));
+        });
+        try { fs.rmdirSync(target); } catch (e) { /* not empty; leave it */ }
+    } else {
+        try { fs.unlinkSync(target); } catch (e) { /* already gone */ }
+    }
+}
+
+// `npm view <spec> version <fields> --json` answers in three shapes:
+// one object when a single version matches, an array of objects when several
+// do, and a bare version string when the extra fields hold no data. Fold all
+// three into the version-keyed map the engine expects.
+function normalizeView(parsed) {
+    var entries = Array.isArray(parsed) ? parsed : [parsed];
+    var result = {};
+
+    entries.forEach(function(entry) {
+        if (!entry) return;
+        if (typeof entry === 'string') {
+            result[entry] = {};
+            return;
+        }
+        if (!entry.version) return;
+        result[entry.version] = entry;
+    });
+
+    return result;
 }
 
 var npm = {
@@ -208,22 +249,7 @@ var npm = {
                     return callback(e);
                 }
 
-                var entries = Array.isArray(parsed) ? parsed : [parsed];
-                var result = {};
-
-                entries.forEach(function(entry) {
-                    if (!entry) return;
-                    // npm collapses its output to a bare version string when
-                    // the requested fields hold no data for that version
-                    if (typeof entry === 'string') {
-                        result[entry] = {};
-                        return;
-                    }
-                    if (!entry.version) return;
-                    result[entry.version] = entry;
-                });
-
-                callback(null, result);
+                callback(null, normalizeView(parsed));
             });
         }
     }
@@ -234,5 +260,8 @@ Object.defineProperty(npm, 'version', {
     enumerable: true,
     get: systemNpmVersion
 });
+
+// Exposed for the unit tests; the engine only ever uses the npm API above.
+npm._normalizeView = normalizeView;
 
 module.exports = npm;

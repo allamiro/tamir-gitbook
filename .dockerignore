@@ -7,6 +7,15 @@ yarn-error.log
 # GitBook build output
 _book/
 
+# Git metadata and repository scaffolding — never part of the book
+.git/
+.github/
+docs/
+
+# Local editor/assistant session files — must never reach a published image
+.claude/
+CLAUDE*.md
+
 # Environment variables
 .env
 

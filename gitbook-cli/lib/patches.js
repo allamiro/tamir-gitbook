@@ -12,7 +12,11 @@ var STRING_PATCHES = [
         // `gitbook serve` with "Cannot read properties of undefined".
         file: 'node_modules/send/index.js',
         find: 'this.res._headers',
-        replace: '(this.res.getHeaders ? this.res.getHeaders() : this.res._headers || {})'
+        replace: '(this.res.getHeaders ? this.res.getHeaders() : this.res._headers || {})',
+        // The replacement contains the text it searches for, so re-running
+        // would wrap the expression again (and again). Detect the applied
+        // form instead of relying on the search text being gone.
+        applied: 'this.res.getHeaders ? this.res.getHeaders()'
     }
 ];
 
@@ -25,10 +29,32 @@ var SHIM_PACKAGE = {
 };
 
 function removeTree(target) {
+    if (fs.rmSync) {
+        try {
+            fs.rmSync(target, {recursive: true, force: true});
+        } catch (e) { /* already gone */ }
+        return;
+    }
+
+    // Node < 14 has no fs.rmSync, and fs.rmdirSync's recursive option only
+    // arrived in 12.10 — recurse by hand so this works back to Node 10.
+    // Without this the old npm tree survives and only index.js is replaced,
+    // leaving a half-shimmed engine.
+    var stat;
     try {
-        if (fs.rmSync) fs.rmSync(target, {recursive: true, force: true});
-        else fs.rmdirSync(target, {recursive: true});
-    } catch (e) { /* nothing to remove */ }
+        stat = fs.lstatSync(target);
+    } catch (e) {
+        return; // nothing there
+    }
+
+    if (stat.isDirectory()) {
+        fs.readdirSync(target).forEach(function(entry) {
+            removeTree(path.join(target, entry));
+        });
+        try { fs.rmdirSync(target); } catch (e) { /* not empty; leave it */ }
+    } else {
+        try { fs.unlinkSync(target); } catch (e) { /* already gone */ }
+    }
 }
 
 function applyStringPatches(root) {
@@ -42,7 +68,9 @@ function applyStringPatches(root) {
             return;
         }
 
+        if (patch.applied && source.indexOf(patch.applied) >= 0) return;
         if (source.indexOf(patch.find) < 0) return;
+
         fs.writeFileSync(file, source.split(patch.find).join(patch.replace));
         console.log('Applied Node compatibility patch to', patch.file);
     });

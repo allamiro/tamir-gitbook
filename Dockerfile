@@ -46,8 +46,15 @@ RUN npm install --no-audit --no-fund && npm cache clean --force && \
     # The baked plugins carry their own vulnerable copies (e.g. highlight.js)
     sh /usr/local/bin/patch-vulnerable-deps.sh /gitbook/node_modules
 
-# Copy the rest of the files
-COPY . .
+# Copy the sample book only. Repository scaffolding (git metadata, CI
+# definitions, the CLI source, compose files) has no business in the served
+# book: `gitbook build` copies every file it finds into the generated site,
+# so anything left here is published alongside the documentation.
+COPY book.json SUMMARY.md intro.md ./
+COPY chapter-1 ./chapter-1
+COPY chapter-2 ./chapter-2
+COPY themes ./themes
+COPY images ./images
 
 # GitBook site (4000) and LiveReload (35729)
 EXPOSE 4000 35729

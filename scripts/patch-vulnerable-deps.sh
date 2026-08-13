@@ -118,8 +118,12 @@ replace undici 6.27.0 6.28.0
 # send 0.13 reads res._headers, which modern Node removed — any conditional
 # request (browser cache revalidation) crashes the serve process. Route the
 # reads through res.getHeaders() with a _headers fallback.
+# The replacement text still contains "this.res._headers", so the presence of
+# that string cannot be the guard — check for the applied form instead, or a
+# second pass would wrap the expression again.
 SEND_JS="$ROOT/node_modules/send/index.js"
-if [ -f "$SEND_JS" ] && grep -q 'this\.res\._headers' "$SEND_JS"; then
+if [ -f "$SEND_JS" ] && grep -q 'this\.res\._headers' "$SEND_JS" &&
+   ! grep -q 'this\.res\.getHeaders ? this\.res\.getHeaders()' "$SEND_JS"; then
     sed -i \
         -e 's#this\.res\._headers#(this.res.getHeaders ? this.res.getHeaders() : this.res._headers or_else {})#g' \
         -e 's#Object\.keys(res\._headers #Object.keys((res.getHeaders ? res.getHeaders() : res._headers) #' \
