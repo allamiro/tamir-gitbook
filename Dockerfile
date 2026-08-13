@@ -28,8 +28,9 @@ WORKDIR /gitbook
 COPY gitbook-cli /opt/gitbook-cli
 COPY scripts/patch-vulnerable-deps.sh /usr/local/bin/patch-vulnerable-deps.sh
 RUN cd /opt/gitbook-cli && \
-    npm pack --loglevel=error && \
-    npm install -g ./gitbook-cli-*.tgz --loglevel=error && \
+    # Install exactly the tarball just packed: a glob would happily pick up a
+    # stray gitbook-cli-*.tgz left in the build context and install that instead
+    npm install -g "$(npm pack --loglevel=error | tail -1)" --loglevel=error && \
     cd / && rm -rf /opt/gitbook-cli && \
     mkdir -p /root/.gitbook && \
     # Pre-install the GitBook engine, then patch its known-vulnerable

@@ -104,7 +104,27 @@ function removeTree(target) {
     }
 }
 
-// `npm view <spec> version <fields> --json` answers in three shapes:
+// The engine asks for a plugin's whole version history so it can pick the
+// newest release compatible with itself, and expresses "any version" as the
+// range '*' (PluginDependency's default). The npm CLI special-cases a bare
+// '*' as the 'latest' dist-tag and prints that single version, so the engine
+// would only ever see the newest release — and plugins whose latest release
+// targets GitBook 4 would become uninstallable. An explicit '>=0.0.0' range
+// makes npm list every published version, matching what the programmatic API
+// used to return (prereleases stay excluded, as they were before).
+// A spec with no range is left alone: npmi asks for view([name]) precisely
+// when it wants the latest version only.
+function widenRange(spec) {
+    var at = String(spec).lastIndexOf('@');
+    if (at <= 0) return spec;
+
+    var range = spec.slice(at + 1);
+    if (range === '*' || range === '') return spec.slice(0, at) + '@>=0.0.0';
+
+    return spec;
+}
+
+// `npm view <spec> --json` answers in three shapes:
 // one object when a single version matches, an array of objects when several
 // do, and a bare version string when the extra fields hold no data. Fold all
 // three into the version-keyed map the engine expects.
@@ -235,10 +255,13 @@ var npm = {
         view: function(args, silent, callback) {
             if (typeof silent === 'function') callback = silent;
 
-            var spec = args[0];
-            var fields = args.slice(1);
+            var spec = widenRange(args[0]);
 
-            run(['view', spec, 'version'].concat(fields).concat(['--json']),
+            // Ask for whole manifests rather than named fields. npm drops the
+            // requested fields entirely when any matching version lacks one
+            // (returning bare version strings instead), which would silently
+            // lose the engines data the engine resolves plugins with.
+            run(['view', spec, '--json'],
             function(err, stdout) {
                 if (err) return callback(err);
 
@@ -263,5 +286,6 @@ Object.defineProperty(npm, 'version', {
 
 // Exposed for the unit tests; the engine only ever uses the npm API above.
 npm._normalizeView = normalizeView;
+npm._widenRange = widenRange;
 
 module.exports = npm;

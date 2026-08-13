@@ -10,6 +10,25 @@ var config = require('./config');
 var patches = require('./patches');
 
 var NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+var cachedNpmVersion = null;
+
+// npm 9 renamed --global-style to --install-strategy=shallow and npm 10
+// dropped the old spelling, so ask the npm we are actually running.
+function shallowInstallFlag() {
+    if (cachedNpmVersion === null) {
+        try {
+            cachedNpmVersion = String(childProcess.execFileSync(
+                NPM_BIN, ['--version'], {encoding: 'utf8'}
+            )).trim();
+        } catch (e) {
+            cachedNpmVersion = '';
+        }
+    }
+
+    var major = parseInt(cachedNpmVersion, 10);
+    return (isNaN(major) || major >= 9) ? '--install-strategy=shallow'
+                                        : '--global-style';
+}
 
 // Run the system npm CLI and resolve with its stdout.
 // The CLI historically embedded a full programmatic npm, but npm removed its
@@ -85,23 +104,44 @@ function resolveVersion(version) {
 
 // Install a specific version of gitbook
 function installVersion(version, forceInstall) {
+    var scratch = null;
+
+    // The scratch prefix holds a complete npm install of the engine (~85 MB).
+    // Clean it up on every exit path, or each fetch strands a copy in the
+    // system temp directory.
+    function cleanup() {
+        if (!scratch) return;
+        try {
+            fs.removeSync(scratch);
+        } catch (e) { /* best effort: it is under the OS temp directory */ }
+        scratch = null;
+    }
+
     return resolveVersion(version)
     .then(function(_version) {
         version = _version;
         return Q.nfcall(tmp.dir.bind(tmp));
     })
     .spread(function(tmpDir) {
+        scratch = tmpDir;
+        return tmpDir;
+    })
+    .then(function(tmpDir) {
         console.log('Installing GitBook', version);
         var args = [
             'install', 'gitbook@' + version,
             '--prefix', tmpDir,
             // Keep dependencies nested under node_modules/gitbook (instead of
             // hoisted to the prefix root) — installVersion copies only the
-            // gitbook folder, so it must be self-contained
-            '--global-style',
-            '--loglevel', 'silent',
+            // gitbook folder, so it must be self-contained. npm 9 renamed the
+            // flag and npm 10 removed the old spelling.
+            shallowInstallFlag(),
+            // Not 'silent': npm's own explanation of a failed install is the
+            // only useful diagnostic when a fetch goes wrong
+            '--loglevel', 'error',
             '--no-save',
             '--no-audit',
+            '--no-fund',
             '--no-package-lock'
         ];
         if (forceInstall) args.push('--force');
@@ -127,7 +167,8 @@ function installVersion(version, forceInstall) {
             patches.apply(outputFolder);
         })
         .thenResolve(version);
-    });
+    })
+    .fin(cleanup);
 }
 
 module.exports = {

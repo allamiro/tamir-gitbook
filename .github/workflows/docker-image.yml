@@ -11,6 +11,10 @@ on:
       - "docker-compose.yml"
       - "package*.json"
       - "book.json"
+      # The CLI and the patch scripts decide what the image can actually do,
+      # so a change to either must run the smoke test before :latest ships
+      - "gitbook-cli/**"
+      - "scripts/**"
       - ".github/workflows/docker-image.yml"
 
 jobs:

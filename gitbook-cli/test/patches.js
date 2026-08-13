@@ -131,6 +131,35 @@ describe('Engine patches', function() {
 });
 
 describe('Engine npm shim', function() {
+    describe('.view() range widening', function() {
+        var widen = shim._widenRange;
+
+        it('should expand the engine default "*" so npm lists every version', function() {
+            // npm treats a bare '*' as the 'latest' dist-tag and prints only
+            // that version, which hid every older release from the engine
+            widen('gitbook-plugin-ga@*').should.equal('gitbook-plugin-ga@>=0.0.0');
+        });
+
+        it('should expand an empty range too', function() {
+            widen('gitbook-plugin-ga@').should.equal('gitbook-plugin-ga@>=0.0.0');
+        });
+
+        it('should leave a bare package name alone', function() {
+            // npmi asks for view([name]) exactly when it wants only the latest
+            widen('gitbook-plugin-ga').should.equal('gitbook-plugin-ga');
+        });
+
+        it('should leave an explicit version or range alone', function() {
+            widen('gitbook-plugin-ga@1.0.1').should.equal('gitbook-plugin-ga@1.0.1');
+            widen('gitbook-plugin-ga@>=2.0.0').should.equal('gitbook-plugin-ga@>=2.0.0');
+        });
+
+        it('should not mistake a scope for a range', function() {
+            widen('@scope/pkg').should.equal('@scope/pkg');
+            widen('@scope/pkg@*').should.equal('@scope/pkg@>=0.0.0');
+        });
+    });
+
     describe('.view() output normalization', function() {
         var normalize = shim._normalizeView;
 

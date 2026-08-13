@@ -1,9 +1,9 @@
 {
   "name": "gitbook-cli",
-  "version": "3.2.1",
-  "homepage": "https://www.gitbook.com",
+  "version": "3.3.0",
+  "homepage": "https://github.com/allamiro/tamir-gitbook/tree/main/gitbook-cli",
   "description": "Maintained GitBook command line interface \u2014 runs on modern Node.js (successor to the abandoned upstream gitbook-cli 2.3.2)",
-  "main": "bin/gitbook.js",
+  "main": "lib/index.js",
   "dependencies": {
     "q": "1.5.1",
     "lodash": "4.18.1",
@@ -17,22 +17,22 @@
   },
   "devDependencies": {
     "mocha": "3.5.3",
-    "should": "11.2.1",
-    "gitbook": "3.2.3"
+    "should": "11.2.1"
   },
   "scripts": {
-    "test": "mocha --reporter spec --recursive --bail",
-    "test:unit": "mocha --reporter spec test/tags.js test/patches.js"
+    "test": "mocha --reporter spec test/tags.js test/patches.js",
+    "test:unit": "mocha --reporter spec test/tags.js test/patches.js",
+    "test:registry": "mocha --reporter spec test/versions.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/allamiro/tamir-gitbook.git",
     "directory": "gitbook-cli"
   },
-  "author": "FriendCode Inc. <contact@gitbook.com>",
+  "author": "Tamir Suliman",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/GitbookIO/gitbook-cli/issues"
+    "url": "https://github.com/allamiro/tamir-gitbook/issues"
   },
   "bin": {
     "gitbook": "./bin/gitbook.js"
@@ -48,6 +48,12 @@
     }
   ],
   "engines": {
-    "node": ">=10.0.0"
-  }
+    "node": ">=10.12.0"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "LICENSE",
+    "README.md"
+  ]
 }

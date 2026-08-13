@@ -4,7 +4,14 @@ var Q = require('q');
 var _ = require('lodash');
 var path = require('path');
 var program = require('commander');
-var parsedArgv = require('minimist')(process.argv.slice(2));
+// minimist cannot know which flags are booleans, so without this list
+// `gitbook build --debug ./mybook` would consume the path as --debug's value
+// and silently build the current directory instead. Positionals are forced to
+// strings so a numerically-named book directory stays a path, not a Number.
+var parsedArgv = require('minimist')(process.argv.slice(2), {
+    boolean: ['debug', 'd', 'version', 'V', 'help', 'h'],
+    string: ['_', 'gitbook', 'v']
+});
 var color = require('bash-color');
 
 var pkg = require('../package.json');
@@ -182,7 +189,11 @@ program
     .description('run a command with a specific gitbook version')
     .action(function(commandName){
         var args = parsedArgv._.slice(1);
-        var kwargs = _.omit(parsedArgv, '$0', '_');
+        // Drop the CLI's own options so they are not forwarded to the engine
+        // command as book options ('$0' is an optimist leftover; minimist
+        // never produces it)
+        var kwargs = _.omit(parsedArgv, '_', 'gitbook', 'v', 'debug', 'd',
+                            'version', 'V', 'help', 'h');
 
         runPromise(
             manager.ensureAndLoad(bookRoot, program.gitbook)
