@@ -59,6 +59,8 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "Release : ${{ steps.release.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Node    : ${{ matrix.node }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Result  : ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "Release : ${{ steps.release.outputs.tag }}"
+            echo "Node    : ${{ matrix.node }}"
+            echo "Result  : ${{ job.status }}"
+          } >> "$GITHUB_STEP_SUMMARY"
