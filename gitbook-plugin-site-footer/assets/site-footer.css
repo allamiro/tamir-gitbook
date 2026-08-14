@@ -21,3 +21,8 @@
     color: #e25555;
     font-style: normal;
 }
+
+.site-footer-sep {
+    margin: 0 0.15rem;
+    opacity: 0.6;
+}

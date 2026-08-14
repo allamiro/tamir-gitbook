@@ -24,7 +24,8 @@
     },
     "site-footer": {
       "author": "Tamir Suliman",
-      "url": "https://github.com/allamiro"
+      "url": "https://github.com/allamiro",
+      "poweredBy": true
     }
   },
   "pdf": {

@@ -55,14 +55,19 @@ until a book opts in, so no one inherits someone else's footer:
       "author": "Your Name",
       "url": "https://github.com/you",
       "prefix": "Built with",
-      "heart": true
+      "heart": true,
+      "poweredBy": true
     }
   }
 }
 ```
 
 `url` is optional (the name renders as plain text without it), `prefix`
-defaults to "Built with", and `heart: false` drops the ♥. The footer picks up
+defaults to "Built with", and `heart: false` drops the ♥. `poweredBy: true`
+adds a *Powered by GitBook* credit linking to the
+[GitBook project](https://github.com/GitbookIO/gitbook); pass an object
+(`{ "label": "…", "url": "…" }`) to point it elsewhere. Either half can be
+used on its own. The footer picks up
 the current theme's border, muted-text and accent colours automatically, and
 is written into the HTML at build time — so it survives `gitbook build` and
 needs no JavaScript.
