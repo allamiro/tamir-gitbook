@@ -7,7 +7,7 @@ var path = require('path');
 // engines are no-ops.
 // Bumped whenever a patch is added or changed, so engines patched by an
 // older CLI are brought up to date instead of being left half-fixed.
-var PATCH_SET_VERSION = 2;
+var PATCH_SET_VERSION = 3;
 var MARKER_FILE = '.gitbook-cli-patches.json';
 
 // send < 0.16 reads res._headers, which modern Node removed. Any conditional
@@ -38,6 +38,34 @@ var STRING_PATCHES = [
         find: 'res._headers = null',
         replace: 'if (res.getHeaderNames) { res.getHeaderNames().forEach(function (h) { res.removeHeader(h) }) } else { res._headers = null }',
         applied: 'res.getHeaderNames().forEach'
+    },
+    {
+        // `gitbook install` asked the registry about every plugin, even ones
+        // already sitting in the book's node_modules. That makes it fail
+        // offline, and makes plugins that are not published at all — bundled
+        // with an image, or kept in a private tree — impossible to use.
+        // Falling back to the installed copy lets npmi see the version
+        // already matches, so it installs nothing and succeeds.
+        file: 'lib/plugins/installPlugin.js',
+        find: '    // Find a version to install\n    return resolveVersion(plugin)\n',
+        replace: [
+            '    // Find a version to install',
+            '    return resolveVersion(plugin)',
+            '    .fail(function(resolveError) {',
+            '        try {',
+            '            var installedPkg = require(require(\'path\').resolve(',
+            '                installFolder, \'node_modules\', plugin.getNpmID(), \'package.json\'',
+            '            ));',
+            '            if (installedPkg && installedPkg.version) {',
+            '                logger.info.ln(\'using the installed copy of "\' + name + \'"\');',
+            '                return installedPkg.version;',
+            '            }',
+            '        } catch (e) { /* not installed locally */ }',
+            '        throw resolveError;',
+            '    })',
+            ''
+        ].join('\n'),
+        applied: 'function(resolveError)'
     }
 ];
 
