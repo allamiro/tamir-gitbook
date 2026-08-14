@@ -15,11 +15,16 @@
     "theme-default",
     "expandable-chapters",
     "highlight",
-    "back-to-top-button"
+    "back-to-top-button",
+    "site-footer"
   ],
   "pluginsConfig": {
     "theme-default": {
       "showLevel": true
+    },
+    "site-footer": {
+      "author": "Tamir Suliman",
+      "url": "https://github.com/allamiro"
     }
   },
   "pdf": {

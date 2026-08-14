@@ -47,6 +47,11 @@ RUN npm install --no-audit --no-fund && npm cache clean --force && \
     # The baked plugins carry their own vulnerable copies (e.g. highlight.js)
     sh /usr/local/bin/patch-vulnerable-deps.sh /gitbook/node_modules
 
+# The bundled site-footer plugin. Shipping it in node_modules makes it
+# available to any book served by this image, but it stays inert unless a
+# book opts in through book.json — so nobody inherits someone else's footer.
+COPY gitbook-plugin-site-footer /gitbook/node_modules/gitbook-plugin-site-footer
+
 # Copy the sample book only. Repository scaffolding (git metadata, CI
 # definitions, the CLI source, compose files) has no business in the served
 # book: `gitbook build` copies every file it finds into the generated site,

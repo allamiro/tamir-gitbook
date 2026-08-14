@@ -1,0 +1,23 @@
+/* Attribution footer — quiet by design, and themable by the site's own CSS */
+.site-footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--tg-border, #e6e8eb);
+    color: var(--tg-muted, #6b7280);
+    font-size: 0.85em;
+    text-align: center;
+}
+
+.site-footer a {
+    color: var(--tg-accent, #2962ff);
+    text-decoration: none;
+}
+
+.site-footer a:hover {
+    text-decoration: underline;
+}
+
+.site-footer-heart {
+    color: #e25555;
+    font-style: normal;
+}

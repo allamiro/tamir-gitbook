@@ -41,6 +41,34 @@ reading modes and adjust the font family and size. If you ship
 `modern-dark.css`, consider it the site's default look rather than combining
 it with the Night reading mode.
 
+## Attribution footer
+
+The image bundles a small `site-footer` plugin that appends a line like
+*Built with ♥ by Your Name* to the bottom of every page. It does nothing
+until a book opts in, so no one inherits someone else's footer:
+
+```json
+{
+  "plugins": ["site-footer"],
+  "pluginsConfig": {
+    "site-footer": {
+      "author": "Your Name",
+      "url": "https://github.com/you",
+      "prefix": "Built with",
+      "heart": true
+    }
+  }
+}
+```
+
+`url` is optional (the name renders as plain text without it), `prefix`
+defaults to "Built with", and `heart: false` drops the ♥. The footer picks up
+the current theme's border, muted-text and accent colours automatically, and
+is written into the HTML at build time — so it survives `gitbook build` and
+needs no JavaScript.
+
+Source: [`gitbook-plugin-site-footer/`](../gitbook-plugin-site-footer/).
+
 ## Make your own
 
 Copy any theme file, adjust the variables and rules, save it under
