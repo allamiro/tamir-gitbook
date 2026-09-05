@@ -10,9 +10,13 @@ LABEL org.opencontainers.image.title="tamir-gitbook-wiki" \
       org.opencontainers.image.source="https://github.com/allamiro/tamir-gitbook" \
       org.opencontainers.image.licenses="Apache-2.0"
 
-# Install dependencies; keep the global npm current (the base image's bundled
-# npm lags on its own dependency patches)
-RUN apk add --no-cache \
+# Upgrade the Alpine packages first: the official node image is rebuilt on
+# its own cadence and can lag Alpine's security releases (node:24-alpine kept
+# shipping libssl3/libcrypto3 3.5.7-r0 after Alpine had fixed CVE-2026-14456
+# in 3.5.8-r0). Then install dependencies and keep the global npm current
+# (the base image's bundled npm lags on its own dependency patches).
+RUN apk upgrade --no-cache \
+    && apk add --no-cache \
     bash \
     curl \
     git \

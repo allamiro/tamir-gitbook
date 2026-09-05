@@ -158,7 +158,7 @@ Every merge to `main` publishes rolling multi-arch images (`latest`, `main`, `sh
 
 ## 🔐 Security
 
-- 🛡️ **Trivy scans** run on every published image and weekly against `latest`; findings appear under Security → Code scanning. The image ships with **zero known CRITICAL/HIGH vulnerabilities**: every patchable package in the legacy engine tree is replaced with a fixed release at build time ([`scripts/patch-vulnerable-deps.sh`](scripts/patch-vulnerable-deps.sh)); the four unpatchable findings are risk-assessed and documented in [`.trivyignore`](.trivyignore).
+- 🛡️ **Trivy scans** run on every published image and weekly against `latest`; findings appear under Security → Code scanning. The image ships with **zero known CRITICAL/HIGH vulnerabilities**: the Alpine base packages are upgraded to their latest security releases at build time (the official `node` image can lag Alpine's fixes), and every patchable package in the legacy engine tree is replaced with a fixed release at build time ([`scripts/patch-vulnerable-deps.sh`](scripts/patch-vulnerable-deps.sh)); the four unpatchable findings are risk-assessed and documented in [`.trivyignore`](.trivyignore).
 - ✍️ **Cosign signatures** (keyless, GitHub OIDC) on every published manifest:
 
   ```bash
