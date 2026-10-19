@@ -5,6 +5,7 @@
 //
 // This file only wires assets, hooks and blocks; the logic lives in lib/.
 var readOptions = require('./lib/options').readOptions;
+var code = require('./lib/code');
 
 var CONFIG_KEY = 'pluginsConfig.modern-gradient';
 var DEFAULT_WEBSITE_STYLE = 'styles/website.css';
@@ -25,7 +26,8 @@ module.exports = {
         ],
         js: [
             'js/mg-icons.js',
-            'js/mg-core.js'
+            'js/mg-core.js',
+            'js/mg-code.js'
         ]
     },
 
@@ -65,6 +67,18 @@ module.exports = {
             this.config.set(CONFIG_KEY + '.variant', options.variant);
             this.config.set(CONFIG_KEY + '.variantClasses', options.variantClasses);
             this.config.set(CONFIG_KEY + '.editUrl', options.editUrl);
+        },
+
+        // Raw Markdown, before GitBook wraps code in {% raw %}
+        'page:before': function(page) {
+            page.content = code.preprocessCodeOptions(page.content);
+            return page;
+        },
+
+        // HTML, before GitBook's highlight step
+        page: function(page) {
+            page.content = code.transformCodeBlocks(page.content);
+            return page;
         }
     }
 };

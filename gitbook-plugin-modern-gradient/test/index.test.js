@@ -87,3 +87,25 @@ describe('init hook', function() {
         ctx.values.pluginsConfig['modern-gradient'].editUrl.should.equal('');
     });
 });
+
+describe('page hooks', function() {
+    it('ships the code block script after the core script', function() {
+        var js = plugin.book.js;
+        js.indexOf('js/mg-code.js').should.be.above(js.indexOf('js/mg-core.js'));
+    });
+
+    it('page:before turns {% code %} options into markers', function() {
+        var page = { content: '{% code title="a.json" %}\n```json\n{}\n```\n{% endcode %}\n' };
+        var out = plugin.hooks['page:before'].call(context({}), page);
+        out.should.equal(page);
+        out.content.should.startWith('<div class="mg-code-opts" data-title="a.json"></div>');
+        out.content.should.not.containEql('endcode');
+    });
+
+    it('page wraps code blocks in figures', function() {
+        var page = { content: '<pre><code class="lang-console">$ ls\n</code></pre>' };
+        var out = plugin.hooks.page.call(context({}), page);
+        out.should.equal(page);
+        out.content.should.startWith('<figure class="mg-code mg-terminal" data-lang="console">');
+    });
+});

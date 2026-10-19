@@ -247,3 +247,319 @@ html.mg .mg-header #mg-menu {
 .mg-toc:empty {
     display: none;
 }
+
+/* Screen-reader-only text (live regions) --------------------------------- */
+
+.mg-sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Code blocks (markup from lib/code.js, controls from mg-code.js) -------- */
+
+.markdown-section figure.mg-code {
+    margin: 1.2em 0 1.6em;
+    padding: 0;
+    overflow: hidden;
+    color: var(--tg-code-text);
+    background: var(--tg-code-bg);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.mg-code-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 8px 0 14px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    background: var(--tg-code-head);
+    border-bottom: 1px solid var(--tg-border);
+}
+
+/* Developer variant: window dots on terminals */
+html.mg-v-dev .mg-terminal .mg-code-head::before {
+    content: "";
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-right: 36px;
+    border-radius: 50%;
+    background: #ff5f57;
+    box-shadow: 16px 0 0 #febc2e, 32px 0 0 #28c840;
+}
+
+.mg-lang {
+    flex: none;
+    padding: 2px 8px;
+    font-family: var(--tg-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--tg-accent);
+    background: var(--tg-accent-soft);
+    border: 1px solid var(--tg-accent-border);
+    border-radius: 6px;
+}
+
+.mg-code-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--tg-mono);
+    font-size: 12.5px;
+    color: var(--tg-text-2);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mg-code-title .mg-i {
+    width: 14px;
+    height: 14px;
+    color: var(--tg-muted);
+}
+
+.mg-code-actions {
+    display: flex;
+    flex: none;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.mg-code-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 8px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--tg-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.mg-code-btn:hover {
+    color: var(--tg-text);
+    background: color-mix(in srgb, var(--tg-text) 7%, transparent);
+}
+
+.mg-code-btn:focus-visible {
+    outline: 2px solid var(--tg-focus);
+    outline-offset: 0;
+}
+
+.mg-code-btn .mg-i {
+    width: 15px;
+    height: 15px;
+}
+
+.mg-code-btn[aria-pressed="true"] {
+    color: var(--tg-accent);
+}
+
+.mg-code-btn.mg-copied {
+    color: var(--co-tip);
+}
+
+.markdown-section .mg-code pre {
+    margin: 0;
+    padding: 14px 0;
+    overflow-x: auto;
+    font-size: 13.4px;
+    line-height: 1.65;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+html.mg-v-dev .markdown-section .mg-code pre {
+    font-size: 13px;
+}
+
+/* Lines stretch to the longest line so highlights span the scroll width */
+.markdown-section .mg-code pre > code {
+    display: block;
+    min-width: max-content;
+    padding: 0 18px;
+}
+
+.markdown-section .mg-code[data-mg-ready] pre > code {
+    padding: 0;
+}
+
+.markdown-section .mg-terminal pre {
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr);
+}
+
+.mg-ln {
+    position: relative;
+    display: block;
+    padding: 0 18px;
+    white-space: pre;
+}
+
+.markdown-section .mg-code[data-wrap="true"] pre > code {
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.markdown-section .mg-terminal[data-wrap="true"] pre {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.mg-code[data-wrap="true"] .mg-ln {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mg-code[data-line-numbers="true"] .mg-ln[data-n] {
+    padding-left: 54px;
+}
+
+.mg-code[data-line-numbers="true"] .mg-ln[data-n]::before {
+    content: attr(data-n);
+    position: absolute;
+    left: 0;
+    width: 38px;
+    color: var(--tg-code-num);
+    text-align: right;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mg-ln.hl {
+    background: var(--tg-code-line);
+    box-shadow: inset 3px 0 0 var(--tg-code-line-bar);
+}
+
+/* One <code> per terminal command: not an inline-code chip */
+.markdown-section .mg-ln > code {
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    overflow-wrap: inherit;
+}
+
+.mg-pr {
+    color: var(--sx-com);
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mg-out {
+    color: var(--sx-out);
+}
+
+.mg-code-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    padding: 6px 14px;
+    font-size: 11.5px;
+    color: var(--tg-muted);
+    background: var(--tg-code-head);
+    border-top: 1px solid var(--tg-border);
+}
+
+.mg-code-foot span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mg-key {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.mg-key-cmd {
+    background: var(--sx-com);
+}
+
+.mg-key-out {
+    background: var(--sx-out);
+}
+
+/* Developer variant: terminals are a true terminal surface in both modes */
+html.mg-v-dev .mg-code.mg-terminal {
+    color-scheme: dark;
+    --tg-code-bg: #0c0f1a;
+    --tg-code-head: #121626;
+    --tg-code-text: #e3e7f3;
+    --tg-code-num: #4f5878;
+    --tg-code-line: rgba(129, 140, 248, 0.14);
+    --tg-code-line-bar: #818cf8;
+    --tg-border: #1e2436;
+    --tg-text: #ffffff;
+    --tg-text-2: #c3c8d8;
+    --tg-muted: #98a0b9;
+    --tg-accent: #a5b4fc;
+    --tg-accent-soft: rgba(129, 140, 248, 0.13);
+    --tg-accent-border: rgba(165, 180, 252, 0.35);
+    --tg-focus: #a5b4fc;
+    --co-tip: #5ee0a0;
+    --sx-com: #7f88a3;
+    --sx-out: #a4abc2;
+    --sx-str: #86efac;
+    --sx-kw: #c4b5fd;
+    --sx-var: #f9a8d4;
+    --sx-fn: #67e8f9;
+    --sx-num: #fdba74;
+    --sx-key: #93c5fd;
+    --sx-type: #fde68a;
+    --sx-punc: #a4abc2;
+}
+
+@media (max-width: 559px) {
+    .markdown-section .mg-code pre,
+    html.mg-v-dev .markdown-section .mg-code pre {
+        font-size: 12.5px;
+    }
+
+    .mg-ln,
+    .markdown-section .mg-code pre > code {
+        padding: 0 14px;
+    }
+
+    .mg-code[data-line-numbers="true"] .mg-ln[data-n] {
+        padding-left: 44px;
+    }
+
+    .mg-code[data-line-numbers="true"] .mg-ln[data-n]::before {
+        width: 30px;
+    }
+
+    /* Icon-only buttons; the label stays the accessible name */
+    .mg-code-btn .mg-lbl {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+}
