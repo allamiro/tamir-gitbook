@@ -110,6 +110,28 @@ describe('page hooks', function() {
         plugin.hooks.page.call(context({}), html).content.should.containEql('"{% endraw %}"');
     });
 
+    it('ships the content script after the code script', function() {
+        var js = plugin.book.js;
+        js.indexOf('js/mg-content.js').should.be.above(js.indexOf('js/mg-code.js'));
+    });
+
+    it('registers the content blocks', function() {
+        Object.keys(plugin.blocks).sort().should.eql(['hint', 'path', 'stepper', 'tabs']);
+    });
+
+    it('page turns alerts and task lists into components, then wraps code', function() {
+        var page = {
+            content: '<p><!--mg-block--><div class="mg-tabs">t</div><!--/mg-block--></p>\n' +
+                '<blockquote>\n<p>[!TIP]\nRun:</p>\n<pre><code class="lang-bash">ls\n</code></pre>\n</blockquote>\n' +
+                '<ul>\n<li>[ ] One</li>\n</ul>\n'
+        };
+        var out = plugin.hooks.page.call(context({}), page).content;
+        out.should.startWith('<div class="mg-tabs">t</div>\n<div class="mg-callout mg-callout-tip"');
+        out.should.containEql('<p>Run:</p>\n<figure class="mg-code" data-lang="bash">');
+        out.should.containEql('<ul class="mg-checklist">');
+        out.should.not.containEql('mg-block');
+    });
+
     it('page wraps code blocks in figures', function() {
         var page = { content: '<pre><code class="lang-console">$ ls\n</code></pre>' };
         var out = plugin.hooks.page.call(context({}), page);

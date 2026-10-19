@@ -6,6 +6,8 @@
 // This file only wires assets, hooks and blocks; the logic lives in lib/.
 var readOptions = require('./lib/options').readOptions;
 var code = require('./lib/code');
+var callouts = require('./lib/callouts');
+var contentBlocks = require('./lib/blocks');
 
 var CONFIG_KEY = 'pluginsConfig.modern-gradient';
 var DEFAULT_WEBSITE_STYLE = 'styles/website.css';
@@ -27,9 +29,13 @@ module.exports = {
         js: [
             'js/mg-icons.js',
             'js/mg-core.js',
-            'js/mg-code.js'
+            'js/mg-code.js',
+            'js/mg-content.js'
         ]
     },
+
+    // hint, tabs/tab, stepper/step, path
+    blocks: contentBlocks.blocks,
 
     hooks: {
         init: function() {
@@ -77,9 +83,12 @@ module.exports = {
             return page;
         },
 
-        // HTML, before GitBook's highlight step
+        // HTML (block output already pasted in), before GitBook's highlight step
         page: function(page) {
             var html = code.restoreTemplateTags(page.content);
+            html = contentBlocks.unwrapBlocks(html);
+            html = callouts.transformAlerts(html);
+            html = callouts.transformTaskLists(html);
             html = code.transformCodeBlocks(html);
             page.content = html;
             return page;
