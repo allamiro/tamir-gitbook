@@ -1,8 +1,8 @@
 // Code blocks: GitBook-style {% code %} options, language labels and
 // terminal blocks. Plain string transforms over the known shapes:
 //
-//   page:before  raw Markdown        preprocessCodeOptions
-//   page         kramed output HTML  transformCodeBlocks
+//   page:before  raw Markdown        protectTemplateTags, preprocessCodeOptions
+//   page         kramed output HTML  restoreTemplateTags, transformCodeBlocks
 //
 // GitBook's highlight step runs after the "page" hook and rewrites every
 // <code> element from its text, so nothing here may put markup inside a
@@ -36,25 +36,23 @@ function optionsMarker(attrs) {
     return out + '></div>';
 }
 
-// {% code title="…" lineNumbers="true" overflow="wrap" highlight="1,3-5" %}
-// ```lang … ``` {% endcode %}  ->  <div class="mg-code-opts" …></div> + fence.
-// The highlight plugin owns the block name "code", so this cannot be a
-// template block; it is rewritten before GitBook escapes code with raw tags.
-function preprocessCodeOptions(markdown) {
+// Calls fn(line, inFence) for every Markdown line outside multi-line
+// {% raw %} regions and fence delimiters; fn returns the replacement line.
+function mapLines(markdown, fn) {
     var lines = String(markdown).split('\n');
     var fence = null;   // the open fence's marker, e.g. "```"
     var inRaw = false;  // inside a multi-line {% raw %} region
-    var open = 0;       // {% code %} tags waiting for {% endcode %}
 
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
-        var m;
+        var m = FENCE.exec(line);
 
         if (fence) {
-            m = FENCE.exec(line);
             if (m && m[1].charAt(0) === fence.charAt(0) && m[1].length >= fence.length &&
                 /^\s*$/.test(line.slice(line.indexOf(m[1]) + m[1].length))) {
                 fence = null;
+            } else {
+                lines[i] = fn(line, true);
             }
             continue;
         }
@@ -62,8 +60,6 @@ function preprocessCodeOptions(markdown) {
             if (line.indexOf('{% endraw %}') !== -1) inRaw = false;
             continue;
         }
-
-        m = FENCE.exec(line);
         if (m) {
             fence = m[1];
             continue;
@@ -72,18 +68,50 @@ function preprocessCodeOptions(markdown) {
             inRaw = true;
             continue;
         }
-
-        m = CODE_TAG.exec(line);
-        if (m) {
-            // The blank line ends the HTML block so the fence still parses
-            lines[i] = m[1] + optionsMarker(parseAttributes(m[2])) + '\n';
-            open++;
-        } else if (open > 0 && ENDCODE_TAG.test(line)) {
-            lines[i] = '';
-            open--;
-        }
+        lines[i] = fn(line, false);
     }
     return lines.join('\n');
+}
+
+// GitBook wraps each fenced block in {% raw %}…{% endraw %} before the
+// template engine runs, so a literal {% endraw %} (or any tag) in the code
+// would end that wrapper early. Inside fences "{%" becomes "{" + U+E000 +
+// "%", which neither the template engine nor Markdown touches;
+// restoreTemplateTags puts it back in the page HTML.
+var TAG_GUARD = '{\uE000%';
+var GUARDED = /\{\uE000%/g;
+
+function protectTemplateTags(markdown) {
+    return mapLines(markdown, function(line, inFence) {
+        return inFence ? line.split('{%').join(TAG_GUARD) : line;
+    });
+}
+
+function restoreTemplateTags(html) {
+    return String(html).replace(GUARDED, '{%');
+}
+
+// {% code title="…" lineNumbers="true" overflow="wrap" highlight="1,3-5" %}
+// ```lang … ``` {% endcode %}  ->  <div class="mg-code-opts" …></div> + fence.
+// The highlight plugin owns the block name "code", so this cannot be a
+// template block; it is rewritten before GitBook escapes code with raw tags.
+function preprocessCodeOptions(markdown) {
+    var open = 0;  // {% code %} tags waiting for {% endcode %}
+
+    return mapLines(markdown, function(line, inFence) {
+        if (inFence) return line;
+        var m = CODE_TAG.exec(line);
+        if (m) {
+            open++;
+            // The blank line ends the HTML block so the fence still parses
+            return m[1] + optionsMarker(parseAttributes(m[2])) + '\n';
+        }
+        if (open > 0 && ENDCODE_TAG.test(line)) {
+            open--;
+            return '';
+        }
+        return line;
+    });
 }
 
 // ------------------------------------------------------------ page
@@ -208,6 +236,8 @@ function transformCodeBlocks(html) {
 }
 
 module.exports = {
+    protectTemplateTags: protectTemplateTags,
+    restoreTemplateTags: restoreTemplateTags,
     preprocessCodeOptions: preprocessCodeOptions,
     transformCodeBlocks: transformCodeBlocks
 };

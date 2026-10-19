@@ -14,6 +14,7 @@ function read(file) {
 
 var tokensCss = read(path.join(pluginDir, 'assets', 'css', 'tokens.css'));
 var baseCss = read(path.join(pluginDir, 'assets', 'css', 'base.css'));
+var componentsCss = read(path.join(pluginDir, 'assets', 'css', 'components.css'));
 
 // ---------------------------------------------------------------- parsing
 
@@ -37,11 +38,14 @@ function ruleBody(css, selector) {
             return m[2];
         }
     }
-    throw new Error('rule not found in tokens.css: ' + selector);
+    throw new Error('rule not found: ' + selector);
 }
 
 var light = declarations(ruleBody(tokensCss, ':root'));
 var dark = Object.assign({}, light, declarations(ruleBody(tokensCss, ':root[data-tg-mode="dark"]')));
+// Developer variant: terminals keep a dark panel in both modes (components.css)
+var DEV_TERMINAL = 'html.mg-v-dev .mg-code.mg-terminal';
+var devTerminal = declarations(ruleBody(componentsCss, DEV_TERMINAL));
 
 // ---------------------------------------------------------------- colour maths
 
@@ -116,6 +120,14 @@ function pairs(tokens) {
         ['--tg-accent', '--tg-sidebar', 4.5],
         ['--tg-inline-code-text', '--tg-inline-code-bg', 4.5],
         ['--tg-code-text', '--tg-code-bg', 4.5],
+        // line numbers are the reference for highlight="8-10": informational text
+        ['--tg-code-num', '--tg-code-bg', 4.5],
+        ['--tg-code-num', '--tg-code-line', 4.5, '--tg-code-bg'],
+        // terminal prompts (.mg-pr) use --sx-com, also on highlighted lines
+        ['--sx-com', '--tg-code-line', 4.5, '--tg-code-bg'],
+        // code block header: buttons and language pill
+        ['--tg-muted', '--tg-code-head', 4.5],
+        ['--tg-accent', '--tg-accent-soft', 4.5, '--tg-code-head'],
         // active nav item / badges: accent on its translucent soft wash
         ['--tg-accent', '--tg-accent-soft', 4.5, '--tg-sidebar'],
         ['--tg-accent', '--tg-accent-soft', 4.5, '--tg-bg'],
@@ -171,6 +183,30 @@ describe('modern-gradient css', function () {
         });
         describe('dark', function () {
             check(dark);
+        });
+        describe('developer terminal panel', function () {
+            var list = [
+                ['--tg-code-text', '--tg-code-bg', 4.5],
+                ['--tg-code-num', '--tg-code-bg', 4.5],
+                ['--tg-code-num', '--tg-code-line', 4.5, '--tg-code-bg'],
+                ['--sx-com', '--tg-code-line', 4.5, '--tg-code-bg'],
+                ['--sx-out', '--tg-code-line', 4.5, '--tg-code-bg'],
+                ['--tg-muted', '--tg-code-head', 4.5],
+                ['--tg-accent', '--tg-accent-soft', 4.5, '--tg-code-head'],
+                ['--co-tip', '--tg-code-head', 4.5]
+            ];
+            Object.keys(devTerminal).forEach(function (name) {
+                if (/^--sx-/.test(name)) list.push([name, '--tg-code-bg', 4.5]);
+            });
+            list.forEach(function (pair) {
+                var name = pair[0] + ' on ' + pair[1] + (pair[3] ? ' (over ' + pair[3] + ')' : '');
+                it(name + ' >= ' + pair[2], function () {
+                    var bg = resolve(devTerminal, pair[1], pair[3]);
+                    var fg = resolve(devTerminal, pair[0], pair[1]);
+                    var r = ratio(fg, bg);
+                    (r >= pair[2]).should.equal(true, name + ' is ' + r.toFixed(2) + ':1, needs ' + pair[2]);
+                });
+            });
         });
     });
 

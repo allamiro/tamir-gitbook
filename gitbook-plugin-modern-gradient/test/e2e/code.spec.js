@@ -14,7 +14,7 @@ test.describe('code blocks', () => {
         page.on('pageerror', (err) => errors.push(err.message));
         await page.goto(PAGE);
 
-        await expect(page.locator('.markdown-section figure.mg-code')).toHaveCount(6);
+        await expect(page.locator('.markdown-section figure.mg-code')).toHaveCount(7);
         await expect(page.locator('.mg-code-opts')).toHaveCount(0);
 
         const json = figure(page, 0);
@@ -99,7 +99,7 @@ test.describe('code blocks', () => {
 
         // Commands-only terminal: no legend
         await expect(figure(page, 5).locator('.mg-code-foot')).toHaveCount(0);
-        await expect(figure(page, 5).locator('.mg-cmd code')).toHaveText('echo "{{ page.title }}" &amp; done');
+        await expect(figure(page, 5).locator('.mg-cmd code')).toHaveText('echo "{% raw %}{{ x }}{% endraw %}" &amp; done');
 
         // Developer variant: dark terminal panel in light mode
         const bg = await term.evaluate((el) => getComputedStyle(el).backgroundColor);
@@ -150,6 +150,21 @@ test.describe('code blocks', () => {
         await expect(figure(page, 0).locator('.mg-ln.hl')).toHaveCount(2);
     });
 
+    test('template tags in fenced code render literally', async ({ page }) => {
+        await page.goto(PAGE);
+        const source = '{% raw %}{{ page.title }}{% endraw %}\n' +
+            '{%- if x -%}{{ x }}{% endif %}\n' +
+            '{% endraw %} and {% raw %} on their own';
+        const code = figure(page, 6).locator('pre > code');
+        expect(await code.evaluate((el) => el.textContent.replace(/\n$/, ''))).toBe(source);
+        await expect(figure(page, 6).locator('.mg-ln')).toHaveCount(3);
+        // the template engine was not confused: nothing leaked around the block
+        await expect(page.locator('.markdown-section')).not.toContainText('\uE000');
+        const paragraphs = await page.locator('.markdown-section > p').allTextContents();
+        expect(paragraphs.filter((t) => /\{%|\{\{/.test(t))).toEqual([]);
+        expect(paragraphs[paragraphs.length - 1]).toBe('The end.');
+    });
+
     test.describe('on a phone', () => {
         test.use({ viewport: { width: 390, height: 800 } });
 
@@ -168,8 +183,8 @@ test.describe('code blocks', () => {
         test('every code block\'s text is visible', async ({ page }) => {
             await page.goto(PAGE);
             const pres = page.locator('.markdown-section pre');
-            await expect(pres).toHaveCount(6);
-            for (let i = 0; i < 6; i++) await expect(pres.nth(i)).toBeVisible();
+            await expect(pres).toHaveCount(7);
+            for (let i = 0; i < 7; i++) await expect(pres.nth(i)).toBeVisible();
             await expect(pres.nth(0)).toContainText('"title": "Modern Gradient Fixture"');
             await expect(pres.nth(1)).toContainText('spans two lines');
             await expect(pres.nth(2)).toContainText('plain text & <tags>');

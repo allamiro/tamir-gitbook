@@ -50,5 +50,15 @@ Docker version 27.3.1
 Commands only:
 
 ```shell-session
-$ echo "{{ page.title }}" &amp; done
+$ echo "{% raw %}{{ x }}{% endraw %}" &amp; done
 ```
+
+Template syntax shown literally:
+
+```jinja
+{% raw %}{{ page.title }}{% endraw %}
+{%- if x -%}{{ x }}{% endif %}
+{% endraw %} and {% raw %} on their own
+```
+
+The end.

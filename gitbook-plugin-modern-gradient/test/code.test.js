@@ -4,6 +4,8 @@ require('should');
 var code = require('../lib/code');
 var preprocessCodeOptions = code.preprocessCodeOptions;
 var transformCodeBlocks = code.transformCodeBlocks;
+var protectTemplateTags = code.protectTemplateTags;
+var restoreTemplateTags = code.restoreTemplateTags;
 
 // kramed's output for a fenced block: escaped text, trailing newline
 function kramed(lang, text) {
@@ -226,5 +228,51 @@ describe('transformCodeBlocks', function() {
             pre.should.containEql('<code class="lang-bash">echo &quot;{% raw %}&quot; &amp;amp;</code>');
             pre.should.containEql('<span class="mg-ln mg-out">{% raw %} &amp;amp; &lt;b&gt;\n</span>');
         });
+    });
+});
+
+describe('template tags inside fenced code', function() {
+    var SOURCE = '{% raw %}{{ page.title }}{% endraw %}\n{%- if x -%}{{ x }}{% endif %}';
+    var MD = 'Before {% raw %}{{ kept }}{% endraw %}\n\n```jinja\n' + SOURCE + '\n```\n\nAfter {{ book.title }}\n';
+
+    it('hides every {% inside fences from the template engine', function() {
+        var out = protectTemplateTags(MD);
+        var fence = out.slice(out.indexOf('```jinja'), out.lastIndexOf('```'));
+        fence.should.not.containEql('{%');
+        fence.should.containEql('{{ page.title }}');
+        out.should.startWith('Before {% raw %}{{ kept }}{% endraw %}\n\n```jinja\n');
+        out.should.endWith('```\n\nAfter {{ book.title }}\n');
+    });
+
+    it('leaves markdown without fences unchanged', function() {
+        var md = 'Text {% raw %}{% endraw %} and `{{ x }}`\n';
+        protectTemplateTags(md).should.equal(md);
+    });
+
+    it('protects ~~~ fences and fences in list items, and stops at the closing fence', function() {
+        var md = '* item\n\n  ~~~\n  {% endraw %}\n  ~~~\n\n{% hint %}x{% endhint %}\n';
+        var out = protectTemplateTags(md);
+        out.should.not.containEql('{% endraw %}');
+        out.should.endWith('\n{% hint %}x{% endhint %}\n');
+    });
+
+    it('restores the literal tags in HTML', function() {
+        restoreTemplateTags(protectTemplateTags(MD)).should.equal(MD);
+        restoreTemplateTags('<p>a {% raw %}</p>').should.equal('<p>a {% raw %}</p>');
+    });
+
+    it('round-trips through the code block transform', function() {
+        var fenceBody = protectTemplateTags('```console\n$ echo "{% raw %}" &amp;\n{% endraw %} <b>\n```\n').split('\n').slice(1, 3).join('\n');
+        var pre = preOf(transformCodeBlocks(restoreTemplateTags(kramed('console', fenceBody))));
+        pre.should.containEql('<code class="lang-bash">echo &quot;{% raw %}&quot; &amp;amp;</code>');
+        pre.should.containEql('<span class="mg-ln mg-out">{% endraw %} &lt;b&gt;\n</span>');
+    });
+
+    it('works together with {% code %} options', function() {
+        var md = '{% code title="t" %}\n```js\n"{% endraw %}"\n```\n{% endcode %}\n';
+        var out = preprocessCodeOptions(protectTemplateTags(md));
+        out.should.startWith('<div class="mg-code-opts" data-title="t"></div>\n\n```js\n');
+        out.should.not.containEql('endcode');
+        restoreTemplateTags(out).should.containEql('"{% endraw %}"');
     });
 });

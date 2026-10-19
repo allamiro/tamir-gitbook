@@ -71,13 +71,17 @@ module.exports = {
 
         // Raw Markdown, before GitBook wraps code in {% raw %}
         'page:before': function(page) {
-            page.content = code.preprocessCodeOptions(page.content);
+            var markdown = code.protectTemplateTags(page.content);
+            markdown = code.preprocessCodeOptions(markdown);
+            page.content = markdown;
             return page;
         },
 
         // HTML, before GitBook's highlight step
         page: function(page) {
-            page.content = code.transformCodeBlocks(page.content);
+            var html = code.restoreTemplateTags(page.content);
+            html = code.transformCodeBlocks(html);
+            page.content = html;
             return page;
         }
     }

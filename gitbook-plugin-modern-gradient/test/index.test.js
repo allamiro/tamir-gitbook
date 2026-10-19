@@ -102,6 +102,14 @@ describe('page hooks', function() {
         out.content.should.not.containEql('endcode');
     });
 
+    it('page:before protects and page restores template tags in fences', function() {
+        var page = { content: '```js\n"{% endraw %}"\n```\n' };
+        var before = plugin.hooks['page:before'].call(context({}), page).content;
+        before.should.not.containEql('{% endraw %}');
+        var html = { content: '<pre><code class="lang-js">' + before.split('\n')[1] + '\n</code></pre>' };
+        plugin.hooks.page.call(context({}), html).content.should.containEql('"{% endraw %}"');
+    });
+
     it('page wraps code blocks in figures', function() {
         var page = { content: '<pre><code class="lang-console">$ ls\n</code></pre>' };
         var out = plugin.hooks.page.call(context({}), page);
