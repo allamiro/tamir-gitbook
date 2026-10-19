@@ -1,0 +1,629 @@
+/* Modern Gradient: base styling of the GitBook 3 theme-default DOM.
+ * Reads only the tokens from tokens.css, so it works without any plugin
+ * markup and is reused as-is by the CSS-only edition. Variant and mode
+ * differences arrive through the tokens, never through selectors here.
+ */
+
+/* Page shell ------------------------------------------------------------ */
+
+html,
+body {
+    background: var(--tg-bg);
+}
+
+body {
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.book,
+.book-summary,
+.book-header,
+.markdown-section,
+#book-search-results {
+    font-family: var(--tg-font);
+}
+
+.book-body {
+    background: var(--tg-bg);
+    color: var(--tg-text);
+}
+
+.page-inner {
+    max-width: calc(var(--tg-content-w) + 80px);
+    padding: 30px 40px 60px;
+}
+
+@media (max-width: 600px) {
+    .page-inner {
+        padding: 18px 16px 40px;
+    }
+}
+
+/* Header ---------------------------------------------------------------- */
+
+.book-header {
+    position: relative;
+    height: 60px;
+    padding: 0 18px;
+    font-size: 14px;
+    color: var(--tg-muted);
+    background: var(--tg-header-bg);
+    border-bottom: 1px solid var(--tg-border);
+}
+
+/* 2px gradient hairline: the theme's signature, off in the minimal variant */
+.book-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--tg-grad);
+    opacity: var(--tg-header-line);
+    pointer-events: none;
+}
+
+.book-header .btn {
+    height: 60px;
+    line-height: 60px;
+    color: var(--tg-muted);
+    border-radius: 0;
+}
+
+.book-header .btn:hover {
+    color: var(--tg-accent);
+}
+
+.book-header h1 {
+    line-height: 60px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--tg-text);
+}
+
+.navigation {
+    top: 60px;
+    color: var(--tg-muted);
+}
+
+.navigation:hover {
+    color: var(--tg-accent);
+}
+
+/* Dropdown menus (font settings) */
+.dropdown-menu {
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-lg);
+}
+
+.dropdown-menu .dropdown-caret .caret-outer {
+    border-bottom-color: var(--tg-border);
+}
+
+.dropdown-menu .dropdown-caret .caret-inner {
+    border-bottom-color: var(--tg-surface);
+}
+
+.dropdown-menu .buttons {
+    border-bottom-color: var(--tg-border);
+}
+
+.dropdown-menu .buttons .button {
+    color: var(--tg-text-2);
+    background: transparent;
+}
+
+.dropdown-menu .buttons .button:hover {
+    color: var(--tg-accent);
+    background: var(--tg-surface-2);
+}
+
+/* Sidebar --------------------------------------------------------------- */
+
+.book-summary {
+    width: var(--tg-sidebar-w);
+    left: calc(var(--tg-sidebar-w) * -1);
+    padding: 0 12px 30px;
+    font-size: 14px;
+    color: var(--tg-text-2);
+    background: var(--tg-sidebar);
+    border-right: 1px solid var(--tg-border);
+    scrollbar-width: thin;
+}
+
+@media (min-width: 600px) {
+    .book.with-summary .book-body {
+        left: var(--tg-sidebar-w);
+    }
+}
+
+@media (max-width: 600px) {
+    .book-summary {
+        width: calc(100% - 60px);
+        left: -100%;
+    }
+}
+
+.book-summary ul.summary li a,
+.book-summary ul.summary li span {
+    margin: 1px 0;
+    padding: 6px 10px;
+    line-height: 1.4;
+    color: var(--tg-text-2);
+    white-space: normal;
+    border-radius: 8px;
+}
+
+.book-summary ul.summary li a:hover {
+    color: var(--tg-text);
+    background: var(--tg-surface-2);
+    text-decoration: none;
+}
+
+.book-summary ul.summary li.active > a {
+    color: var(--tg-accent);
+    font-weight: 600;
+    background: var(--tg-accent-soft);
+    text-decoration: none;
+}
+
+.book-summary ul.summary li.active > a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--tg-grad);
+}
+
+.book-summary ul.summary li.done > a {
+    color: var(--tg-text-2);
+}
+
+.book-summary ul.summary li ul {
+    margin: 2px 0 6px 12px;
+    padding-left: 8px;
+    border-left: 1px solid var(--tg-border);
+}
+
+.book-summary ul.summary li.header {
+    padding: 18px 10px 6px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tg-muted);
+}
+
+.book-summary ul.summary li.divider {
+    background: var(--tg-border);
+}
+
+.book-summary ul.summary li a.gitbook-link {
+    font-size: 12px;
+    color: var(--tg-muted);
+}
+
+/* Sidebar search box */
+.book-summary #book-search-input {
+    margin: 14px 0 12px;
+    padding: 0;
+    background: var(--tg-surface-2);
+    border: 1px solid var(--tg-border);
+    border-radius: 10px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.book-summary #book-search-input:hover,
+.book-summary #book-search-input:focus-within {
+    border-color: var(--tg-accent-border);
+    box-shadow: 0 0 0 4px var(--tg-accent-soft);
+}
+
+.book-summary #book-search-input input,
+.book-summary #book-search-input input:focus,
+.book-summary #book-search-input input:hover {
+    height: 36px;
+    padding: 0 12px;
+    font: inherit;
+    font-size: 14px;
+    line-height: 36px;
+    color: var(--tg-text);
+    border: 0;
+    border-radius: 10px;
+}
+
+.book-summary #book-search-input input::placeholder {
+    color: var(--tg-muted);
+    opacity: 1;
+}
+
+/* Search results (gitbook-plugin-search) */
+#book-search-results .search-results .search-results-title {
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    color: var(--tg-muted);
+    opacity: 1;
+}
+
+#book-search-results .search-results ul.search-results-list li {
+    margin-bottom: 14px;
+    padding: 14px 18px;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+}
+
+#book-search-results .search-results ul.search-results-list li p em {
+    color: inherit;
+    background: color-mix(in srgb, var(--tg-accent) 22%, transparent);
+    border-radius: 3px;
+}
+
+#book-search-results .search-results .has-results .search-results-item {
+    color: var(--tg-text-2);
+}
+
+#book-search-results .search-results .has-results .search-results-item h3 {
+    font-size: 1.1em;
+}
+
+#book-search-results .search-results .has-results .search-results-item a {
+    color: var(--tg-accent);
+}
+
+#book-search-results .search-results .has-results .search-results-item code,
+#book-search-results .search-results .has-results .search-results-item pre {
+    font-family: var(--tg-mono);
+    background: var(--tg-inline-code-bg);
+    color: var(--tg-inline-code-text);
+}
+
+#book-search-results .search-results .no-results {
+    color: var(--tg-muted);
+}
+
+/* Article typography ---------------------------------------------------- */
+
+.markdown-section {
+    font-size: var(--tg-fs);
+    line-height: var(--tg-lh);
+    color: var(--tg-text-2);
+}
+
+.markdown-section h1,
+.markdown-section h2,
+.markdown-section h3,
+.markdown-section h4 {
+    color: var(--tg-text);
+}
+
+.markdown-section h1 {
+    margin: 0 0 0.6em;
+    font-size: 2.15em;
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.025em;
+}
+
+.markdown-section h1 code {
+    padding: 0.04em 0.3em;
+    font-size: 0.78em;
+    vertical-align: 0.06em;
+}
+
+.markdown-section h2 {
+    margin: 2.3em 0 0.6em;
+    padding-top: 1.1em;
+    font-size: 1.5em;
+    font-weight: 680;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    border-top: 1px solid var(--tg-border);
+}
+
+.markdown-section > h2:first-child,
+.markdown-section > h1 + h2 {
+    margin-top: 0.3em;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.markdown-section h3 {
+    margin: 1.9em 0 0.5em;
+    font-size: 1.17em;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.markdown-section h4 {
+    margin: 1.5em 0 0.4em;
+    font-size: 1em;
+    font-weight: 650;
+    color: var(--tg-text-2);
+}
+
+.markdown-section h5,
+.markdown-section h6 {
+    color: var(--tg-muted);
+}
+
+.markdown-section p {
+    margin: 0 0 1.05em;
+}
+
+.markdown-section ul,
+.markdown-section ol {
+    margin: 0 0 1.2em;
+    padding-left: 1.3em;
+}
+
+.markdown-section li {
+    margin: 0.3em 0;
+}
+
+.markdown-section strong,
+.markdown-section b {
+    color: var(--tg-text);
+    font-weight: 620;
+}
+
+.markdown-section hr {
+    height: 1px;
+    margin: 2.4em 0;
+    background: var(--tg-border);
+}
+
+/* Links keep an underline so they never rely on colour alone (WCAG 1.4.1) */
+.markdown-section a {
+    color: var(--tg-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.markdown-section a:hover {
+    color: var(--tg-accent-strong);
+    text-decoration-thickness: 2px;
+}
+
+.markdown-section kbd {
+    padding: 3px 6px 4px;
+    font-family: var(--tg-mono);
+    font-size: 0.8em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--tg-text-2);
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border-strong);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+}
+
+/* Inline code */
+.markdown-section code::before,
+.markdown-section code::after {
+    content: none;
+}
+
+.markdown-section :not(pre) > code {
+    padding: 0.14em 0.42em;
+    font-family: var(--tg-mono);
+    font-size: 0.86em;
+    color: var(--tg-inline-code-text);
+    background: var(--tg-inline-code-bg);
+    border: 1px solid color-mix(in srgb, var(--tg-inline-code-text) 14%, transparent);
+    border-radius: 6px;
+    overflow-wrap: anywhere;
+}
+
+/* Code blocks */
+.markdown-section pre {
+    margin: 1.2em 0 1.6em;
+    padding: 14px 18px;
+    font-family: var(--tg-mono);
+    font-size: 13.4px;
+    line-height: 1.65;
+    color: var(--tg-code-text);
+    tab-size: 2;
+    background: var(--tg-code-bg);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+    scrollbar-width: thin;
+}
+
+.markdown-section pre > code {
+    padding: 0;
+    font-family: var(--tg-mono);
+    font-size: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+}
+
+/* highlight.js token colours (theme-default's plugin selectors are long, so
+ * the prefix below matches their specificity; this file loads later and wins) */
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs {
+    padding: 0;
+    color: inherit;
+    background: transparent;
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-comment,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-quote {
+    color: var(--sx-com);
+    font-style: italic;
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-keyword,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-selector-tag,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-doctag,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-meta-keyword {
+    color: var(--sx-kw);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-string,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-meta-string,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-addition,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-bullet {
+    color: var(--sx-str);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-number,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-literal,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-symbol {
+    color: var(--sx-num);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-attr,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-attribute,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-selector-attr,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-selector-pseudo,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-link {
+    color: var(--sx-key);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-title,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-section,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-selector-class,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-selector-id {
+    color: var(--sx-fn);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-variable,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-template-variable,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-tag,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-name,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-regexp,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-deletion {
+    color: var(--sx-var);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-type,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-built_in,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-builtin-name,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-class {
+    color: var(--sx-type);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-meta,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-params,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-subst,
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-formula {
+    color: var(--sx-punc);
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-emphasis {
+    font-style: italic;
+}
+
+.book .book-body .page-wrapper .page-inner section.markdown-section pre .hljs-strong {
+    font-weight: 700;
+}
+
+/* Blockquotes */
+.markdown-section blockquote {
+    margin: 1.2em 0;
+    padding: 12px 16px;
+    color: var(--tg-text-2);
+    background: var(--tg-accent-soft);
+    border: 1px solid var(--tg-accent-border);
+    border-left: 3px solid var(--tg-accent);
+    border-radius: 0 var(--tg-radius) var(--tg-radius) 0;
+}
+
+.markdown-section blockquote > :last-child {
+    margin-bottom: 0;
+}
+
+/* Tables */
+.markdown-section table {
+    margin: 1.2em 0 1.6em;
+    font-size: 0.92em;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+    overflow: hidden;
+}
+
+.markdown-section table th,
+.markdown-section table td {
+    padding: 11px 14px;
+    text-align: left;
+    vertical-align: top;
+    border: 0;
+}
+
+.markdown-section table th {
+    padding: 10px 14px;
+    font-size: 0.86em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tg-muted);
+    background: var(--tg-surface-2);
+}
+
+.markdown-section table td {
+    color: var(--tg-text-2);
+    border-top: 1px solid var(--tg-border);
+}
+
+.markdown-section table tr,
+.markdown-section table tr:nth-child(2n) {
+    background: transparent;
+    border-top: 0;
+}
+
+.markdown-section table tbody tr:hover td {
+    background: var(--tg-accent-soft);
+}
+
+.markdown-section img {
+    border-radius: var(--tg-radius-sm);
+}
+
+/* Focus ----------------------------------------------------------------- */
+
+/* theme-default switches outlines off with high-specificity :focus rules, so
+ * the ring is !important; it only shows for keyboard focus. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--tg-focus) !important;
+    outline-offset: 2px;
+}
+
+.book-summary ul.summary li a:focus-visible,
+.book-summary #book-search-input input:focus-visible {
+    outline-offset: -2px;
+}
+
+/* Motion ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
+}
