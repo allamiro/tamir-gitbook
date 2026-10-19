@@ -1,0 +1,25 @@
+{% extends template.self %}
+
+{% block head %}
+    {### Runs before the body is parsed, so the first paint already has the
+        reader's mode and the variant classes (no light flash in dark mode).
+        Storage key and values match MG.store in assets/js/mg-core.js. ###}
+    {%- set mgConfig = config.pluginsConfig['modern-gradient'] or {} %}
+    <script>
+    (function (root) {
+        var mode;
+        try { mode = window.localStorage.getItem('mg-mode'); } catch (e) {}
+        if (mode !== 'dark' && mode !== 'light') {
+            mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        root.setAttribute('data-tg-mode', mode);
+        root.className = (root.className ? root.className + ' ' : '') + {{ ('mg ' + (mgConfig.variantClasses or ''))|trim|dump|safe }};
+    })(document.documentElement);
+    </script>
+    {{ super() }}
+{% endblock %}
+
+{% block book_inner %}
+    {{ super() }}
+    <aside class="mg-toc" aria-label="On this page"></aside>
+{% endblock %}

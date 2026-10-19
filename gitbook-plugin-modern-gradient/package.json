@@ -17,6 +17,11 @@
         "type": "string",
         "title": "Base http(s) URL used for the Edit this page link",
         "default": ""
+      },
+      "subtitle": {
+        "type": "string",
+        "title": "Short line shown under the book title in the header",
+        "default": ""
       }
     }
   },

@@ -1,0 +1,249 @@
+/* Modern Gradient: styling for the plugin's own mg- markup.
+ * Fonts first: self-hosted, latin subset (no network access at runtime).
+ * Inter and JetBrains Mono are SIL OFL 1.1; licences in ../fonts/.
+ */
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/Inter-var-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+2000-206F, U+2074, U+20AC, U+2122, U+2190-2199, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 100 800;
+    font-display: swap;
+    src: url("../fonts/JetBrainsMono-var-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+2000-206F, U+2074, U+20AC, U+2122, U+2190-2199, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Icons ------------------------------------------------------------------ */
+
+.mg-i {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    flex: none;
+    vertical-align: middle;
+}
+
+/* Header ----------------------------------------------------------------- */
+
+.book-header.mg-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* theme-default toolbar buttons (sidebar toggle, glossary) stay first */
+.book-header.mg-header > .btn,
+.book-header.mg-header > .js-toolbar-action {
+    order: -1;
+    flex: none;
+    float: none;
+}
+
+/* One dark mode, not two: the plugin's toggle replaces font settings */
+.book-header .font-settings {
+    display: none !important;
+}
+
+/* The page title already heads the article; the <h1> stays in the DOM
+   because the toolbar inserts its buttons relative to it */
+.book-header.mg-header h1 {
+    display: none;
+}
+
+.mg-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    white-space: nowrap;
+    color: var(--tg-text) !important;
+}
+
+.mg-brand:hover {
+    text-decoration: none !important;
+}
+
+.mg-logo {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 9px;
+    background: var(--tg-grad-strong);
+    color: #fff;
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.mg-logo .mg-i {
+    width: 17px;
+    height: 17px;
+}
+
+.mg-brand-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mg-brand-text small {
+    display: block;
+    margin-top: -1px;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--tg-muted);
+}
+
+/* Header controls need JavaScript; the early script in page.html adds the
+   "mg" class to <html>, so without JS they are not shown at all */
+.mg-header .mg-js-only {
+    display: none;
+}
+
+.mg-search-btn {
+    flex: 0 1 380px;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    height: 38px;
+    margin-left: 18px;
+    padding: 0 10px 0 12px;
+    border: 1px solid var(--tg-border);
+    border-radius: 10px;
+    background: var(--tg-surface-2);
+    color: var(--tg-muted);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+html.mg .mg-header .mg-search-btn {
+    display: flex;
+}
+
+.mg-search-btn:hover {
+    border-color: var(--tg-accent-border);
+    box-shadow: 0 0 0 4px var(--tg-accent-soft);
+}
+
+.mg-search-btn .mg-i {
+    width: 16px;
+    height: 16px;
+}
+
+.mg-search-btn span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mg-search-btn kbd {
+    padding: 3px 6px 4px;
+    border: 1px solid var(--tg-border-strong);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: var(--tg-surface);
+    color: var(--tg-text-2);
+    font-family: var(--tg-mono);
+    font-size: 11.5px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.mg-header-actions {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.mg-icon-btn {
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--tg-text-2);
+    cursor: pointer;
+}
+
+html.mg .mg-header .mg-icon-btn {
+    display: inline-grid;
+}
+
+.mg-icon-btn:hover {
+    border-color: var(--tg-border);
+    background: var(--tg-surface-2);
+    color: var(--tg-text);
+}
+
+/* The drawer button only exists below the drawer breakpoint */
+html.mg .mg-header #mg-menu {
+    display: none;
+}
+
+@media (max-width: 919px) {
+    html.mg .mg-header #mg-menu {
+        display: inline-grid;
+    }
+
+    .mg-search-btn {
+        flex: 1;
+        margin-left: 8px;
+    }
+}
+
+@media (max-width: 559px) {
+    .book-header.mg-header {
+        gap: 6px;
+        padding: 0 10px;
+    }
+
+    .mg-brand-text {
+        display: none;
+    }
+
+    .mg-search-btn {
+        height: 36px;
+        margin-left: 4px;
+        padding: 0 8px;
+    }
+
+    .mg-search-btn kbd,
+    html.mg .mg-header #mg-focus {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mg-search-btn {
+        transition: none;
+    }
+}
+
+/* Table of contents column (filled by mg-content.js) --------------------- */
+
+.mg-toc:empty {
+    display: none;
+}
