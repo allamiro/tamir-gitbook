@@ -119,7 +119,7 @@ test.describe('code blocks', () => {
             await expect(copy).toHaveClass(/\bmg-copied\b/);
             await expect(copy.locator('.mg-lbl')).toHaveText('Copied');
             await expect(copy.locator('svg[data-mg-icon="check"]')).toHaveCount(1);
-            await expect(page.locator('.mg-sr-only[aria-live="polite"]'))
+            await expect(page.locator('.mg-toast[role="status"][aria-live="polite"]'))
                 .toHaveText('Commands copied to the clipboard, output left out');
             await expect(copy.locator('.mg-lbl')).toHaveText('Copy', { timeout: 3000 });
             await expect(copy).not.toHaveClass(/\bmg-copied\b/);

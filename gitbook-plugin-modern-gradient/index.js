@@ -8,9 +8,33 @@ var readOptions = require('./lib/options').readOptions;
 var code = require('./lib/code');
 var callouts = require('./lib/callouts');
 var contentBlocks = require('./lib/blocks');
+var chrome = require('./lib/chrome');
 
 var CONFIG_KEY = 'pluginsConfig.modern-gradient';
 var DEFAULT_WEBSITE_STYLE = 'styles/website.css';
+
+// SUMMARY articles in reading order (this.summary.walk)
+function summaryArticles(api) {
+    var list = [];
+    if (api.summary && typeof api.summary.walk === 'function') {
+        api.summary.walk(function(article) { list.push(article); });
+    }
+    return list;
+}
+
+// Breadcrumbs and meta above, previous / next below. Links point at the
+// articles' .md files relative to this page; GitBook's resolveLinks step
+// (after this hook) turns them into .html / directory URLs exactly as it
+// does for links in the Markdown, so they also work under a sub-path.
+function addArticleChrome(api, page, html) {
+    var from = page.path || '';
+    var toURL = function(articlePath) {
+        return chrome.relativeURL(from, articlePath);
+    };
+    var trail = chrome.breadcrumbTrail(summaryArticles(api), from, toURL);
+    return chrome.insertArticleHead(html, page, trail, { minutes: chrome.readingTime(html) }) +
+        chrome.renderPager(page, toURL);
+}
 
 // Plugin names may carry a version ("name@1.0.0") or be objects
 function pluginName(entry) {
@@ -90,6 +114,7 @@ module.exports = {
             html = callouts.transformAlerts(html);
             html = callouts.transformTaskLists(html);
             html = code.transformCodeBlocks(html);
+            if (page.layout !== 'home') html = addArticleChrome(this, page, html);
             page.content = html;
             return page;
         }

@@ -13,7 +13,7 @@
     --tg-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 52%, #0ea5e9 100%);
     /* Gradient fills that carry white text or icons: same stops in both modes. */
     --tg-grad-strong: linear-gradient(135deg, #4f46e5 0%, #6d28d9 52%, #0369a1 100%);
-    --tg-grad-text: linear-gradient(120deg, #4f46e5 0%, #7c3aed 50%, #0284c7 100%);
+    --tg-grad-text: linear-gradient(120deg, #4f46e5 0%, #7c3aed 50%, #0369a1 100%);
     --tg-grad-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.10) 0%, rgba(139, 92, 246, 0.07) 50%, rgba(14, 165, 233, 0.08) 100%);
     --tg-accent: #4f46e5;
     --tg-accent-strong: #4338ca;

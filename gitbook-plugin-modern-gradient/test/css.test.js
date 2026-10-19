@@ -164,6 +164,19 @@ function check(tokens) {
         });
     });
 
+    // Gradient text (eyebrow, hero highlight) is read on the page and on cards
+    ['--tg-bg', '--tg-surface'].forEach(function (bgName) {
+        it('every --tg-grad-text stop on ' + bgName + ' >= 4.5', function () {
+            var found = stops(tokens['--tg-grad-text']);
+            found.length.should.equal(3);
+            var bg = resolve(tokens, bgName);
+            found.forEach(function (hex) {
+                var r = ratio(parseColor(hex), bg);
+                (r >= 4.5).should.equal(true, hex + ' on ' + bgName + ' is ' + r.toFixed(2) + ':1');
+            });
+        });
+    });
+
     it('white on every --tg-grad-strong stop >= 4.5', function () {
         var found = stops(tokens['--tg-grad-strong']);
         found.length.should.equal(3);
@@ -232,6 +245,17 @@ describe('modern-gradient css', function () {
         it('sets the sidebar width per variant', function () {
             light['--tg-sidebar-w'].should.equal('272px');
             declarations(ruleBody(tokensCss, 'html.mg-v-dev'))['--tg-sidebar-w'].should.equal('260px');
+        });
+    });
+
+    describe('components.css', function () {
+        it('hides the side chevrons but keeps them for the arrow-key shortcuts', function () {
+            var body = ruleBody(componentsCss, '.book-body .navigation');
+            body.should.match(/display:\s*none/);
+        });
+
+        it('shows the table of contents column from 1240px only', function () {
+            componentsCss.should.match(/@media \(min-width: 1240px\)\s*\{[^@]*\.mg-toc/);
         });
     });
 

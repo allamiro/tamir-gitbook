@@ -126,6 +126,8 @@ describe('page hooks', function() {
                 '<ul>\n<li>[ ] One</li>\n</ul>\n'
         };
         var out = plugin.hooks.page.call(context({}), page).content;
+        out.should.containEql('</nav><div class="mg-meta">');
+        out = out.slice(out.indexOf('<div class="mg-tabs">'));
         out.should.startWith('<div class="mg-tabs">t</div>\n<div class="mg-callout mg-callout-tip"');
         out.should.containEql('<p>Run:</p>\n<figure class="mg-code" data-lang="bash">');
         out.should.containEql('<ul class="mg-checklist">');
@@ -133,9 +135,70 @@ describe('page hooks', function() {
     });
 
     it('page wraps code blocks in figures', function() {
-        var page = { content: '<pre><code class="lang-console">$ ls\n</code></pre>' };
+        var page = { layout: 'home', content: '<pre><code class="lang-console">$ ls\n</code></pre>' };
         var out = plugin.hooks.page.call(context({}), page);
         out.should.equal(page);
         out.content.should.startWith('<figure class="mg-code mg-terminal" data-lang="console">');
+    });
+
+    describe('article chrome', function() {
+        var ARTICLES = [
+            { title: 'Introduction', level: '1.1', path: 'README.md' },
+            { title: 'Guides', level: '1.2', path: 'guides/README.md' },
+            { title: 'Long page', level: '1.2.1', path: 'guides/long-page.md' },
+            { title: 'Dupes', level: '1.2.2', path: 'guides/dupes.md' }
+        ];
+
+        // this.summary and this.output as GitBook 3 hands them to hooks
+        function bookContext() {
+            var ctx = context({});
+            ctx.summary = {
+                walk: function(fn) { ARTICLES.forEach(function(a) { fn(a); }); }
+            };
+            return ctx;
+        }
+
+        function run(page) {
+            return plugin.hooks.page.call(bookContext(), page).content;
+        }
+
+        // GitBook's resolveLinks modifier (after the hook) turns these .md
+        // links into .html / directory URLs, as for links in the Markdown
+        it('adds breadcrumbs, meta and a pager with .md links relative to the page', function() {
+            var html = run({
+                path: 'guides/long-page.md',
+                title: 'Long page',
+                difficulty: 'intermediate',
+                content: '<h1>Long page</h1>\n<p>Text</p>\n',
+                previous: { title: 'Guides', path: 'guides/README.md' },
+                next: { title: 'Dupes', path: 'guides/dupes.md' }
+            });
+            html.should.startWith('<nav class="mg-crumbs');
+            html.should.containEql('<a href="../README.md">Home</a>');
+            html.should.containEql('<a href="README.md">Guides</a>');
+            html.should.containEql('<span aria-current="page">Long page</span>');
+            html.should.containEql('<h1>Long page</h1>\n<div class="mg-meta">');
+            html.should.containEql('mg-chip-level-intermediate');
+            html.should.containEql('<a class="mg-prev" href="README.md">');
+            html.should.containEql('<a class="mg-next" href="dupes.md">');
+            html.indexOf('<p>Text</p>').should.be.below(html.indexOf('mg-pager'));
+        });
+
+        it('handles a page outside SUMMARY without errors', function() {
+            var html = run({ path: 'GLOSSARY.md', content: '<h1>Glossary</h1>' });
+            html.should.containEql('<a href="README.md">Home</a>');
+            html.should.not.containEql('mg-pager');
+            html.should.not.containEql('aria-current');
+        });
+
+        it('leaves the home layout alone', function() {
+            var html = run({ path: 'README.md', layout: 'home', content: '<p>Hi</p>', next: ARTICLES[1] });
+            html.should.equal('<p>Hi</p>');
+        });
+
+        it('copes with a hook context that has no summary', function() {
+            var html = plugin.hooks.page.call(context({}), { path: 'a/b.md', content: '<p>x</p>', next: { title: 'C', path: 'a/c.md' } }).content;
+            html.should.containEql('<a class="mg-next" href="c.md">');
+        });
     });
 });

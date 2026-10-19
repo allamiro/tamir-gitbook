@@ -99,51 +99,10 @@
         return btn;
     }
 
-    // ------------------------------------------------------------ announcements
-    var liveRegion = null;
-
+    // Messages go through the shared toast (MG.toast), which is also the
+    // polite live region; the clipboard helper is MG.copyText (mg-core.js)
     function announce(message) {
-        if (!liveRegion || !document.body.contains(liveRegion)) {
-            liveRegion = document.createElement('div');
-            liveRegion.className = 'mg-sr-only';
-            liveRegion.setAttribute('role', 'status');
-            liveRegion.setAttribute('aria-live', 'polite');
-            document.body.appendChild(liveRegion);
-        }
-        liveRegion.textContent = '';
-        window.setTimeout(function() { liveRegion.textContent = message; }, 50);
-    }
-
-    // ------------------------------------------------------------ clipboard
-    function copyFallback(text) {
-        var active = document.activeElement;
-        var area = document.createElement('textarea');
-        area.value = text;
-        area.setAttribute('readonly', '');
-        area.style.position = 'fixed';
-        area.style.top = '-1000px';
-        area.style.opacity = '0';
-        document.body.appendChild(area);
-        area.select();
-        var ok = false;
-        try {
-            ok = document.execCommand('copy');
-        } catch (e) { /* not supported */ }
-        document.body.removeChild(area);
-        if (active && active.focus) active.focus();
-        return ok;
-    }
-
-    function copyText(text, done) {
-        if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext !== false) {
-            navigator.clipboard.writeText(text).then(function() {
-                done(true);
-            }, function() {
-                done(copyFallback(text));
-            });
-        } else {
-            done(copyFallback(text));
-        }
+        window.MG.toast(message);
     }
 
     // ------------------------------------------------------------ blocks
@@ -181,7 +140,7 @@
         var act = btn.getAttribute('data-act');
 
         if (act === 'copy') {
-            copyText(codeText(fig), function(ok) {
+            window.MG.copyText(codeText(fig), function(ok) {
                 if (ok) showCopied(fig, btn);
                 else announce('Copy failed: select the code and copy it by hand');
             });

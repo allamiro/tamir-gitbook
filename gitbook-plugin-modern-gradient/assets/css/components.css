@@ -242,10 +242,506 @@ html.mg .mg-header #mg-menu {
     }
 }
 
+/* Article chrome: breadcrumbs, eyebrow, meta chips, prerequisites --------
+   (server-rendered by lib/chrome.js, so they read without JavaScript) */
+
+.markdown-section .mg-crumbs {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--tg-muted);
+}
+
+.markdown-section .mg-crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.markdown-section .mg-crumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.markdown-section .mg-crumbs a {
+    color: var(--tg-muted);
+    text-decoration: none;
+}
+
+.markdown-section .mg-crumbs a:hover {
+    color: var(--tg-accent);
+    text-decoration: underline;
+}
+
+.mg-crumbs .mg-i {
+    width: 12px;
+    height: 12px;
+    opacity: 0.7;
+}
+
+.mg-crumbs [aria-current] {
+    font-weight: 500;
+    color: var(--tg-text-2);
+}
+
+/* Gradient text: every --tg-grad-text stop meets 4.5:1 (test/css.test.js) */
+.mg-eyebrow {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tg-accent);
+    background: var(--tg-grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html.mg-v-dev .mg-eyebrow {
+    font-family: var(--tg-mono);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+@media (forced-colors: active) {
+    .mg-eyebrow {
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+}
+
+.markdown-section .mg-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 26px;
+}
+
+.mg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--tg-text-2);
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: 99px;
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.mg-chip .mg-i {
+    width: 13px;
+    height: 13px;
+    color: var(--tg-muted);
+}
+
+.mg-chip-level-beginner .mg-i {
+    color: var(--co-tip);
+}
+
+.mg-chip-level-intermediate .mg-i {
+    color: var(--co-warn);
+}
+
+.mg-chip-level-advanced .mg-i {
+    color: var(--co-danger);
+}
+
+/* The meta row ends the title block: the first section needs no divider */
+.markdown-section > .mg-meta + h2,
+.markdown-section > .mg-prereq + h2 {
+    margin-top: 0.3em;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.markdown-section .mg-prereq {
+    margin: 0 0 1.8em;
+    padding: 14px 16px;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius-lg);
+    box-shadow: var(--tg-shadow-md);
+}
+
+.markdown-section .mg-prereq-title {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tg-muted);
+}
+
+.markdown-section .mg-prereq ul {
+    margin: 0;
+    padding-left: 1.1em;
+    font-size: 14px;
+}
+
+.markdown-section .mg-prereq li {
+    margin: 0.15em 0;
+}
+
+/* Previous / next cards ---------------------------------------------------- */
+
+/* theme-default's side chevrons: replaced by the cards, but kept in the DOM
+   because its Left / Right keyboard shortcuts read their links */
+.book-body .navigation {
+    display: none !important;
+}
+
+.markdown-section .mg-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 3em 0 1.5em;
+}
+
+.markdown-section .mg-pager a {
+    display: block;
+    min-width: 0;
+    padding: 14px 18px;
+    color: var(--tg-text);
+    text-decoration: none;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.markdown-section .mg-pager a:hover {
+    color: var(--tg-text);
+    text-decoration: none;
+    border-color: var(--tg-accent-border);
+    box-shadow: var(--tg-shadow-md);
+}
+
+html.mg-v-premium .markdown-section .mg-pager a:hover {
+    transform: translateY(-1px);
+}
+
+.markdown-section .mg-pager .mg-next {
+    grid-column: 2;
+    text-align: right;
+}
+
+.mg-pager-dir {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--tg-muted);
+}
+
+.mg-next .mg-pager-dir {
+    justify-content: flex-end;
+}
+
+.mg-pager-dir .mg-i {
+    width: 14px;
+    height: 14px;
+}
+
+.mg-pager-title {
+    display: block;
+    margin-top: 2px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    color: var(--tg-text);
+}
+
+.markdown-section .mg-pager a:hover .mg-pager-title {
+    color: var(--tg-accent);
+}
+
+@media (max-width: 559px) {
+    .markdown-section .mg-pager {
+        grid-template-columns: 1fr;
+    }
+
+    .markdown-section .mg-pager .mg-next {
+        grid-column: auto;
+    }
+}
+
+/* Heading anchors (mg-content.js) ------------------------------------------ */
+
+.markdown-section .mg-heading {
+    position: relative;
+    scroll-margin-top: 16px;
+}
+
+/* theme-default clips .markdown-section (overflow: hidden): a padding
+   gutter, cancelled by a negative margin, keeps the anchors inside the clip
+   without moving the text. Below 600px .page-inner has no room for it. */
+@media (min-width: 601px) and (hover: hover) {
+    .markdown-section {
+        margin-left: -32px;
+        padding-left: 32px;
+    }
+}
+
+/* Sits in the gutter, on the heading's last line (h2 has padding above) */
+.mg-anchor {
+    position: absolute;
+    bottom: 0;
+    left: -30px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 1.3em;
+    height: 1lh;
+    padding: 0;
+    color: var(--tg-muted);
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.mg-anchor .mg-i {
+    width: 0.75em;
+    height: 0.75em;
+}
+
+.mg-heading:hover .mg-anchor,
+.mg-anchor:focus-visible {
+    opacity: 1;
+}
+
+.mg-anchor:hover {
+    color: var(--tg-accent);
+}
+
+@media (max-width: 600px), (hover: none) {
+    .mg-anchor {
+        display: none;
+    }
+}
+
 /* Table of contents column (filled by mg-content.js) --------------------- */
 
+.mg-toc,
 .mg-toc:empty {
     display: none;
+}
+
+/* theme-default's .body-inner holds the header, .page-wrapper and the TOC:
+   from 1240px it becomes a grid with the TOC beside the content */
+@media (min-width: 1240px) {
+    .book-body .body-inner {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1fr) minmax(0, calc(var(--tg-content-w) + 80px)) 230px minmax(0, 1fr);
+        column-gap: 16px;
+        align-content: start;
+    }
+
+    .book-body .body-inner > * {
+        grid-column: 1 / -1;
+    }
+
+    .book-body .body-inner > .page-wrapper {
+        grid-column: 2;
+    }
+
+    .book-body .body-inner > .mg-toc {
+        grid-column: 3;
+    }
+
+    /* No TOC on this page: keep the content centred */
+    .book-body .body-inner:has(> .mg-toc:empty) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, calc(var(--tg-content-w) + 80px)) minmax(0, 1fr);
+    }
+
+    .mg-toc:not(:empty) {
+        position: sticky;
+        top: 24px;
+        display: block;
+        align-self: start;
+        max-height: calc(100vh - 48px);
+        margin-top: 30px;
+        overflow-y: auto;
+        font-size: 13.5px;
+        scrollbar-width: thin;
+    }
+}
+
+.mg-toc-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 10px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tg-muted);
+}
+
+.mg-toc-title .mg-i {
+    width: 14px;
+    height: 14px;
+}
+
+.mg-toc ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--tg-border);
+}
+
+.mg-toc li {
+    margin: 0;
+}
+
+.mg-toc li a {
+    display: block;
+    margin-left: -1px;
+    padding: 4px 0 4px 14px;
+    line-height: 1.45;
+    color: var(--tg-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+}
+
+.mg-toc li.mg-toc-l3 a {
+    padding-left: 26px;
+    font-size: 13px;
+}
+
+.mg-toc li a:hover {
+    color: var(--tg-text);
+    text-decoration: none;
+}
+
+.mg-toc li a.active {
+    font-weight: 550;
+    color: var(--tg-accent);
+    border-left-color: var(--tg-accent);
+}
+
+html.mg-v-premium .mg-toc li a.active {
+    border-image: var(--tg-grad) 1;
+}
+
+.mg-toc-actions {
+    display: grid;
+    gap: 6px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--tg-border);
+}
+
+.mg-toc-actions a,
+.mg-toc-actions button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    color: var(--tg-muted);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.mg-toc-actions a:hover,
+.mg-toc-actions button:hover {
+    color: var(--tg-accent);
+    text-decoration: none;
+}
+
+.mg-toc-actions .mg-i {
+    width: 14px;
+    height: 14px;
+}
+
+/* Reading progress (mg-core.js) -------------------------------------------- */
+
+/* .book-body is positioned; .body-inner scrolls above 1240px */
+.mg-progress {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    height: 2px;
+    pointer-events: none;
+}
+
+/* At 1240px and below theme-default scrolls .book-body itself */
+@media (max-width: 1240px) {
+    .mg-progress {
+        position: sticky;
+    }
+}
+
+.mg-progress > i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--tg-grad);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+}
+
+/* Toast and polite live region (MG.toast) ---------------------------------- */
+
+.mg-toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100vw - 32px);
+    padding: 9px 14px;
+    font-family: var(--tg-font);
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #ffffff;
+    background: #151a2b;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    box-shadow: var(--tg-shadow-lg);
+    opacity: 0;
+    transform: translate(-50%, 20px);
+    pointer-events: none;
+    transition: opacity 0.18s, transform 0.18s;
+}
+
+.mg-toast.mg-show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.mg-toast .mg-i {
+    width: 16px;
+    height: 16px;
+    color: #5ee0a0;
 }
 
 /* Screen-reader-only text (live regions) --------------------------------- */
