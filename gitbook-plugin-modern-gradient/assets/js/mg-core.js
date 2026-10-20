@@ -250,6 +250,32 @@
         queueProgress();
     }
 
+    // ------------------------------------------------------------ file links
+    // theme-default loads every link inside the page over AJAX as a book page;
+    // a link to a file (.zip, .msi, .svg ...) then silently does nothing. A
+    // capturing listener stops such clicks before theme-default's delegated
+    // handler sees them, so the browser downloads or opens the file.
+    var PAGE_EXT = /\.(html?|md)$/i;
+
+    function isFileLink(a) {
+        if (!a || !a.getAttribute('href') || a.target === '_blank') return false;
+        var url;
+        try {
+            url = new URL(a.getAttribute('href'), window.location.href);
+        } catch (e) {
+            return false;
+        }
+        if (url.origin !== window.location.origin) return false;
+        var last = url.pathname.split('/').pop();
+        return /\.[a-z0-9]{1,8}$/i.test(last) && !PAGE_EXT.test(last);
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+        if (a && isFileLink(a)) e.stopPropagation();
+    }, true);
+
     window.MG = {
         onPage: onPage,
         store: store,
