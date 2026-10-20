@@ -9,9 +9,18 @@ var code = require('./lib/code');
 var callouts = require('./lib/callouts');
 var contentBlocks = require('./lib/blocks');
 var chrome = require('./lib/chrome');
+var searchIndex = require('./lib/search-index');
 
 var CONFIG_KEY = 'pluginsConfig.modern-gradient';
 var DEFAULT_WEBSITE_STYLE = 'styles/website.css';
+var SEARCH_FILE = 'modern-gradient/search.json';
+
+// One collector per build; init replaces it (gitbook serve rebuilds in-process)
+var collector = searchIndex.createCollector();
+
+function isWebsite(api) {
+    return !api.output || !api.output.name || api.output.name === 'website';
+}
 
 // SUMMARY articles in reading order (this.summary.walk)
 function summaryArticles(api) {
@@ -54,7 +63,8 @@ module.exports = {
             'js/mg-icons.js',
             'js/mg-core.js',
             'js/mg-code.js',
-            'js/mg-content.js'
+            'js/mg-content.js',
+            'js/mg-search.js'
         ]
     },
 
@@ -63,6 +73,7 @@ module.exports = {
 
     hooks: {
         init: function() {
+            collector = searchIndex.createCollector();
             var config = this.config.get(CONFIG_KEY, {}) || {};
             var options = readOptions(config);
 
@@ -114,9 +125,16 @@ module.exports = {
             html = callouts.transformAlerts(html);
             html = callouts.transformTaskLists(html);
             html = code.transformCodeBlocks(html);
+            if (isWebsite(this)) collector.add(page, html, searchIndex.pageUrl(page.path));
             if (page.layout !== 'home') html = addArticleChrome(this, page, html);
             page.content = html;
             return page;
+        },
+
+        // Ctrl/Cmd-K dialog index, next to the pages (fetched relative to the book root)
+        finish: function() {
+            if (!isWebsite(this) || !this.output || typeof this.output.writeFile !== 'function') return;
+            return this.output.writeFile(SEARCH_FILE, collector.toJSON());
         }
     }
 };

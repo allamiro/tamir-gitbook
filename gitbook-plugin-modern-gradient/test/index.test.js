@@ -202,3 +202,43 @@ describe('page hooks', function() {
         });
     });
 });
+
+describe('search index hooks', function() {
+    function buildCtx(outputName, written) {
+        var ctx = context({ styles: { website: 'styles/website.css' }, plugins: ['modern-gradient'], pluginsConfig: {} });
+        ctx.output = {
+            name: outputName,
+            writeFile: function(name, content) { written[name] = content; return Promise.resolve(); }
+        };
+        ctx.summary = { walk: function() {} };
+        return ctx;
+    }
+
+    it('collects every website page and writes modern-gradient/search.json on finish', function() {
+        var written = {};
+        var ctx = buildCtx('website', written);
+        plugin.hooks.init.call(ctx);
+        plugin.hooks.page.call(ctx, { title: 'Intro', path: 'README.md', content: '<h1>Intro</h1><p>Hi</p><h2>Part one</h2>' });
+        plugin.hooks.page.call(ctx, { title: 'Guide', path: 'guide/setup.md', content: '<h1>Guide</h1>' });
+        return Promise.resolve(plugin.hooks.finish.call(ctx)).then(function() {
+            var entries = JSON.parse(written['modern-gradient/search.json']);
+            entries.map(function(e) { return e.c + ':' + e.u; }).should.eql([
+                'page:index.html', 'section:index.html#part-one', 'page:guide/setup.html']);
+        });
+    });
+
+    it('starts a fresh index on every build (init) and skips ebook output', function() {
+        var written = {};
+        var ctx = buildCtx('website', written);
+        plugin.hooks.init.call(ctx);
+        plugin.hooks.page.call(ctx, { title: 'Old', path: 'old.md', content: '<h1>Old</h1>' });
+        plugin.hooks.init.call(ctx);
+        plugin.hooks.page.call(ctx, { title: 'New', path: 'new.md', content: '<h1>New</h1>' });
+        ctx.output.name = 'ebook';
+        plugin.hooks.page.call(ctx, { title: 'Book', path: 'book.md', content: '<h1>Book</h1>' });
+        ctx.output.name = 'website';
+        return Promise.resolve(plugin.hooks.finish.call(ctx)).then(function() {
+            JSON.parse(written['modern-gradient/search.json']).map(function(e) { return e.u; }).should.eql(['new.html']);
+        });
+    });
+});
