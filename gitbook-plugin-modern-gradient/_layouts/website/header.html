@@ -1,0 +1,34 @@
+{### Modern Gradient header. Keeps theme-default's .book-header and its <h1>
+    (the toolbar inserts its buttons before the <h1>, and the loading spinner
+    lives there); adds the brand, the search trigger and the mode, focus and
+    drawer buttons. Icons are painted from MGIcons by assets/js/mg-core.js;
+    the buttons only work with JavaScript, so components.css shows them only
+    once the early script has added the "mg" class to <html>. ###}
+{%- set mgConfig = config.pluginsConfig['modern-gradient'] or {} %}
+{% block book_header %}
+<div class="book-header mg-header" role="navigation">
+    {% if glossary.path %}
+    <a href="{{ ('/' + glossary.path)|resolveFile }}" class="btn pull-left" aria-label="{{ "GLOSSARY_OPEN"|t }}"><i class="fa fa-sort-alpha-asc"></i></a>
+    {% endif %}
+
+    <button type="button" class="mg-icon-btn mg-js-only" id="mg-menu" aria-label="Open navigation" aria-expanded="false" aria-controls="mg-sidebar"><i class="mg-i" data-mg-icon="menu"></i></button>
+
+    <a class="mg-brand" href="{{ "/"|resolveFile }}">
+        <span class="mg-logo"><i class="mg-i" data-mg-icon="book"></i></span>
+        <span class="mg-brand-text">{{ config.title|d("GitBook", true)|e }}{% if mgConfig.subtitle %}<small>{{ mgConfig.subtitle|e }}</small>{% endif %}</span>
+    </a>
+
+    <button type="button" class="mg-search-btn mg-js-only" data-mg-search aria-label="Search documentation (Ctrl K)"><i class="mg-i" data-mg-icon="search"></i><span>Search docs, commands…</span><kbd>Ctrl K</kbd></button>
+
+    <div class="mg-header-actions">
+        <button type="button" class="mg-icon-btn mg-js-only" id="mg-focus" aria-pressed="false" aria-label="Distraction-free reading" title="Distraction-free reading"><i class="mg-i" data-mg-icon="focus"></i></button>
+        <button type="button" class="mg-icon-btn mg-js-only" id="mg-mode" aria-label="Switch to dark mode" title="Toggle light / dark"><i class="mg-i" data-mg-icon="moon"></i></button>
+    </div>
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="{{ "/"|resolveFile }}" >{{ page.title }}</a>
+    </h1>
+</div>
+{% endblock %}

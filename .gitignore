@@ -25,3 +25,8 @@ Thumbs.db
 
 # npm pack output
 *.tgz
+.superpowers/
+
+# Playwright output (theme browser tests)
+test-results/
+playwright-report/

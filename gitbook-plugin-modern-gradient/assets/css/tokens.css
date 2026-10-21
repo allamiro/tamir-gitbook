@@ -1,0 +1,168 @@
+/* Modern Gradient: design tokens.
+ * Light tokens live on :root, dark tokens on :root[data-tg-mode="dark"]
+ * (set early by the plugin from the saved choice or the OS preference).
+ * Variants are classes on <html>: .mg-v-premium and .mg-v-dev; with neither
+ * the look is "minimal". The generated CSS-only edition
+ * (themes/modern-gradient.css) resolves dark to prefers-color-scheme and the
+ * default variants onto :root.
+ * Every text/background pair below is checked for WCAG 2.2 AA by test/css.test.js.
+ */
+
+:root {
+    color-scheme: light;
+
+    /* brand */
+    --tg-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 52%, #0ea5e9 100%);
+    /* Gradient fills that carry white text or icons: same stops in both modes. */
+    --tg-grad-strong: linear-gradient(135deg, #4f46e5 0%, #6d28d9 52%, #0369a1 100%);
+    --tg-grad-text: linear-gradient(120deg, #4f46e5 0%, #7c3aed 50%, #0369a1 100%);
+    --tg-grad-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.10) 0%, rgba(139, 92, 246, 0.07) 50%, rgba(14, 165, 233, 0.08) 100%);
+    --tg-accent: #4f46e5;
+    --tg-accent-strong: #4338ca;
+    --tg-accent-soft: rgba(79, 70, 229, 0.08);
+    --tg-accent-border: rgba(79, 70, 229, 0.28);
+    --tg-focus: #6366f1;
+
+    /* surfaces */
+    --tg-bg: #f7f8fc;
+    --tg-surface: #ffffff;
+    --tg-surface-2: #f2f4f9;
+    --tg-sidebar: #fbfbfe;
+    --tg-sidebar-bg: var(--tg-sidebar);
+    --tg-border: #e5e7ef;
+    /* Meets 3:1 on --tg-bg (checkbox, kbd and input boundaries); use --tg-border for decorative hairlines. */
+    --tg-border-strong: #8189a3;
+
+    /* text */
+    --tg-text: #141829;
+    --tg-text-2: #343a52;
+    --tg-muted: #5a6180;
+
+    /* code */
+    --tg-code-bg: #f6f7fb;
+    --tg-code-head: #eef0f7;
+    --tg-code-text: #1f2437;
+    --tg-code-line: rgba(99, 102, 241, 0.09);
+    --tg-code-line-bar: #6366f1;
+    --tg-code-num: #626979;
+    --tg-inline-code-bg: #eef0fa;
+    --tg-inline-code-text: #3730a3;
+
+    /* syntax */
+    --sx-kw: #7c3aed;
+    --sx-str: #0f7b4d;
+    --sx-num: #b45309;
+    --sx-com: #5f6675;
+    --sx-key: #1d4ed8;
+    --sx-fn: #0e7490;
+    --sx-var: #be185d;
+    --sx-type: #a15c07;
+    --sx-punc: #4b5168;
+    --sx-out: #5a6180;
+
+    /* callouts */
+    --co-info: #2563eb;
+    --co-info-bg: #eff5ff;
+    --co-tip: #0e814f;
+    --co-tip-bg: #ecfaf3;
+    --co-warn: #b45309;
+    --co-warn-bg: #fff7e8;
+    --co-danger: #c81e1e;
+    --co-danger-bg: #fff0f0;
+
+    /* shape, type, layout */
+    --tg-radius: 10px;
+    --tg-radius-sm: 7px;
+    --tg-radius-lg: 14px;
+    --tg-font: "Inter", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --tg-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --tg-fs: 16px;
+    --tg-lh: 1.72;
+    --tg-content-w: 760px;
+    --tg-sidebar-w: 272px;
+
+    /* depth */
+    --tg-shadow-sm: none;
+    --tg-shadow-md: none;
+    --tg-shadow-lg: 0 12px 40px -12px rgba(20, 24, 60, 0.25);
+    --tg-header-bg: var(--tg-surface);
+    --tg-header-line: 0;
+}
+
+:root[data-tg-mode="dark"] {
+    color-scheme: dark;
+
+    --tg-grad: linear-gradient(135deg, #818cf8 0%, #a78bfa 52%, #38bdf8 100%);
+    --tg-grad-text: linear-gradient(120deg, #a5b4fc 0%, #c4b5fd 50%, #7dd3fc 100%);
+    --tg-grad-soft: linear-gradient(135deg, rgba(129, 140, 248, 0.14) 0%, rgba(167, 139, 250, 0.09) 50%, rgba(56, 189, 248, 0.10) 100%);
+    --tg-accent: #a5b4fc;
+    --tg-accent-strong: #c7d2fe;
+    --tg-accent-soft: rgba(129, 140, 248, 0.13);
+    --tg-accent-border: rgba(165, 180, 252, 0.35);
+    --tg-focus: #a5b4fc;
+
+    --tg-bg: #0b0e17;
+    --tg-surface: #10141f;
+    --tg-surface-2: #161b29;
+    --tg-sidebar: #0d111b;
+    --tg-border: #20263a;
+    --tg-border-strong: #5b6483;
+
+    --tg-text: #e8eaf3;
+    --tg-text-2: #c3c8d8;
+    --tg-muted: #979eb6;
+
+    --tg-code-bg: #0d1120;
+    --tg-code-head: #121729;
+    --tg-code-text: #dfe3f0;
+    --tg-code-line: rgba(129, 140, 248, 0.14);
+    --tg-code-line-bar: #818cf8;
+    --tg-code-num: #868ea9;
+    --tg-inline-code-bg: #1b2136;
+    --tg-inline-code-text: #c7d2fe;
+
+    --sx-kw: #c4b5fd;
+    --sx-str: #86efac;
+    --sx-num: #fdba74;
+    --sx-com: #8b93ab;
+    --sx-key: #93c5fd;
+    --sx-fn: #67e8f9;
+    --sx-var: #f9a8d4;
+    --sx-type: #fde68a;
+    --sx-punc: #a4abc2;
+    --sx-out: #9aa1b8;
+
+    --co-info: #7fb0ff;
+    --co-info-bg: rgba(59, 130, 246, 0.10);
+    --co-tip: #5ee0a0;
+    --co-tip-bg: rgba(16, 185, 129, 0.09);
+    --co-warn: #fbbf5a;
+    --co-warn-bg: rgba(245, 158, 11, 0.09);
+    --co-danger: #ff8a8a;
+    --co-danger-bg: rgba(239, 68, 68, 0.10);
+
+    --tg-shadow-lg: 0 18px 50px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* Variant: Premium (depth, glass header, polished cards) */
+html.mg-v-premium {
+    --tg-shadow-sm: 0 1px 2px rgba(20, 24, 60, 0.05), 0 1px 1px rgba(20, 24, 60, 0.03);
+    --tg-shadow-md: 0 1px 2px rgba(20, 24, 60, 0.05), 0 8px 24px -8px rgba(20, 24, 60, 0.12);
+    --tg-radius: 12px;
+    --tg-radius-lg: 16px;
+    --tg-header-bg: color-mix(in srgb, var(--tg-surface) 78%, transparent);
+    --tg-header-line: 0.85;
+}
+
+html.mg-v-premium[data-tg-mode="dark"] {
+    --tg-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --tg-shadow-md: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Variant: Developer (denser, code-forward) */
+html.mg-v-dev {
+    --tg-fs: 15.5px;
+    --tg-lh: 1.68;
+    --tg-content-w: 820px;
+    --tg-sidebar-w: 260px;
+}
