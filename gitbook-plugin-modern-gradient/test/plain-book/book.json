@@ -1,0 +1,6 @@
+{
+  "title": "Modern Gradient Fixture",
+  "description": "Test book for the Modern Gradient theme",
+  "language": "en",
+  "plugins": ["-sharing", "search", "highlight"]
+}

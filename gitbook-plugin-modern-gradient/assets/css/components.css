@@ -1,0 +1,1648 @@
+/* Modern Gradient: styling for the plugin's own mg- markup.
+ * Fonts first: self-hosted, latin subset (no network access at runtime).
+ * Inter and JetBrains Mono are SIL OFL 1.1; licences in ../fonts/.
+ */
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("../fonts/Inter-var-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+2000-206F, U+2074, U+20AC, U+2122, U+2190-2199, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    font-style: normal;
+    font-weight: 100 800;
+    font-display: swap;
+    src: url("../fonts/JetBrainsMono-var-latin.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+        U+2000-206F, U+2074, U+20AC, U+2122, U+2190-2199, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Icons ------------------------------------------------------------------ */
+
+.mg-i {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    flex: none;
+    vertical-align: middle;
+}
+
+/* Header ----------------------------------------------------------------- */
+
+.book-header.mg-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* theme-default toolbar buttons (sidebar toggle, glossary) stay first */
+.book-header.mg-header > .btn,
+.book-header.mg-header > .js-toolbar-action {
+    order: -1;
+    flex: none;
+    float: none;
+}
+
+/* One dark mode, not two: the plugin's toggle replaces font settings */
+.book-header .font-settings {
+    display: none !important;
+}
+
+/* The page title already heads the article; the <h1> stays in the DOM
+   because the toolbar inserts its buttons relative to it */
+.book-header.mg-header h1 {
+    display: none;
+}
+
+.mg-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    white-space: nowrap;
+    color: var(--tg-text) !important;
+}
+
+.mg-brand:hover {
+    text-decoration: none !important;
+}
+
+.mg-logo {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 9px;
+    background: var(--tg-grad-strong);
+    color: #fff;
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.mg-logo .mg-i {
+    width: 17px;
+    height: 17px;
+}
+
+.mg-brand-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mg-brand-text small {
+    display: block;
+    margin-top: -1px;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--tg-muted);
+}
+
+/* Header controls need JavaScript; the early script in page.html adds the
+   "mg" class to <html>, so without JS they are not shown at all */
+.mg-header .mg-js-only {
+    display: none;
+}
+
+.mg-search-btn {
+    flex: 0 1 380px;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    height: 38px;
+    margin-left: 18px;
+    padding: 0 10px 0 12px;
+    border: 1px solid var(--tg-border);
+    border-radius: 10px;
+    background: var(--tg-surface-2);
+    color: var(--tg-muted);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+html.mg .mg-header .mg-search-btn {
+    display: flex;
+}
+
+.mg-search-btn:hover {
+    border-color: var(--tg-accent-border);
+    box-shadow: 0 0 0 4px var(--tg-accent-soft);
+}
+
+.mg-search-btn .mg-i {
+    width: 16px;
+    height: 16px;
+}
+
+.mg-search-btn span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mg-search-btn kbd {
+    padding: 3px 6px 4px;
+    border: 1px solid var(--tg-border-strong);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: var(--tg-surface);
+    color: var(--tg-text-2);
+    font-family: var(--tg-mono);
+    font-size: 11.5px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.mg-header-actions {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.mg-icon-btn {
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--tg-text-2);
+    cursor: pointer;
+}
+
+html.mg .mg-header .mg-icon-btn {
+    display: inline-grid;
+}
+
+.mg-icon-btn:hover {
+    border-color: var(--tg-border);
+    background: var(--tg-surface-2);
+    color: var(--tg-text);
+}
+
+/* The drawer button only exists below the drawer breakpoint */
+html.mg .mg-header #mg-menu {
+    display: none;
+}
+
+@media (max-width: 919px) {
+    html.mg .mg-header #mg-menu {
+        display: inline-grid;
+    }
+
+    .mg-search-btn {
+        flex: 1;
+        margin-left: 8px;
+    }
+}
+
+@media (max-width: 559px) {
+    .book-header.mg-header {
+        gap: 6px;
+        padding: 0 10px;
+    }
+
+    .mg-brand-text {
+        display: none;
+    }
+
+    .mg-search-btn {
+        height: 36px;
+        margin-left: 4px;
+        padding: 0 8px;
+    }
+
+    .mg-search-btn kbd,
+    html.mg .mg-header #mg-focus {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mg-search-btn {
+        transition: none;
+    }
+}
+
+/* Article chrome: breadcrumbs, eyebrow, meta chips, prerequisites --------
+   (server-rendered by lib/chrome.js, so they read without JavaScript) */
+
+.markdown-section .mg-crumbs {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--tg-muted);
+}
+
+.markdown-section .mg-crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.markdown-section .mg-crumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.markdown-section .mg-crumbs a {
+    color: var(--tg-muted);
+    text-decoration: none;
+}
+
+.markdown-section .mg-crumbs a:hover {
+    color: var(--tg-accent);
+    text-decoration: underline;
+}
+
+.mg-crumbs .mg-i {
+    width: 12px;
+    height: 12px;
+    opacity: 0.7;
+}
+
+.mg-crumbs [aria-current] {
+    font-weight: 500;
+    color: var(--tg-text-2);
+}
+
+/* Gradient text: every --tg-grad-text stop meets 4.5:1 (test/css.test.js) */
+.mg-eyebrow {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tg-accent);
+    background: var(--tg-grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html.mg-v-dev .mg-eyebrow {
+    font-family: var(--tg-mono);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+@media (forced-colors: active) {
+    .mg-eyebrow {
+        background: none;
+        -webkit-text-fill-color: currentColor;
+    }
+}
+
+.markdown-section .mg-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 26px;
+}
+
+.mg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--tg-text-2);
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: 99px;
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.mg-chip .mg-i {
+    width: 13px;
+    height: 13px;
+    color: var(--tg-muted);
+}
+
+.mg-chip-level-beginner .mg-i {
+    color: var(--co-tip);
+}
+
+.mg-chip-level-intermediate .mg-i {
+    color: var(--co-warn);
+}
+
+.mg-chip-level-advanced .mg-i {
+    color: var(--co-danger);
+}
+
+/* The meta row ends the title block: the first section needs no divider */
+.markdown-section > .mg-meta + h2,
+.markdown-section > .mg-prereq + h2 {
+    margin-top: 0.3em;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.markdown-section .mg-prereq {
+    margin: 0 0 1.8em;
+    padding: 14px 16px;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius-lg);
+    box-shadow: var(--tg-shadow-md);
+}
+
+.markdown-section .mg-prereq-title {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tg-muted);
+}
+
+.markdown-section .mg-prereq ul {
+    margin: 0;
+    padding-left: 1.1em;
+    font-size: 14px;
+}
+
+.markdown-section .mg-prereq li {
+    margin: 0.15em 0;
+}
+
+/* Previous / next cards ---------------------------------------------------- */
+
+/* theme-default's side chevrons: replaced by the cards, but kept in the DOM
+   because its Left / Right keyboard shortcuts read their links */
+.book-body .navigation {
+    display: none !important;
+}
+
+.markdown-section .mg-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 3em 0 1.5em;
+}
+
+.markdown-section .mg-pager a {
+    display: block;
+    min-width: 0;
+    padding: 14px 18px;
+    color: var(--tg-text);
+    text-decoration: none;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.markdown-section .mg-pager a:hover {
+    color: var(--tg-text);
+    text-decoration: none;
+    border-color: var(--tg-accent-border);
+    box-shadow: var(--tg-shadow-md);
+}
+
+html.mg-v-premium .markdown-section .mg-pager a:hover {
+    transform: translateY(-1px);
+}
+
+.markdown-section .mg-pager .mg-next {
+    grid-column: 2;
+    text-align: right;
+}
+
+.mg-pager-dir {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--tg-muted);
+}
+
+.mg-next .mg-pager-dir {
+    justify-content: flex-end;
+}
+
+.mg-pager-dir .mg-i {
+    width: 14px;
+    height: 14px;
+}
+
+.mg-pager-title {
+    display: block;
+    margin-top: 2px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    color: var(--tg-text);
+}
+
+.markdown-section .mg-pager a:hover .mg-pager-title {
+    color: var(--tg-accent);
+}
+
+@media (max-width: 559px) {
+    .markdown-section .mg-pager {
+        grid-template-columns: 1fr;
+    }
+
+    .markdown-section .mg-pager .mg-next {
+        grid-column: auto;
+    }
+}
+
+/* Heading anchors (mg-content.js) ------------------------------------------ */
+
+.markdown-section .mg-heading {
+    position: relative;
+    scroll-margin-top: 16px;
+}
+
+/* theme-default clips .markdown-section (overflow: hidden): a padding
+   gutter, cancelled by a negative margin, keeps the anchors inside the clip
+   without moving the text. Below 600px .page-inner has no room for it. */
+@media (min-width: 601px) and (hover: hover) {
+    .markdown-section {
+        margin-left: -32px;
+        padding-left: 32px;
+    }
+}
+
+/* Sits in the gutter, on the heading's last line (h2 has padding above) */
+.mg-anchor {
+    position: absolute;
+    bottom: 0;
+    left: -30px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 1.3em;
+    height: 1lh;
+    padding: 0;
+    color: var(--tg-muted);
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.mg-anchor .mg-i {
+    width: 0.75em;
+    height: 0.75em;
+}
+
+.mg-heading:hover .mg-anchor,
+.mg-anchor:focus-visible {
+    opacity: 1;
+}
+
+.mg-anchor:hover {
+    color: var(--tg-accent);
+}
+
+@media (max-width: 600px), (hover: none) {
+    .mg-anchor {
+        display: none;
+    }
+}
+
+/* Table of contents column (filled by mg-content.js) --------------------- */
+
+.mg-toc,
+.mg-toc:empty {
+    display: none;
+}
+
+/* theme-default's .body-inner holds the header, .page-wrapper and the TOC:
+   from 1240px it becomes a grid with the TOC beside the content */
+@media (min-width: 1240px) {
+    .book-body .body-inner {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1fr) minmax(0, calc(var(--tg-content-w) + 80px)) 230px minmax(0, 1fr);
+        column-gap: 16px;
+        align-content: start;
+    }
+
+    .book-body .body-inner > * {
+        grid-column: 1 / -1;
+    }
+
+    .book-body .body-inner > .page-wrapper {
+        grid-column: 2;
+    }
+
+    .book-body .body-inner > .mg-toc {
+        grid-column: 3;
+    }
+
+    /* No TOC on this page: keep the content centred */
+    .book-body .body-inner:has(> .mg-toc:empty) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, calc(var(--tg-content-w) + 80px)) minmax(0, 1fr);
+    }
+
+    .mg-toc:not(:empty) {
+        position: sticky;
+        top: 24px;
+        display: block;
+        align-self: start;
+        max-height: calc(100vh - 48px);
+        margin-top: 30px;
+        overflow-y: auto;
+        font-size: 13.5px;
+        scrollbar-width: thin;
+    }
+}
+
+.mg-toc-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 10px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tg-muted);
+}
+
+.mg-toc-title .mg-i {
+    width: 14px;
+    height: 14px;
+}
+
+.mg-toc ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--tg-border);
+}
+
+.mg-toc li {
+    margin: 0;
+}
+
+.mg-toc li a {
+    display: block;
+    margin-left: -1px;
+    padding: 4px 0 4px 14px;
+    line-height: 1.45;
+    color: var(--tg-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+}
+
+.mg-toc li.mg-toc-l3 a {
+    padding-left: 26px;
+    font-size: 13px;
+}
+
+.mg-toc li a:hover {
+    color: var(--tg-text);
+    text-decoration: none;
+}
+
+.mg-toc li a.active {
+    font-weight: 550;
+    color: var(--tg-accent);
+    border-left-color: var(--tg-accent);
+}
+
+html.mg-v-premium .mg-toc li a.active {
+    border-image: var(--tg-grad) 1;
+}
+
+.mg-toc-actions {
+    display: grid;
+    gap: 6px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--tg-border);
+}
+
+.mg-toc-actions a,
+.mg-toc-actions button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    color: var(--tg-muted);
+    text-decoration: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.mg-toc-actions a:hover,
+.mg-toc-actions button:hover {
+    color: var(--tg-accent);
+    text-decoration: none;
+}
+
+.mg-toc-actions .mg-i {
+    width: 14px;
+    height: 14px;
+}
+
+/* Reading progress (mg-core.js) -------------------------------------------- */
+
+/* .book-body is positioned; .body-inner scrolls above 1240px */
+.mg-progress {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    height: 2px;
+    pointer-events: none;
+}
+
+/* At 1240px and below theme-default scrolls .book-body itself */
+@media (max-width: 1240px) {
+    .mg-progress {
+        position: sticky;
+    }
+}
+
+.mg-progress > i {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--tg-grad);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+}
+
+/* Toast and polite live region (MG.toast) ---------------------------------- */
+
+.mg-toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100vw - 32px);
+    padding: 9px 14px;
+    font-family: var(--tg-font);
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #ffffff;
+    background: #151a2b;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    box-shadow: var(--tg-shadow-lg);
+    opacity: 0;
+    transform: translate(-50%, 20px);
+    pointer-events: none;
+    transition: opacity 0.18s, transform 0.18s;
+}
+
+.mg-toast.mg-show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.mg-toast .mg-i {
+    width: 16px;
+    height: 16px;
+    color: #5ee0a0;
+}
+
+/* Screen-reader-only text (live regions) --------------------------------- */
+
+.mg-sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Code blocks (markup from lib/code.js, controls from mg-code.js) -------- */
+
+.markdown-section figure.mg-code {
+    margin: 1.2em 0 1.6em;
+    padding: 0;
+    overflow: hidden;
+    color: var(--tg-code-text);
+    background: var(--tg-code-bg);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.mg-code-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 8px 0 14px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    background: var(--tg-code-head);
+    border-bottom: 1px solid var(--tg-border);
+}
+
+/* Developer variant: window dots on terminals */
+html.mg-v-dev .mg-terminal .mg-code-head::before {
+    content: "";
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-right: 36px;
+    border-radius: 50%;
+    background: #ff5f57;
+    box-shadow: 16px 0 0 #febc2e, 32px 0 0 #28c840;
+}
+
+.mg-lang {
+    flex: none;
+    padding: 2px 8px;
+    font-family: var(--tg-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--tg-accent);
+    background: var(--tg-accent-soft);
+    border: 1px solid var(--tg-accent-border);
+    border-radius: 6px;
+}
+
+.mg-code-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--tg-mono);
+    font-size: 12.5px;
+    color: var(--tg-text-2);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mg-code-title .mg-i {
+    width: 14px;
+    height: 14px;
+    color: var(--tg-muted);
+}
+
+.mg-code-actions {
+    display: flex;
+    flex: none;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.mg-code-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 8px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--tg-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.mg-code-btn:hover {
+    color: var(--tg-text);
+    background: color-mix(in srgb, var(--tg-text) 7%, transparent);
+}
+
+.mg-code-btn:focus-visible {
+    outline: 2px solid var(--tg-focus);
+    outline-offset: 0;
+}
+
+.mg-code-btn .mg-i {
+    width: 15px;
+    height: 15px;
+}
+
+.mg-code-btn[aria-pressed="true"] {
+    color: var(--tg-accent);
+}
+
+.mg-code-btn.mg-copied {
+    color: var(--co-tip);
+}
+
+.markdown-section .mg-code pre {
+    margin: 0;
+    padding: 14px 0;
+    overflow-x: auto;
+    font-size: 13.4px;
+    line-height: 1.65;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+html.mg-v-dev .markdown-section .mg-code pre {
+    font-size: 13px;
+}
+
+/* Lines stretch to the longest line so highlights span the scroll width */
+.markdown-section .mg-code pre > code {
+    display: block;
+    min-width: max-content;
+    padding: 0 18px;
+}
+
+.markdown-section .mg-code[data-mg-ready] pre > code {
+    padding: 0;
+}
+
+.markdown-section .mg-terminal pre {
+    display: grid;
+    grid-template-columns: minmax(max-content, 1fr);
+}
+
+.mg-ln {
+    position: relative;
+    display: block;
+    padding: 0 18px;
+    white-space: pre;
+}
+
+.markdown-section .mg-code[data-wrap="true"] pre > code {
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.markdown-section .mg-terminal[data-wrap="true"] pre {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.mg-code[data-wrap="true"] .mg-ln {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.mg-code[data-line-numbers="true"] .mg-ln[data-n] {
+    padding-left: 54px;
+}
+
+.mg-code[data-line-numbers="true"] .mg-ln[data-n]::before {
+    content: attr(data-n);
+    position: absolute;
+    left: 0;
+    width: 38px;
+    color: var(--tg-code-num);
+    text-align: right;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mg-ln.hl {
+    background: var(--tg-code-line);
+    box-shadow: inset 3px 0 0 var(--tg-code-line-bar);
+}
+
+/* One <code> per terminal command: not an inline-code chip */
+.markdown-section .mg-ln > code {
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    overflow-wrap: inherit;
+}
+
+.mg-pr {
+    color: var(--sx-com);
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mg-out {
+    color: var(--sx-out);
+}
+
+.mg-code-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    padding: 6px 14px;
+    font-size: 11.5px;
+    color: var(--tg-muted);
+    background: var(--tg-code-head);
+    border-top: 1px solid var(--tg-border);
+}
+
+.mg-code-foot span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mg-key {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.mg-key-cmd {
+    background: var(--sx-com);
+}
+
+.mg-key-out {
+    background: var(--sx-out);
+}
+
+/* Developer variant: terminals are a true terminal surface in both modes */
+html.mg-v-dev .mg-code.mg-terminal {
+    color-scheme: dark;
+    --tg-code-bg: #0c0f1a;
+    --tg-code-head: #121626;
+    --tg-code-text: #e3e7f3;
+    --tg-code-num: #868ea9;
+    --tg-code-line: rgba(129, 140, 248, 0.14);
+    --tg-code-line-bar: #818cf8;
+    --tg-border: #1e2436;
+    --tg-text: #ffffff;
+    --tg-text-2: #c3c8d8;
+    --tg-muted: #98a0b9;
+    --tg-accent: #a5b4fc;
+    --tg-accent-soft: rgba(129, 140, 248, 0.13);
+    --tg-accent-border: rgba(165, 180, 252, 0.35);
+    --tg-focus: #a5b4fc;
+    --co-tip: #5ee0a0;
+    --sx-com: #7f88a3;
+    --sx-out: #a4abc2;
+    --sx-str: #86efac;
+    --sx-kw: #c4b5fd;
+    --sx-var: #f9a8d4;
+    --sx-fn: #67e8f9;
+    --sx-num: #fdba74;
+    --sx-key: #93c5fd;
+    --sx-type: #fde68a;
+    --sx-punc: #a4abc2;
+}
+
+@media (max-width: 559px) {
+    .markdown-section .mg-code pre,
+    html.mg-v-dev .markdown-section .mg-code pre {
+        font-size: 12.5px;
+    }
+
+    .mg-ln,
+    .markdown-section .mg-code pre > code {
+        padding: 0 14px;
+    }
+
+    .mg-code[data-line-numbers="true"] .mg-ln[data-n] {
+        padding-left: 44px;
+    }
+
+    .mg-code[data-line-numbers="true"] .mg-ln[data-n]::before {
+        width: 30px;
+    }
+
+    /* Icon-only buttons; the label stays the accessible name */
+    .mg-code-btn .mg-lbl {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+}
+
+/* Callouts (alerts and the hint block, lib/callouts.js) ------------------ */
+
+.markdown-section .mg-callout {
+    --mg-c: var(--co-info);
+    --mg-cb: var(--co-info-bg);
+    position: relative;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 12px;
+    margin: 1.4em 0;
+    padding: 14px 16px;
+    overflow: hidden;
+    background: var(--mg-cb);
+    border: 1px solid color-mix(in srgb, var(--mg-c) 22%, transparent);
+    border-radius: var(--tg-radius);
+}
+
+.mg-callout::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    background: var(--mg-c);
+}
+
+.markdown-section .mg-callout-tip {
+    --mg-c: var(--co-tip);
+    --mg-cb: var(--co-tip-bg);
+}
+
+.markdown-section .mg-callout-warning {
+    --mg-c: var(--co-warn);
+    --mg-cb: var(--co-warn-bg);
+}
+
+.markdown-section .mg-callout-danger {
+    --mg-c: var(--co-danger);
+    --mg-cb: var(--co-danger-bg);
+}
+
+.mg-callout-icon {
+    display: flex;
+    padding-top: 2px;
+    color: var(--mg-c);
+}
+
+.mg-callout-icon .mg-i {
+    width: 20px;
+    height: 20px;
+}
+
+.mg-callout-body {
+    min-width: 0;
+    font-size: 0.95em;
+    color: var(--tg-text-2);
+}
+
+.mg-callout-title {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 650;
+    color: var(--tg-text);
+}
+
+.markdown-section .mg-callout-body p {
+    margin: 0;
+}
+
+.markdown-section .mg-callout-body p + p {
+    margin-top: 0.5em;
+}
+
+.markdown-section .mg-callout-body figure.mg-code,
+.markdown-section .mg-callout-body ul,
+.markdown-section .mg-callout-body ol {
+    margin: 0.6em 0;
+}
+
+.markdown-section .mg-callout-body > :last-child {
+    margin-bottom: 0;
+}
+
+/* Steps (stepper block) --------------------------------------------------- */
+
+.markdown-section ol.mg-steps {
+    margin: 1.5em 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: mg-step;
+}
+
+.markdown-section .mg-steps > .mg-step {
+    position: relative;
+    margin: 0;
+    padding: 0 0 1.6em 52px;
+    counter-increment: mg-step;
+}
+
+/* Filled numbers carry white text: the strong gradient keeps it at 4.5:1 */
+.mg-steps > .mg-step::before {
+    content: counter(mg-step);
+    position: absolute;
+    top: -2px;
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    font-weight: 650;
+    color: #ffffff;
+    background: var(--tg-grad-strong);
+    border-radius: 50%;
+    box-shadow: var(--tg-shadow-sm);
+}
+
+html.mg-v-dev .mg-steps > .mg-step::before {
+    font-family: var(--tg-mono);
+}
+
+/* Connector line down to the next number */
+.mg-steps > .mg-step::after {
+    content: "";
+    position: absolute;
+    top: 36px;
+    bottom: 6px;
+    left: 15.5px;
+    width: 1px;
+    background: var(--tg-border-strong);
+}
+
+.mg-steps > .mg-step:last-child::after {
+    display: none;
+}
+
+.markdown-section .mg-step > h2:first-child,
+.markdown-section .mg-step > h3:first-child,
+.markdown-section .mg-step > h4:first-child {
+    margin: 2px 0 0.5em;
+    padding-top: 0;
+    font-size: 1.12em;
+    border-top: 0;
+}
+
+.markdown-section .mg-step > :last-child {
+    margin-bottom: 0;
+}
+
+/* Checklists (task lists; mg-content.js adds the progress header) -------- */
+
+.markdown-section ul.mg-checklist {
+    margin: 1em 0 1.4em;
+    padding: 0;
+    overflow: hidden;
+    list-style: none;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.markdown-section ul.mg-checklist > li {
+    margin: 0;
+    border-top: 1px solid var(--tg-border);
+}
+
+.markdown-section ul.mg-checklist > li:first-child {
+    border-top: 0;
+}
+
+.mg-checklist label {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 10px 14px;
+    font-weight: inherit;
+    cursor: pointer;
+}
+
+.mg-checklist input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    margin: 0.2em 0 0;
+    background: var(--tg-surface);
+    border: 1.5px solid var(--tg-border-strong);
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.mg-checklist input[type="checkbox"]:checked {
+    background: var(--tg-grad-strong);
+    border-color: transparent;
+}
+
+.mg-checklist input[type="checkbox"]:checked::after {
+    content: "";
+    width: 9px;
+    height: 5px;
+    border: 2px solid #ffffff;
+    border-top: 0;
+    border-right: 0;
+    transform: translateY(-1px) rotate(-45deg);
+}
+
+/* Read-only without JavaScript */
+.mg-checklist input[type="checkbox"]:disabled,
+.mg-checklist input[type="checkbox"]:disabled + span {
+    cursor: default;
+}
+
+.mg-checklist input[type="checkbox"]:checked + span {
+    color: var(--tg-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--tg-border-strong);
+}
+
+.markdown-section ul.mg-checklist > .mg-checklist-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tg-muted);
+    background: var(--tg-surface-2);
+}
+
+.mg-checklist-count {
+    flex: none;
+}
+
+.mg-meter {
+    flex: 1;
+    height: 6px;
+    overflow: hidden;
+    background: var(--tg-border);
+    border-radius: 99px;
+}
+
+.mg-meter i {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--tg-grad);
+    transition: width 0.25s;
+}
+
+/* Tabs (tabs block; mg-content.js switches them) -------------------------- */
+
+.markdown-section .mg-tabs {
+    margin: 1.2em 0 1.5em;
+}
+
+.mg-tablist {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--tg-border);
+    scrollbar-width: none;
+}
+
+.mg-tab {
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    flex: none;
+    gap: 7px;
+    align-items: center;
+    margin: 0 0 -1px;
+    padding: 8px 14px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 550;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: var(--tg-muted);
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.mg-tab .mg-i {
+    width: 15px;
+    height: 15px;
+}
+
+.mg-tab:hover {
+    color: var(--tg-text);
+}
+
+/* The underline is a UI indicator: the strong gradient keeps 3:1 on light
+   surfaces, the regular one on dark */
+.mg-tab[aria-selected="true"] {
+    font-weight: 650;
+    color: var(--tg-text);
+    border-bottom: 2px solid;
+    border-image: var(--tg-grad-strong) 1;
+}
+
+:root[data-tg-mode="dark"] .mg-tab[aria-selected="true"] {
+    border-image: var(--tg-grad) 1;
+}
+
+.mg-tab:focus-visible {
+    outline-offset: -2px;
+    border-radius: 6px;
+}
+
+html.mg-v-dev .mg-tab {
+    font-family: var(--tg-mono);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+html.mg-v-dev .mg-tab[aria-selected="true"] {
+    font-weight: 650;
+}
+
+.mg-tabpanel {
+    padding-top: 12px;
+}
+
+.markdown-section .mg-tabpanel > :first-child {
+    margin-top: 0;
+}
+
+.markdown-section .mg-tabpanel > :last-child {
+    margin-bottom: 0;
+}
+
+/* Without JavaScript tabs cannot switch: every panel shows under its title.
+   The early script in page.html adds the "mg" class to <html>. */
+html:not(.mg) .mg-tablist {
+    display: none;
+}
+
+html:not(.mg) .mg-tabpanel[hidden] {
+    display: block;
+}
+
+html:not(.mg) .mg-tabpanel::before {
+    content: attr(data-title);
+    display: block;
+    margin: 0.4em 0;
+    font-weight: 650;
+    color: var(--tg-text);
+}
+
+/* Expandable sections (<details> in Markdown) ----------------------------- */
+
+.markdown-section details {
+    margin: 1em 0;
+    padding: 0 16px 0 42px;
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.markdown-section details[open] {
+    padding-bottom: 14px;
+}
+
+.markdown-section details > summary {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 0 -16px 0 -42px;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--tg-text);
+    list-style: none;
+    cursor: pointer;
+}
+
+.markdown-section details > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Chevron: points right when closed, down when open */
+.markdown-section details > summary::before {
+    content: "";
+    flex: none;
+    width: 7px;
+    height: 7px;
+    margin: 0 4px 0 3px;
+    border-right: 2px solid var(--tg-muted);
+    border-bottom: 2px solid var(--tg-muted);
+    transform: rotate(-45deg);
+    transition: transform 0.18s;
+}
+
+.markdown-section details[open] > summary::before {
+    transform: rotate(45deg);
+}
+
+.markdown-section details > :last-child {
+    margin-bottom: 0;
+}
+
+/* Path chips (path block) ------------------------------------------------- */
+
+.markdown-section .mg-path {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 0.1em 0.45em;
+    font-family: var(--tg-mono);
+    font-size: 0.86em;
+    color: var(--tg-text);
+    overflow-wrap: anywhere;
+    background: var(--tg-surface-2);
+    border: 1px dashed var(--tg-border-strong);
+    border-radius: 6px;
+}
+
+.mg-path .mg-i {
+    width: 0.95em;
+    height: 0.95em;
+    color: var(--tg-muted);
+}
+
+@media (max-width: 559px) {
+    .markdown-section .mg-steps > .mg-step {
+        padding-left: 44px;
+    }
+}
+
+/* ------------------------------------------------------------ search dialog */
+.mg-search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12vh 16px 16px;
+    background: rgba(10, 12, 24, 0.45);
+    backdrop-filter: blur(3px);
+}
+.mg-search-overlay[hidden] { display: none; }
+html.mg-search-open { overflow: hidden; }
+.mg-search-dialog {
+    display: flex;
+    flex-direction: column;
+    width: min(680px, 100%);
+    max-height: 72vh;
+    overflow: hidden;
+    color: var(--tg-text);
+    background: var(--tg-surface);
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius-lg);
+    box-shadow: var(--tg-shadow-lg);
+    font-family: var(--tg-font);
+}
+.mg-search-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--tg-border);
+}
+.mg-search-ico { display: inline-flex; width: 18px; height: 18px; color: var(--tg-muted); flex: none; }
+.mg-search-ico svg { width: 100%; height: 100%; }
+.mg-search-input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--tg-text);
+    font: 500 16px/1.4 var(--tg-font);
+}
+.mg-search-input::-webkit-search-cancel-button { display: none; }
+/* the row shows focus (accent underline), so the field needs no ring of its own */
+html.mg .mg-search-input:focus,
+html.mg .mg-search-input:focus-visible { outline: none !important; box-shadow: none; }
+.mg-search-row:focus-within { box-shadow: inset 0 -2px 0 var(--tg-accent); }
+.mg-search-close {
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    padding: 6px;
+    border: 0;
+    border-radius: var(--tg-radius-sm);
+    background: transparent;
+    color: var(--tg-muted);
+    cursor: pointer;
+}
+.mg-search-close:hover { background: var(--tg-accent-soft); color: var(--tg-text); }
+.mg-search-close svg { width: 100%; height: 100%; }
+.mg-search-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 4px; }
+.mg-search-chip {
+    padding: 4px 11px;
+    border: 1px solid var(--tg-border);
+    border-radius: 999px;
+    background: var(--tg-surface-2);
+    color: var(--tg-text-2);
+    font: 600 12.5px/1.4 var(--tg-font);
+    cursor: pointer;
+}
+.mg-search-chip[aria-checked="true"] {
+    border-color: var(--tg-accent-border);
+    background: var(--tg-accent-soft);
+    color: var(--tg-accent);
+}
+.mg-search-list { flex: 1; overflow-y: auto; padding: 4px 8px 10px; }
+.mg-search-group {
+    padding: 12px 8px 4px;
+    color: var(--tg-muted);
+    font: 700 11px/1.4 var(--tg-font);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.mg-search-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--tg-radius-sm);
+    cursor: pointer;
+}
+.mg-search-opt .mg-search-ico { margin-top: 2px; }
+.mg-search-opt[aria-selected="true"] {
+    background: var(--tg-accent-soft);
+    box-shadow: inset 3px 0 0 var(--tg-accent);
+}
+.mg-search-opt[aria-selected="true"] .mg-search-ico { color: var(--tg-accent); }
+.mg-search-text { display: flex; flex-direction: column; min-width: 0; }
+.mg-search-t {
+    color: var(--tg-text);
+    font: 600 14px/1.45 var(--tg-font);
+    overflow-wrap: anywhere;
+}
+code.mg-search-t {
+    font: 500 13px/1.5 var(--tg-mono);
+    color: var(--tg-inline-code-text);
+    background: none;
+    padding: 0;
+}
+.mg-search-s {
+    color: var(--tg-muted);
+    font: 400 12.5px/1.45 var(--tg-font);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.mg-search-t mark {
+    padding: 0 1px;
+    border-radius: 3px;
+    background: var(--tg-accent-soft);
+    color: inherit;
+    box-shadow: inset 0 -2px 0 var(--tg-accent-border);
+}
+.mg-search-empty { padding: 28px 12px; color: var(--tg-muted); text-align: center; font: 500 14px/1.5 var(--tg-font); }
+.mg-search-foot {
+    display: flex;
+    gap: 16px;
+    padding: 9px 14px;
+    border-top: 1px solid var(--tg-border);
+    background: var(--tg-surface-2);
+    color: var(--tg-muted);
+    font: 500 12px/1.4 var(--tg-font);
+}
+.mg-search-foot kbd { margin-right: 3px; }
+
+@media (max-width: 559px) {
+    .mg-search-overlay { padding: 0; }
+    .mg-search-dialog { width: 100%; height: 100%; max-height: none; border-radius: 0; border: 0; }
+    .mg-search-foot { display: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .mg-search-overlay:not([hidden]) .mg-search-dialog { animation: mg-search-in 120ms ease-out; }
+    @keyframes mg-search-in { from { transform: translateY(-6px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
