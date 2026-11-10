@@ -1,0 +1,36 @@
+{
+  "name": "gitbook-plugin-modern-gradient",
+  "version": "1.0.0",
+  "description": "Modern Gradient theme for GitBook 3: design tokens, polished reading chrome and code blocks",
+  "main": "index.js",
+  "engines": {
+    "gitbook": ">=3.0.0"
+  },
+  "gitbook": {
+    "properties": {
+      "variant": {
+        "type": "string",
+        "title": "Theme variant: premium-developer, premium, developer or minimal",
+        "default": "premium-developer"
+      },
+      "editUrl": {
+        "type": "string",
+        "title": "Base http(s) URL used for the Edit this page link",
+        "default": ""
+      },
+      "subtitle": {
+        "type": "string",
+        "title": "Short line shown under the book title in the header",
+        "default": ""
+      }
+    }
+  },
+  "scripts": {
+    "test": "mocha --reporter spec test/*.test.js"
+  },
+  "devDependencies": {
+    "mocha": "3.5.3",
+    "should": "11.2.1"
+  },
+  "license": "Apache-2.0"
+}

@@ -37,6 +37,7 @@ Other formats can have their own stylesheet if you generate them —
 | Gradient | `themes/gradient.css` | Modern with a violet-to-blue gradient header band and gradient page titles |
 | Apple | `themes/apple.css` | apple.com's documentation style: San Francisco type with tight tracking, large light headings, lots of whitespace, soft grey code panels and a translucent header |
 | GitHub | `themes/github.css` | GitHub's own repository/docs look: Primer greys, underlined `h1`/`h2`, boxed code, zebra-striped tables |
+| Modern Gradient | `themes/modern-gradient.css` | Indigo-to-sky gradient accents on soft surfaces, gradient page titles, card-style callouts and code blocks; follows the OS light/dark setting. CSS-only edition of the `modern-gradient` plugin (the plugin adds the mode toggle, bundled fonts, code-block tools, tabs, steppers, page table of contents and Ctrl/Cmd-K search) |
 | Classic | *(remove the `styles` entry)* | The original GitBook 3.x look |
 
 ## Changing the accent colour
